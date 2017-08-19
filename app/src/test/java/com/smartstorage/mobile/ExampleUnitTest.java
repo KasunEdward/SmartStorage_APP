@@ -1,4 +1,4 @@
-package com.smartstorage.app;
+package com.smartstorage.mobile;
 
 import org.junit.Test;
 

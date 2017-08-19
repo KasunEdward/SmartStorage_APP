@@ -1,4 +1,4 @@
-package com.smartstorage.app;
+package com.smartstorage.mobile;
 
 import android.app.AlertDialog;
 import android.content.Context;
@@ -33,7 +33,11 @@ import com.google.android.gms.drive.DriveContents;
 import com.google.android.gms.drive.DriveFile;
 import com.google.android.gms.drive.DriveFolder;
 import com.google.android.gms.drive.DriveId;
+import com.google.android.gms.drive.Metadata;
 import com.google.android.gms.drive.MetadataChangeSet;
+import com.google.android.gms.drive.query.Filters;
+import com.google.android.gms.drive.query.Query;
+import com.google.android.gms.drive.query.SearchableField;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -41,6 +45,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,GoogleApiClient.ConnectionCallbacks,GoogleApiClient.OnConnectionFailedListener {
@@ -68,6 +73,7 @@ public class MainActivity extends AppCompatActivity
 //                .addConnectionCallbacks(this)
 //                .addOnConnectionFailedListener(this)
 //                .build();
+        setDriveAccount();
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -89,11 +95,13 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onResume(){
         super.onResume();
-        if(prefs.getBoolean("firstrun",true)){
-            setDriveAccount();
-            prefs.edit().putBoolean("firstrun",false).commit();
+//        if(prefs.getBoolean("firstrun",true)){
+//            setDriveAccount();
+//            prefs.edit().putBoolean("firstrun",false).commit();
+//
+//        }
+        setDriveAccount();
 
-        }
 //        if (mGoogleApiClient == null) {
 //
 //            /**
@@ -250,8 +258,46 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onConnected(@Nullable Bundle bundle) {
-        Log.i(GOOGLE_DRIVE_TAG,"connected");
+    public void onConnected(Bundle bundle) {
+        Query query =
+                new Query.Builder().addFilter(Filters.and(Filters.eq(SearchableField.TITLE, "SmartStorage"), Filters.eq(SearchableField.TRASHED, false)))
+                        .build();
+        Drive.DriveApi.query(mGoogleApiClient, query).setResultCallback(new ResultCallback<DriveApi.MetadataBufferResult>() {
+            @Override public void onResult(DriveApi.MetadataBufferResult result) {
+                if (!result.getStatus().isSuccess()) {
+                    Log.e(GOOGLE_DRIVE_TAG, "Cannot create folder in the root.");
+                } else {
+                    boolean isFound = false;
+                    for (Metadata m : result.getMetadataBuffer()) {
+                        if (m.getTitle().equals("SmartStorage")) {
+                            Log.e(GOOGLE_DRIVE_TAG, "Folder exists");
+                            isFound = true;
+                            driveId = m.getDriveId();
+                            //create_file_in_folder(driveId);
+                            break;
+                        }
+                    }
+                    if (!isFound) {
+                        Log.i(GOOGLE_DRIVE_TAG, "Folder not found; creating it.");
+                        MetadataChangeSet changeSet = new MetadataChangeSet.Builder().setTitle("SmartStorage").build();
+                        Drive.DriveApi.getRootFolder(mGoogleApiClient)
+                                .createFolder(mGoogleApiClient, changeSet)
+                                .setResultCallback(new ResultCallback<DriveFolder.DriveFolderResult>() {
+                                    @Override public void onResult(DriveFolder.DriveFolderResult result) {
+                                        if (!result.getStatus().isSuccess()) {
+                                            Log.e(GOOGLE_DRIVE_TAG, "U AR A MORON! Error while trying to create the folder");
+                                        } else {
+                                            Log.i(GOOGLE_DRIVE_TAG, "Created a folder");
+                                            driveId = result.getDriveFolder().getDriveId();
+//                                            create_file_in_folder(driveId);
+                                        }
+                                    }
+                                });
+                    }
+                }
+            }
+        });
+        Log.d(GOOGLE_DRIVE_TAG,"Connected");
 
     }
 
@@ -261,8 +307,27 @@ public class MainActivity extends AppCompatActivity
 
     }
 
+    //TODO: dummy method to create a list of files
+    public ArrayList<String> getFiles(){
+        ArrayList<String> fileList=new ArrayList<>();
+        fileList.add("/storage/emulated/0/DCIM/Screenshots/Screenshot_2017-08-08-18-29-01.png");
+        fileList.add("/storage/emulated/0/Download/UoM-Virtual-Server-request-form-Final-Year-Projects.doc");
+        fileList.add("/storage/emulated/0/Toucher/statistics/statistics/deviceId.txt");
+        fileList.add("/storage/emulated/0/Samsung/Music/Over the Horizon.mp3");
+        fileList.add("/storage/emulated/0/DCIM/Camera/20170531_130417.jpg");
+
+        return fileList;
+    }
+    ArrayList<String> fileList=getFiles();
+
     public void copyFiles(View v){
-        copyFileToGoogleDrive("hhh");
+//        DatabaseHandler db=DatabaseHandler.getDbInstance(context);
+        for(int i=0;i<fileList.size();i++) {
+//            FileDetails fileDetails=new FileDetails(fileList.get(i),"no_link_yet");
+//            db.addFileDetails(fileDetails);
+            copyFileToGoogleDrive(fileList.get(i));
+        }
+//        db.getFileDetails();
 
     }
 

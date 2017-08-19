@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="com.smartstorage.app.MainActivity"
+    tools:context="com.smartstorage.mobile.MainActivity"
     tools:showIn="@layout/app_bar_main">
 
     <TextView
@@ -22,12 +22,12 @@
         android:layout_width="wrap_content"
         android:text="Copy Files"
         android:onClick="copyFiles"/>
-    <Button
-        android:id="@+id/button1_id"
-        android:layout_marginTop="500dp"
-        android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
-        android:text="Download Files"
-        android:onClick="downloadFiles"/>
+    <!--<Button-->
+        <!--android:id="@+id/button1_id"-->
+        <!--android:layout_marginTop="500dp"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:text="Download Files"-->
+        <!--android:onClick="downloadFiles"/>-->
 
 </android.support.constraint.ConstraintLayout>

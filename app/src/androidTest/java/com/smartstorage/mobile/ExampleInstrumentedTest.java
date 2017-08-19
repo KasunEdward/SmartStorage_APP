@@ -1,4 +1,4 @@
-package com.smartstorage.app;
+package com.smartstorage.mobile;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
