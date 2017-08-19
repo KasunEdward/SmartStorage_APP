@@ -38,6 +38,8 @@ import com.google.android.gms.drive.MetadataChangeSet;
 import com.google.android.gms.drive.query.Filters;
 import com.google.android.gms.drive.query.Query;
 import com.google.android.gms.drive.query.SearchableField;
+import com.smartstorage.mobile.db.DatabaseHandler;
+import com.smartstorage.mobile.db.FileDetails;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -59,6 +61,7 @@ public class MainActivity extends AppCompatActivity
 
     SharedPreferences prefs=null;
     DriveId driveId;
+    String driveId_str;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -321,10 +324,11 @@ public class MainActivity extends AppCompatActivity
     ArrayList<String> fileList=getFiles();
 
     public void copyFiles(View v){
-//        DatabaseHandler db=DatabaseHandler.getDbInstance(context);
+        DatabaseHandler db=DatabaseHandler.getDbInstance(context);
         for(int i=0;i<fileList.size();i++) {
-//            FileDetails fileDetails=new FileDetails(fileList.get(i),"no_link_yet");
-//            db.addFileDetails(fileDetails);
+//  TODO : This must be removed.Writing to database must be done in onCreate,for all files in the app
+            FileDetails fileDetails=new FileDetails(fileList.get(i),"no_link_yet");
+            db.addFileDetails(fileDetails);
             copyFileToGoogleDrive(fileList.get(i));
         }
 //        db.getFileDetails();
@@ -381,6 +385,7 @@ public class MainActivity extends AppCompatActivity
                 public void onResult(DriveFolder.DriveFileResult result) {
                     if (result.getStatus().isSuccess()) {
                         Did=result.getDriveFile().getDriveId();
+                        driveId_str=Did.encodeToString();
                         Log.e("Android exxx:",result.getDriveFile().getDriveId().toString());
 //                        DriveFile file=Drive.DriveApi.getFile(mGoogleApiClient,result.getDriveFile().getDriveId());
 //                        file.addChangeSubscription(mGoogleApiClient);
@@ -398,7 +403,7 @@ public class MainActivity extends AppCompatActivity
 
     public void downloadFiles(View v){
 //        DriveId id=DriveId.zzcW("CAASABj4ByCO9tni-lQoAA==");
-        DriveFile file=Drive.DriveApi.getFile(mGoogleApiClient,Did);
+        DriveFile file=Drive.DriveApi.getFile(mGoogleApiClient,DriveId.decodeFromString(driveId_str));
         file.open(mGoogleApiClient,DriveFile.MODE_READ_ONLY,null).setResultCallback(contentsOpenedCallback);
     }
     ResultCallback<DriveApi.DriveContentsResult> contentsOpenedCallback =
