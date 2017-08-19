@@ -69,14 +69,14 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        prefs=getSharedPreferences("com.smartstorage..app",MODE_PRIVATE);
-//        mGoogleApiClient = new GoogleApiClient.Builder(this)
-//                .addApi(Drive.API)
-//                .addScope(Drive.SCOPE_FILE)
-//                .addConnectionCallbacks(this)
-//                .addOnConnectionFailedListener(this)
-//                .build();
-        setDriveAccount();
+        prefs=getSharedPreferences("com.smartstorage.mobile",MODE_PRIVATE);
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addApi(Drive.API)
+                .addScope(Drive.SCOPE_FILE)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .build();
+//        setDriveAccount();
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -98,12 +98,16 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onResume(){
         super.onResume();
-//        if(prefs.getBoolean("firstrun",true)){
-//            setDriveAccount();
-//            prefs.edit().putBoolean("firstrun",false).commit();
-//
-//        }
-        setDriveAccount();
+//        TODO: only first run is checked.Must check the connectivity success/failure as well
+        if(prefs.getBoolean("firstrun",true)){
+            setDriveAccount();
+            prefs.edit().putBoolean("firstrun",false).commit();
+
+        }
+        else{
+            mGoogleApiClient.connect();
+        }
+//        setDriveAccount();
 
 //        if (mGoogleApiClient == null) {
 //
