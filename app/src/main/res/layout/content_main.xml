@@ -22,12 +22,15 @@
         android:layout_width="wrap_content"
         android:text="Copy Files"
         android:onClick="copyFiles"/>
-    <!--<Button-->
-        <!--android:id="@+id/button1_id"-->
-        <!--android:layout_marginTop="500dp"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:text="Download Files"-->
-        <!--android:onClick="downloadFiles"/>-->
+    <Button
+        android:id="@+id/button1_id"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout="@+id/button_id"
+        android:text="Download Files"
+        android:onClick="downloadFiles"
+        tools:layout_editor_absoluteX="0dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintTop_toBottomOf="@+id/button_id" />
 
 </android.support.constraint.ConstraintLayout>

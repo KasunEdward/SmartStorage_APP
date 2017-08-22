@@ -1,5 +1,4 @@
 package com.smartstorage.mobile.db;
-
 /**
  * Created by kasun on 8/15/17.
  */
