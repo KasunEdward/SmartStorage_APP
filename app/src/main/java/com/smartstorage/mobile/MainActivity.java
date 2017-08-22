@@ -318,11 +318,11 @@ public class MainActivity extends AppCompatActivity
     //TODO: dummy method to create a list of files
     public ArrayList<String> getFiles(){
         ArrayList<String> fileList=new ArrayList<>();
-        fileList.add("/storage/emulated/0/DCIM/Screenshots/Screenshot_2017-08-08-18-29-01.png");
+        fileList.add("/storage/emulated/0/Documents/Batch 13 Student Details.xlsx");
         fileList.add("/storage/emulated/0/Download/UoM-Virtual-Server-request-form-Final-Year-Projects.doc");
-        fileList.add("/storage/emulated/0/Toucher/statistics/statistics/deviceId.txt");
-        fileList.add("/storage/emulated/0/Samsung/Music/Over the Horizon.mp3");
-        fileList.add("/storage/emulated/0/DCIM/Camera/20170531_130417.jpg");
+        fileList.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_1502813011445.jpg");
+        /*fileList.add("/storage/emulated/0/Samsung/Music/Over the Horizon.mp3");
+        fileList.add("/storage/emulated/0/DCIM/Camera/20170531_130417.jpg");*/
 
         return fileList;
     }
