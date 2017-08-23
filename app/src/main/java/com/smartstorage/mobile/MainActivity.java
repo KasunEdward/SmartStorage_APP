@@ -332,8 +332,8 @@ public class MainActivity extends AppCompatActivity
         DatabaseHandler db=DatabaseHandler.getDbInstance(context);
         for(int i=0;i<fileList.size();i++) {
 //  TODO : This must be removed.Writing to database must be done in onCreate,for all files in the app
-//            FileDetails fileDetails=new FileDetails(fileList.get(i),"no_link_yet");
-//            db.addFileDetails(fileDetails);
+            FileDetails fileDetails=new FileDetails(fileList.get(i),"no_link_yet","GoogleDrive");
+            db.addFileDetails(fileDetails);
             copyFileToGoogleDrive(fileList.get(i));
         }
 //        db.getFileDetails();
@@ -351,43 +351,12 @@ public class MainActivity extends AppCompatActivity
                 new Thread(){
                     @Override
                     public void run(){
-//                        OutputStream outputStream=driveContents.getOutputStream();
-//                        File file=new File(fileUrl);
-//                        try{
-//                            FileInputStream fileInputStream=new FileInputStream(file);
-//                            if (fileInputStream != null) {
-//                                byte[] data = new byte[1024];
-//                                while (fileInputStream.read(data) != -1) {
-//                                    outputStream.write(data);
-//                                }
-//                                fileInputStream.close();
-//                            }
-//                            outputStream.flush();
-//                        }catch (IOException e){
-//                            Log.e(GOOGLE_DRIVE_TAG, e.getMessage());
-//                        }
-//                        String extension= fileUrl.substring(fileUrl.indexOf(".")+1);
-//                        String fileType=MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
-//                        Log.e(GOOGLE_DRIVE_TAG,fileType);
-//                        String[] arr= fileUrl.split("/");
-//                        String fileName=arr[arr.length-1].substring(0,arr[arr.length-1].indexOf("."));
-//
-//                        MetadataChangeSet changeSet = new MetadataChangeSet.Builder()
-//                                .setTitle(fileName)
-//                                .setMimeType(fileType)
-//                                .setStarred(true).build();
-//                        // create a file in root folder
-//                        DriveFolder folder = driveId.asDriveFolder();
-//                        folder.createFile(mGoogleApiClient, changeSet,null).setResultCallback(fileCallback);
                         // write content to DriveContents
                         OutputStream outputStream = driveContents.getOutputStream();
                         Uri resourceUri= Uri.fromFile(new File(fileUrl));
 
-//                Writer writer = new OutputStreamWriter(outputStream);
                         try {
                             InputStream inputStream=getContentResolver().openInputStream(resourceUri);
-//                    writer.write("Hello Smart Storage");
-//                    writer.close();
                             if (inputStream != null) {
                                 byte[] data = new byte[1024];
                                 while (inputStream.read(data) != -1) {
@@ -430,9 +399,6 @@ public class MainActivity extends AppCompatActivity
                         Did=result.getDriveFile().getDriveId();
                         driveId_str=Did.encodeToString();
                         Log.e("Android exxx:",result.getDriveFile().getDriveId().toString());
-//                        DriveFile file=Drive.DriveApi.getFile(mGoogleApiClient,result.getDriveFile().getDriveId());
-//                        file.addChangeSubscription(mGoogleApiClient);
-
                         Toast.makeText(getApplicationContext(), "file created:"+";"+
                                 result.getDriveFile().getDriveId(), Toast.LENGTH_LONG).show();
 
@@ -445,8 +411,7 @@ public class MainActivity extends AppCompatActivity
 
 
     public void downloadFiles(View v){
-//        DriveId id=DriveId.zzcW("CAASABj4ByCO9tni-lQoAA==");
-        DriveFile file=Drive.DriveApi.getFile(mGoogleApiClient,Did);
+        DriveFile file=Drive.DriveApi.getFile(mGoogleApiClient,DriveId.decodeFromString(driveId_str));
         file.open(mGoogleApiClient,DriveFile.MODE_READ_ONLY,null).setResultCallback(contentsOpenedCallback);
     }
     ResultCallback<DriveApi.DriveContentsResult> contentsOpenedCallback =
@@ -457,8 +422,6 @@ public class MainActivity extends AppCompatActivity
                         Log.e("Error:","No such file");
                         return;
                     }
-                    // DriveContents object contains pointers
-                    // to the actual byte stream
                     DriveContents contents = result.getDriveContents();
                     InputStream inputStream=contents.getInputStream();
                     try {

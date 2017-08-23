@@ -22,7 +22,9 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     // file_details Table Columns names
     private static final String KEY_ID = "id";
     private static final String KEY_FILE_NAME = "file_name";
+    private static final String DRIVE_TYPE = "drive_type";
     private static final String KEY_FILE_LINK = "file_link";
+    private static final String MIGRATION_VALUE = "migration_value";
     private static final String KEY_DELETED = "deleted";
 
     private DatabaseHandler(Context context){
@@ -38,7 +40,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         String CREATE_FILE_DETAILS_TABLE = "CREATE TABLE " + TABLE_FILE_DETAILS + "("
-            + KEY_ID + " INTEGER PRIMARY KEY," + KEY_FILE_NAME + " TEXT,"
+            + KEY_ID + " INTEGER PRIMARY KEY," + KEY_FILE_NAME + " TEXT," + DRIVE_TYPE + " TEXT," + MIGRATION_VALUE + " REAL,"
                 + KEY_FILE_LINK + " TEXT," + KEY_DELETED +" TEXT"+ ")";
         db.execSQL(CREATE_FILE_DETAILS_TABLE);
 
@@ -59,6 +61,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         ContentValues values=new ContentValues();
         values.put(KEY_FILE_NAME,fileDetails.getFile_name());
         values.put(KEY_FILE_LINK,fileDetails.getDrive_link());
+        values.put(DRIVE_TYPE,fileDetails.getDrive_type());
+        values.put(MIGRATION_VALUE,0.0);
         values.put(KEY_DELETED,"false");
 
         db.insert(TABLE_FILE_DETAILS,null,values);
