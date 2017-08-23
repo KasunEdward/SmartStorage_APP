@@ -41,6 +41,7 @@ import com.google.android.gms.drive.query.Query;
 import com.google.android.gms.drive.query.SearchableField;
 import com.smartstorage.mobile.db.DatabaseHandler;
 import com.smartstorage.mobile.db.FileDetails;
+import com.smartstorage.mobile.util.FileSystemMapper;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -52,6 +53,8 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,GoogleApiClient.ConnectionCallbacks,GoogleApiClient.OnConnectionFailedListener {
+
+    // TODO: 8/23/2017 Fix issue of re-appearing drive select window when back key press
 
     private static final String GOOGLE_DRIVE_TAG="Google Drive....:";
     private static final String DROP_BOX_TAG="DropBox....";
@@ -70,7 +73,7 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        prefs=getSharedPreferences("com.smartstorage.mobile",MODE_PRIVATE);
+        prefs=getSharedPreferences(AppParams.PreferenceStr.SHARED_PREFERENCE_NAME,MODE_PRIVATE);
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addApi(Drive.API)
                 .addScope(Drive.SCOPE_FILE)
@@ -100,9 +103,10 @@ public class MainActivity extends AppCompatActivity
     protected void onResume(){
         super.onResume();
 //        TODO: only first run is checked.Must check the connectivity success/failure as well
-        if(prefs.getBoolean("firstrun",true)){
+        if(prefs.getBoolean(AppParams.PreferenceStr.FIRST_RUN,true)){
             setDriveAccount();
-            prefs.edit().putBoolean("firstrun",false).commit();
+            new FileSystemMapper(this).execute();
+            prefs.edit().putBoolean(AppParams.PreferenceStr.FIRST_RUN,false).commit();
 
         }
         else{
@@ -318,11 +322,12 @@ public class MainActivity extends AppCompatActivity
     //TODO: dummy method to create a list of files
     public ArrayList<String> getFiles(){
         ArrayList<String> fileList=new ArrayList<>();
+        // Irfad's files
         fileList.add("/storage/emulated/0/Documents/Batch 13 Student Details.xlsx");
-        fileList.add("/storage/emulated/0/Download/UoM-Virtual-Server-request-form-Final-Year-Projects.doc");
         fileList.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_1502813011445.jpg");
-        /*fileList.add("/storage/emulated/0/Samsung/Music/Over the Horizon.mp3");
-        fileList.add("/storage/emulated/0/DCIM/Camera/20170531_130417.jpg");*/
+//        fileList.add("/storage/emulated/0/Download/UoM-Virtual-Server-request-form-Final-Year-Projects.doc");
+//        fileList.add("/storage/emulated/0/Samsung/Music/Over the Horizon.mp3");
+//        fileList.add("/storage/emulated/0/DCIM/Camera/20170531_130417.jpg");
 
         return fileList;
     }

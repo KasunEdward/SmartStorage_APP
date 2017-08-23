@@ -7,6 +7,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import java.util.ArrayList;
+
 /**
  * Created by kasun on 8/15/17.
  */
@@ -67,6 +69,27 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
         db.insert(TABLE_FILE_DETAILS,null,values);
         db.close();
+    }
+
+    public void addMultipleFileDetails(ArrayList<FileDetails> fileDetails){
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.beginTransaction();
+        try {
+            ContentValues values = new ContentValues();
+            for (FileDetails fileDetail: fileDetails) {
+                values.put(KEY_FILE_NAME,fileDetail.getFile_name());
+                values.put(KEY_FILE_LINK,fileDetail.getDrive_link());
+                values.put(KEY_FILE_LINK,fileDetail.getDrive_link());
+                values.put(DRIVE_TYPE,fileDetail.getDrive_type());
+                values.put(MIGRATION_VALUE,0.0);
+                values.put(KEY_DELETED,"false");
+                db.insert(TABLE_FILE_DETAILS,null,values);
+            }
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+            db.close();
+        }
     }
 
     public String getFileDetails(String drive_link){
