@@ -1,26 +1,33 @@
 package com.smartstorage.mobile;
 
+import android.Manifest;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.IntentSender;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.util.Log;
-import android.view.View;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.Html;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.webkit.MimeTypeMap;
 import android.widget.Toast;
 
@@ -44,26 +51,27 @@ import com.smartstorage.mobile.db.FileDetails;
 import com.smartstorage.mobile.util.FileSystemMapper;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener,GoogleApiClient.ConnectionCallbacks,GoogleApiClient.OnConnectionFailedListener {
+        implements NavigationView.OnNavigationItemSelectedListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
     // TODO: 8/23/2017 Fix issue of re-appearing drive select window when back key press
 
-    private static final String GOOGLE_DRIVE_TAG="Google Drive....:";
-    private static final String DROP_BOX_TAG="DropBox....";
+    private static final int REQUEST_CODE_ASK_MULTIPLE_PERMISSIONS = 148;
+    private static final String GOOGLE_DRIVE_TAG = "Google Drive....:";
+    private static final String DROP_BOX_TAG = "DropBox....";
     private static final int REQUEST_CODE_RESOLUTION = 1;
-    private static final  int REQUEST_CODE_OPENER = 2;
+    private static final int REQUEST_CODE_OPENER = 2;
     private static GoogleApiClient mGoogleApiClient;
-    final Context context=this;
+    final Context context = this;
 
-    SharedPreferences prefs=null;
+    SharedPreferences prefs = null;
     DriveId driveId;
     String driveId_str;
 
@@ -73,7 +81,7 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        prefs=getSharedPreferences(AppParams.PreferenceStr.SHARED_PREFERENCE_NAME,MODE_PRIVATE);
+        prefs = getSharedPreferences(AppParams.PreferenceStr.SHARED_PREFERENCE_NAME, MODE_PRIVATE);
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addApi(Drive.API)
                 .addScope(Drive.SCOPE_FILE)
@@ -99,17 +107,21 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
     }
+
     @Override
-    protected void onResume(){
+    protected void onResume() {
         super.onResume();
 //        TODO: only first run is checked.Must check the connectivity success/failure as well
-        if(prefs.getBoolean(AppParams.PreferenceStr.FIRST_RUN,true)){
-            setDriveAccount();
+        if (prefs.getBoolean(AppParams.PreferenceStr.FIRST_RUN, true)) {
+            if (Build.VERSION.SDK_INT >= 23) {
+                requestRunTimePermission();
+            } else {
+                setDriveAccount();
+            }
             new FileSystemMapper(this).execute();
-            prefs.edit().putBoolean(AppParams.PreferenceStr.FIRST_RUN,false).commit();
+            prefs.edit().putBoolean(AppParams.PreferenceStr.FIRST_RUN, false).commit();
 
-        }
-        else{
+        } else {
             mGoogleApiClient.connect();
         }
 //        setDriveAccount();
@@ -132,20 +144,19 @@ public class MainActivity extends AppCompatActivity
 //        mGoogleApiClient.connect();
     }
 
-    private void setDriveAccount(){
-        Log.e("Smart storge","first run");
-        CharSequence drivers[]=new CharSequence[]{"Google Drive","DropBox"};
+    private void setDriveAccount() {
+        Log.e("Smart storge", "first run");
+        CharSequence drivers[] = new CharSequence[]{"Google Drive", "DropBox"};
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle("Pleas a choose a drive....")
                 .setItems(drivers, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        if(which==0){
-                            Log.i(GOOGLE_DRIVE_TAG,"Connecting to Google Drive............");
+                        if (which == 0) {
+                            Log.i(GOOGLE_DRIVE_TAG, "Connecting to Google Drive............");
                             googleDriveConnect();
-                        }
-                        else if(which==1){
-                            Log.i(DROP_BOX_TAG,"Connecting to DropBox............");
+                        } else if (which == 1) {
+                            Log.i(DROP_BOX_TAG, "Connecting to DropBox............");
                             dropBoxConnect();
                         }
                     }
@@ -157,10 +168,12 @@ public class MainActivity extends AppCompatActivity
     private void dropBoxConnect() {
 
     }
+
     // Context context=getApplicationContext();
-    private void googleDriveConnect(){
+    private void googleDriveConnect() {
 //        GoogleDriveActivity googleDriveActivity=GoogleDriveActivity.getInstance();
 //        googleDriveActivity.connect(context);
+        Log.i("SS_MainActivity", "Showing drive choose dialog");
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addApi(Drive.API)
                 .addScope(Drive.SCOPE_FILE)
@@ -172,7 +185,7 @@ public class MainActivity extends AppCompatActivity
 
 
     @Override
-    protected void onStop(){
+    protected void onStop() {
         super.onStop();
         if (mGoogleApiClient != null) {
 
@@ -241,7 +254,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-        Log.d(GOOGLE_DRIVE_TAG,"Connection failed");
+        Log.d(GOOGLE_DRIVE_TAG, "Connection failed");
         // Called whenever the API client fails to connect.
         Log.i(GOOGLE_DRIVE_TAG, "GoogleApiClient connection failed:" + connectionResult.toString());
 
@@ -275,7 +288,8 @@ public class MainActivity extends AppCompatActivity
                 new Query.Builder().addFilter(Filters.and(Filters.eq(SearchableField.TITLE, "SmartApp"), Filters.eq(SearchableField.TRASHED, false)))
                         .build();
         Drive.DriveApi.query(mGoogleApiClient, query).setResultCallback(new ResultCallback<DriveApi.MetadataBufferResult>() {
-            @Override public void onResult(DriveApi.MetadataBufferResult result) {
+            @Override
+            public void onResult(DriveApi.MetadataBufferResult result) {
                 if (!result.getStatus().isSuccess()) {
                     Log.e(GOOGLE_DRIVE_TAG, "Cannot create folder in the root.");
                 } else {
@@ -295,7 +309,8 @@ public class MainActivity extends AppCompatActivity
                         Drive.DriveApi.getRootFolder(mGoogleApiClient)
                                 .createFolder(mGoogleApiClient, changeSet)
                                 .setResultCallback(new ResultCallback<DriveFolder.DriveFolderResult>() {
-                                    @Override public void onResult(DriveFolder.DriveFolderResult result) {
+                                    @Override
+                                    public void onResult(DriveFolder.DriveFolderResult result) {
                                         if (!result.getStatus().isSuccess()) {
                                             Log.e(GOOGLE_DRIVE_TAG, "U AR A MORON! Error while trying to create the folder");
                                         } else {
@@ -309,59 +324,61 @@ public class MainActivity extends AppCompatActivity
                 }
             }
         });
-        Log.d(GOOGLE_DRIVE_TAG,"Connected");
+        Log.d(GOOGLE_DRIVE_TAG, "Connected");
 
     }
 
     @Override
     public void onConnectionSuspended(int i) {
-        Log.i(GOOGLE_DRIVE_TAG,"suspended");
+        Log.i(GOOGLE_DRIVE_TAG, "suspended");
 
     }
 
     //TODO: dummy method to create a list of files
-    public ArrayList<String> getFiles(){
-        ArrayList<String> fileList=new ArrayList<>();
-        // Irfad's files
+    public ArrayList<String> getFiles() {
+        ArrayList<String> fileList = new ArrayList<>();
+        // Irfad A7 files
         fileList.add("/storage/emulated/0/Documents/Batch 13 Student Details.xlsx");
         fileList.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_1502813011445.jpg");
+        // Irfad Note 3 files
+//        fileList.add("/storage/emulated/0/Download/Copy of pro pic.png");
+//        fileList.add("/storage/emulated/0/DCIM/Camera/20170712_223552.jpg");
 //        fileList.add("/storage/emulated/0/Download/UoM-Virtual-Server-request-form-Final-Year-Projects.doc");
 //        fileList.add("/storage/emulated/0/Samsung/Music/Over the Horizon.mp3");
 //        fileList.add("/storage/emulated/0/DCIM/Camera/20170531_130417.jpg");
 
         return fileList;
     }
-    ArrayList<String> fileList=getFiles();
 
-    public void copyFiles(View v){
-        DatabaseHandler db=DatabaseHandler.getDbInstance(context);
-        for(int i=0;i<fileList.size();i++) {
+    ArrayList<String> fileList = getFiles();
+
+    public void copyFiles(View v) {
+        DatabaseHandler db = DatabaseHandler.getDbInstance(context);
+        for (int i = 0; i < fileList.size(); i++) {
 //  TODO : This must be removed.Writing to database must be done in onCreate,for all files in the app
-            FileDetails fileDetails=new FileDetails(fileList.get(i),"no_link_yet","GoogleDrive");
+            FileDetails fileDetails = new FileDetails(fileList.get(i), "no_link_yet", "GoogleDrive");
             db.addFileDetails(fileDetails);
             copyFileToGoogleDrive(fileList.get(i));
         }
 //        db.getFileDetails();
 
 
-
-
     }
 
-    public void copyFileToGoogleDrive(final String fileUrl){
+    public void copyFileToGoogleDrive(final String fileUrl) {
         Drive.DriveApi.newDriveContents(mGoogleApiClient).setResultCallback(new ResultCallback<DriveApi.DriveContentsResult>() {
             @Override
             public void onResult(@NonNull DriveApi.DriveContentsResult result) {
-                 final DriveContents driveContents=result.getDriveContents();
-                new Thread(){
+                final DriveContents driveContents = result.getDriveContents();
+                new Thread() {
                     @Override
-                    public void run(){
+                    public void run() {
                         // write content to DriveContents
                         OutputStream outputStream = driveContents.getOutputStream();
-                        Uri resourceUri= Uri.fromFile(new File(fileUrl));
+                        Uri resourceUri = Uri.fromFile(new File(fileUrl));
 
                         try {
-                            InputStream inputStream=getContentResolver().openInputStream(resourceUri);
+                            InputStream inputStream = getContentResolver().openInputStream(resourceUri);
                             if (inputStream != null) {
                                 byte[] data = new byte[1024];
                                 while (inputStream.read(data) != -1) {
@@ -374,11 +391,11 @@ public class MainActivity extends AppCompatActivity
                         } catch (IOException e) {
                             Log.e(GOOGLE_DRIVE_TAG, e.getMessage());
                         }
-                        String extension= fileUrl.substring(fileUrl.indexOf(".")+1);
-                        String fileType=MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
-                        Log.e(GOOGLE_DRIVE_TAG,fileType);
-                        String[] arr= fileUrl.split("/");
-                        String fileName=arr[arr.length-1].substring(0,arr[arr.length-1].indexOf("."));
+                        String extension = fileUrl.substring(fileUrl.indexOf(".") + 1);
+                        String fileType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
+                        Log.e(GOOGLE_DRIVE_TAG, fileType);
+                        String[] arr = fileUrl.split("/");
+                        String fileName = arr[arr.length - 1].substring(0, arr[arr.length - 1].indexOf("."));
 
                         MetadataChangeSet changeSet = new MetadataChangeSet.Builder()
                                 .setTitle(fileName)
@@ -386,7 +403,7 @@ public class MainActivity extends AppCompatActivity
                                 .setStarred(true).build();
 
                         // create a file in root folder
-                        DriveFolder folder=driveId.asDriveFolder();
+                        DriveFolder folder = driveId.asDriveFolder();
                         folder.createFile(mGoogleApiClient, changeSet, driveContents)
                                 .setResultCallback(fileCallback);
                     }
@@ -395,16 +412,17 @@ public class MainActivity extends AppCompatActivity
         });
 
     }
+
     private DriveId Did;
     final private ResultCallback<DriveFolder.DriveFileResult> fileCallback = new
             ResultCallback<DriveFolder.DriveFileResult>() {
                 @Override
                 public void onResult(DriveFolder.DriveFileResult result) {
                     if (result.getStatus().isSuccess()) {
-                        Did=result.getDriveFile().getDriveId();
-                        driveId_str=Did.encodeToString();
-                        Log.e("Android exxx:",result.getDriveFile().getDriveId().toString());
-                        Toast.makeText(getApplicationContext(), "file created:"+";"+
+                        Did = result.getDriveFile().getDriveId();
+                        driveId_str = Did.encodeToString();
+                        Log.e("Android exxx:", result.getDriveFile().getDriveId().toString());
+                        Toast.makeText(getApplicationContext(), "file created:" + ";" +
                                 result.getDriveFile().getDriveId(), Toast.LENGTH_LONG).show();
 
                     }
@@ -415,26 +433,27 @@ public class MainActivity extends AppCompatActivity
             };
 
 
-    public void downloadFiles(View v){
-        DriveFile file=Drive.DriveApi.getFile(mGoogleApiClient,DriveId.decodeFromString(driveId_str));
-        file.open(mGoogleApiClient,DriveFile.MODE_READ_ONLY,null).setResultCallback(contentsOpenedCallback);
+    public void downloadFiles(View v) {
+        DriveFile file = Drive.DriveApi.getFile(mGoogleApiClient, DriveId.decodeFromString(driveId_str));
+        file.open(mGoogleApiClient, DriveFile.MODE_READ_ONLY, null).setResultCallback(contentsOpenedCallback);
     }
+
     ResultCallback<DriveApi.DriveContentsResult> contentsOpenedCallback =
             new ResultCallback<DriveApi.DriveContentsResult>() {
                 @Override
                 public void onResult(DriveApi.DriveContentsResult result) {
                     if (!result.getStatus().isSuccess()) {
-                        Log.e("Error:","No such file");
+                        Log.e("Error:", "No such file");
                         return;
                     }
                     DriveContents contents = result.getDriveContents();
-                    InputStream inputStream=contents.getInputStream();
+                    InputStream inputStream = contents.getInputStream();
                     try {
-                        DatabaseHandler db=DatabaseHandler.getDbInstance(context);
-                        String fileName=db.getFileDetails(driveId_str);
-                        Log.i(GOOGLE_DRIVE_TAG,fileName);
-                        File targetFile=new File("/storage/emulated/0/Download/abcdefg.jpg");
-                        OutputStream outputStream=new FileOutputStream(targetFile);
+                        DatabaseHandler db = DatabaseHandler.getDbInstance(context);
+                        String fileName = db.getFileDetails(driveId_str);
+                        Log.i(GOOGLE_DRIVE_TAG, fileName);
+                        File targetFile = new File("/storage/emulated/0/Download/abcdefg.jpg");
+                        OutputStream outputStream = new FileOutputStream(targetFile);
                         byte[] buffer = new byte[8 * 1024];
                         int bytesRead;
                         while ((bytesRead = inputStream.read(buffer)) != -1) {
@@ -462,5 +481,85 @@ public class MainActivity extends AppCompatActivity
                 }
             };
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case REQUEST_CODE_ASK_MULTIPLE_PERMISSIONS:
+                HashMap<String, Integer> permissionMap = new HashMap<>();
+                for (int i = 0; i < permissions.length; i++) {
+                    permissionMap.put(permissions[i], grantResults[i]);
+                }
+                Integer readExternalStoragePermission = permissionMap.get(Manifest.permission.READ_EXTERNAL_STORAGE);
+                Integer getAccountsPermission = permissionMap.get(Manifest.permission.GET_ACCOUNTS);
+                boolean criticalPermissionGranted = true;
+                if (readExternalStoragePermission != null && readExternalStoragePermission != PackageManager.PERMISSION_GRANTED) {
+                    criticalPermissionGranted = false;
+                }
+                if (getAccountsPermission != null && getAccountsPermission != PackageManager.PERMISSION_GRANTED) {
+                    criticalPermissionGranted = false;
+                }
+                if (criticalPermissionGranted) {
+                    setDriveAccount();
+                }else{
+                    new android.support.v7.app.AlertDialog.Builder(MainActivity.this)
+                            .setMessage(Html.fromHtml("One or more required permission not granted. The app will not function correctly without the permission."))
+                            .setPositiveButton("Open Settings", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    Intent intent = new Intent();
+                                    intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                                    Uri uri = Uri.fromParts("package", getPackageName(), null);
+                                    intent.setData(uri);
+                                    startActivity(intent);
+                                }
+                            })
+                            .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.cancel();
+                                }
+                            })
+                            .create()
+                            .show();
+                }
+                break;
+            default:
+                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+                break;
+        }
+    }
+
+    private void requestRunTimePermission() {
+        int readStoragePermission = ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE);
+        int getAccountsPermission = ActivityCompat.checkSelfPermission(this, Manifest.permission.GET_ACCOUNTS);
+
+        String alertMessage = "";
+        ArrayList<String> permissionsNeeded = new ArrayList<>();
+        if (readStoragePermission != PackageManager.PERMISSION_GRANTED) {
+            permissionsNeeded.add(Manifest.permission.READ_EXTERNAL_STORAGE);
+            alertMessage += "<p>&#8226; \"Read External Storage\" permission is required to manage storage <p>";
+        }
+        if (getAccountsPermission != PackageManager.PERMISSION_GRANTED) {
+            permissionsNeeded.add(Manifest.permission.GET_ACCOUNTS);
+            alertMessage += "<p>&#8226; \"Get Accounts\" permission is required to access drive accounts<p>";
+        }
+        if (!permissionsNeeded.isEmpty()) {
+            final String[] reqPermissions = permissionsNeeded.toArray(new String[permissionsNeeded.size()]);
+            if (getSharedPreferences(AppParams.PreferenceStr.SHARED_PREFERENCE_NAME, MODE_PRIVATE).getBoolean(AppParams.PreferenceStr.FIRST_RUN, true)) {
+                new android.support.v7.app.AlertDialog.Builder(MainActivity.this)
+                        .setMessage(Html.fromHtml(alertMessage))
+                        .setPositiveButton("Grant Permission >", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                ActivityCompat.requestPermissions((Activity) context, reqPermissions
+                                        , REQUEST_CODE_ASK_MULTIPLE_PERMISSIONS);
+                            }
+                        })
+                        .create()
+                        .show();
+            } else
+                ActivityCompat.requestPermissions(this, reqPermissions, REQUEST_CODE_ASK_MULTIPLE_PERMISSIONS);
+        }
+    }
 
 }
