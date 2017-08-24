@@ -69,18 +69,21 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.close();
     }
 
-    public void getFileDetails(){
-        String SELECT_QUERY="SELECT * FROM " + TABLE_FILE_DETAILS;
+    public String getFileDetails(String drive_link){
+        String SELECT_QUERY="SELECT * FROM " + TABLE_FILE_DETAILS ;
         SQLiteDatabase db=this.getReadableDatabase();
         Cursor cursor=db.rawQuery(SELECT_QUERY,null);
-        if(cursor.moveToFirst()){
-            do{
-                Log.i("DB:","Success");
-
-            }while(cursor.moveToNext());
-        }
+        cursor.moveToFirst();
+        return String.valueOf(cursor.getString(1));
     }
-     public void updateDriveLink(){
 
-     }
+    public void updateFileLink(String fileUrl,String file_link){
+        String UPDATE_QUERY="UPDATE "+ TABLE_FILE_DETAILS + " SET file_link=" +file_link + " WHERE file_name="+ fileUrl;
+        SQLiteDatabase db=this.getWritableDatabase();
+        db.execSQL(UPDATE_QUERY);
+    }
+
+
+
+
 }

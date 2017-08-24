@@ -425,6 +425,9 @@ public class MainActivity extends AppCompatActivity
                     DriveContents contents = result.getDriveContents();
                     InputStream inputStream=contents.getInputStream();
                     try {
+                        DatabaseHandler db=DatabaseHandler.getDbInstance(context);
+                        String fileName=db.getFileDetails(driveId_str);
+                        Log.i(GOOGLE_DRIVE_TAG,fileName);
                         File targetFile=new File("/storage/emulated/0/Download/abcdefg.jpg");
                         OutputStream outputStream=new FileOutputStream(targetFile);
                         byte[] buffer = new byte[8 * 1024];
