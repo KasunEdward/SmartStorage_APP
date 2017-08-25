@@ -1,16 +1,20 @@
 package com.smartstorage.mobile;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.provider.SyncStateContract;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -24,6 +28,10 @@ import android.view.MenuItem;
 import android.webkit.MimeTypeMap;
 import android.widget.Toast;
 
+import com.dropbox.client2.DropboxAPI;
+import com.dropbox.client2.android.AndroidAuthSession;
+import com.dropbox.client2.exception.DropboxException;
+import com.dropbox.client2.session.AppKeyPair;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -34,6 +42,7 @@ import com.google.android.gms.drive.DriveContents;
 import com.google.android.gms.drive.DriveFile;
 import com.google.android.gms.drive.DriveFolder;
 import com.google.android.gms.drive.DriveId;
+import com.google.android.gms.drive.DriveResource;
 import com.google.android.gms.drive.Metadata;
 import com.google.android.gms.drive.MetadataChangeSet;
 import com.google.android.gms.drive.query.Filters;
@@ -45,6 +54,7 @@ import com.smartstorage.mobile.util.FileSystemMapper;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -57,13 +67,19 @@ public class MainActivity extends AppCompatActivity
     // TODO: 8/23/2017 Fix issue of re-appearing drive select window when back key press
 
     private static final String GOOGLE_DRIVE_TAG="Google Drive....:";
-    private static final String DROP_BOX_TAG="DropBox....";
     private static final int REQUEST_CODE_RESOLUTION = 1;
     private static final  int REQUEST_CODE_OPENER = 2;
     private static GoogleApiClient mGoogleApiClient;
     final Context context=this;
 
+    private static final String DROP_BOX_TAG="DropBox....";
+    final static private String APP_KEY="idq79rezmauppol";
+    final static private String APP_SECRET="33jvo64wa29qfmr";
+    private DropboxAPI<AndroidAuthSession> mDBApi;
+
     SharedPreferences prefs=null;
+    SharedPreferences sp=null;
+    SharedPreferences drivePrefs=null;
     DriveId driveId;
     String driveId_str;
 
@@ -73,14 +89,14 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+//        SharedPreferences sp = getSharedPreferences(
+//                "First_share_memory", Activity.MODE_APPEND);
+//        // save in cache memory
+//        sp.edit().putString("accesstoken", accessToken).commit();
         prefs=getSharedPreferences(AppParams.PreferenceStr.SHARED_PREFERENCE_NAME,MODE_PRIVATE);
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .addApi(Drive.API)
-                .addScope(Drive.SCOPE_FILE)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .build();
-//        setDriveAccount();
+        drivePrefs=getSharedPreferences("Drive_type",Activity.MODE_APPEND);
+        sp = getSharedPreferences("First_share_memory", Activity.MODE_APPEND);
+
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -110,26 +126,48 @@ public class MainActivity extends AppCompatActivity
 
         }
         else{
-            mGoogleApiClient.connect();
-        }
-//        setDriveAccount();
+            Log.i("App...","not first run");
+            Log.i("App...",drivePrefs.getString("type",""));
 
-//        if (mGoogleApiClient == null) {
-//
-//            /**
-//             * Create the API client and bind it to an instance variable.
-//             * We use this instance as the callback for connection and connection failures.
-//             * Since no account name is passed, the user is prompted to choose.
-//             */
-//            mGoogleApiClient = new GoogleApiClient.Builder(this)
-//                    .addApi(Drive.API)
-//                    .addScope(Drive.SCOPE_FILE)
-//                    .addConnectionCallbacks(this)
-//                    .addOnConnectionFailedListener(this)
-//                    .build();
-//        }
-//
-//        mGoogleApiClient.connect();
+
+            if(drivePrefs.getString("type","").equals("GoogleDrive")){
+                Log.i(GOOGLE_DRIVE_TAG,"GoogleDrive drive......");
+                mGoogleApiClient.connect();
+
+            }else if(drivePrefs.getString("type","").equals("DropBox")){
+                Log.i(DROP_BOX_TAG,"Dropbox drive......");
+                AppKeyPair appKeys = new AppKeyPair(APP_KEY, APP_SECRET);
+                AndroidAuthSession session = new AndroidAuthSession(appKeys);
+
+                // Pass app key pair to the new DropboxAPI object.
+                mDBApi = new DropboxAPI<AndroidAuthSession>(session);
+                mDBApi.getSession().setOAuth2AccessToken(sp.getString("accesstoken",""));
+            }
+        }
+        if(mDBApi!=null){
+            if (mDBApi.getSession().authenticationSuccessful()) {
+                try {
+                    Log.i(DROP_BOX_TAG,"Inside method...........");
+                    // Required to complete auth, sets the access token on the session
+                    mDBApi.getSession().finishAuthentication();
+
+                    // retrieve access token
+                    if(sp.getString("accesstoken","").isEmpty()){
+                        String accessToken = mDBApi.getSession().getOAuth2AccessToken();
+                        sp.edit().putString("accesstoken", accessToken).commit();
+                    }
+
+                    String savedAccessToken = sp.getString("accesstoken", "");
+                    mDBApi.getSession().setOAuth2AccessToken(savedAccessToken);
+
+                    Log.i(DROP_BOX_TAG,savedAccessToken);
+                } catch (IllegalStateException e) {
+                    Log.i(DROP_BOX_TAG, "Error authenticating", e);
+                }
+            }
+
+        }
+
     }
 
     private void setDriveAccount(){
@@ -155,12 +193,18 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void dropBoxConnect() {
+        // store app key and secret key
+        AppKeyPair appKeys = new AppKeyPair(APP_KEY, APP_SECRET);
+        AndroidAuthSession session = new AndroidAuthSession(appKeys);
 
+        // Pass app key pair to the new DropboxAPI object.
+        mDBApi = new DropboxAPI<AndroidAuthSession>(session);
+        // MyActivity below should be your activity class name
+        // start authentication.
+        mDBApi.getSession().startOAuth2Authentication(MainActivity.this);
+        drivePrefs.edit().putString("type","DropBox").commit();
     }
-    // Context context=getApplicationContext();
     private void googleDriveConnect(){
-//        GoogleDriveActivity googleDriveActivity=GoogleDriveActivity.getInstance();
-//        googleDriveActivity.connect(context);
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addApi(Drive.API)
                 .addScope(Drive.SCOPE_FILE)
@@ -168,6 +212,7 @@ public class MainActivity extends AppCompatActivity
                 .addOnConnectionFailedListener(this)
                 .build();
         mGoogleApiClient.connect();
+        drivePrefs.edit().putString("type","GoogleDrive").commit();
     }
 
 
@@ -322,24 +367,31 @@ public class MainActivity extends AppCompatActivity
     //TODO: dummy method to create a list of files
     public ArrayList<String> getFiles(){
         ArrayList<String> fileList=new ArrayList<>();
-        // Irfad's files
-        fileList.add("/storage/emulated/0/Documents/Batch 13 Student Details.xlsx");
-        fileList.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_1502813011445.jpg");
+//        // Irfad's files
+//        fileList.add("/storage/emulated/0/Documents/Batch 13 Student Details.xlsx");
+//        fileList.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_1502813011445.jpg");
+
+//        Kasun's files
 //        fileList.add("/storage/emulated/0/Download/UoM-Virtual-Server-request-form-Final-Year-Projects.doc");
-//        fileList.add("/storage/emulated/0/Samsung/Music/Over the Horizon.mp3");
-//        fileList.add("/storage/emulated/0/DCIM/Camera/20170531_130417.jpg");
+        fileList.add("/storage/emulated/0/Samsung/Music/Over the Horizon.mp3");
+        fileList.add("/storage/emulated/0/DCIM/Camera/20170531_130417.jpg");
 
         return fileList;
     }
     ArrayList<String> fileList=getFiles();
 
+    String fileName;
+
+    //  TODO : This must be removed.Writing to database must be done in onCreate,for all files in the app
     public void copyFiles(View v){
         DatabaseHandler db=DatabaseHandler.getDbInstance(context);
         for(int i=0;i<fileList.size();i++) {
-//  TODO : This must be removed.Writing to database must be done in onCreate,for all files in the app
-            FileDetails fileDetails=new FileDetails(fileList.get(i),"no_link_yet","GoogleDrive");
-            db.addFileDetails(fileDetails);
-            copyFileToGoogleDrive(fileList.get(i));
+            if(drivePrefs.getString("type","").equals("GoogleDrive")){
+                copyFileToGoogleDrive(fileList.get(i));
+            }else if(drivePrefs.getString("type","").equals("DropBox")){
+                copyFilesToDropbox(fileList.get(i));
+            }
+
         }
 //        db.getFileDetails();
 
@@ -347,8 +399,10 @@ public class MainActivity extends AppCompatActivity
 
 
     }
+    String url="o";
 
     public void copyFileToGoogleDrive(final String fileUrl){
+
         Drive.DriveApi.newDriveContents(mGoogleApiClient).setResultCallback(new ResultCallback<DriveApi.DriveContentsResult>() {
             @Override
             public void onResult(@NonNull DriveApi.DriveContentsResult result) {
@@ -356,6 +410,7 @@ public class MainActivity extends AppCompatActivity
                 new Thread(){
                     @Override
                     public void run(){
+
                         // write content to DriveContents
                         OutputStream outputStream = driveContents.getOutputStream();
                         Uri resourceUri= Uri.fromFile(new File(fileUrl));
@@ -388,36 +443,92 @@ public class MainActivity extends AppCompatActivity
                         // create a file in root folder
                         DriveFolder folder=driveId.asDriveFolder();
                         folder.createFile(mGoogleApiClient, changeSet, driveContents)
-                                .setResultCallback(fileCallback);
+                                .setResultCallback(new ResultCallback<DriveFolder.DriveFileResult>() {
+                                    @Override
+                                    public void onResult(@NonNull DriveFolder.DriveFileResult result) {
+                                        if (result.getStatus().isSuccess()) {
+                                            DriveId Did=result.getDriveFile().getDriveId();
+                                            driveId_str=Did.encodeToString();
+
+                                            DatabaseHandler db=DatabaseHandler.getDbInstance(context);
+                                            db.updateFileLink(fileUrl,driveId_str);
+                                            Log.e("Android exxx:",fileUrl);
+                                            Toast.makeText(getApplicationContext(), "file created:"+";"+
+                                                    result.getDriveFile().getDriveId(), Toast.LENGTH_LONG).show();
+
+                                        }
+
+                                        return;
+                                    }
+                                });
                     }
                 }.start();
             }
         });
 
     }
-    private DriveId Did;
-    final private ResultCallback<DriveFolder.DriveFileResult> fileCallback = new
-            ResultCallback<DriveFolder.DriveFileResult>() {
-                @Override
-                public void onResult(DriveFolder.DriveFileResult result) {
-                    if (result.getStatus().isSuccess()) {
-                        Did=result.getDriveFile().getDriveId();
-                        driveId_str=Did.encodeToString();
-                        Log.e("Android exxx:",result.getDriveFile().getDriveId().toString());
-                        Toast.makeText(getApplicationContext(), "file created:"+";"+
-                                result.getDriveFile().getDriveId(), Toast.LENGTH_LONG).show();
 
-                    }
+    public void copyFilesToDropbox(String fileUrl){
+        new Upload(fileUrl).execute();
+    }
+    class Upload extends AsyncTask<String,Void,String> {
+        String fileUrl;
+        Upload(String url){
+            this.fileUrl=url;
+        }
+        protected void onPreExecute(){}
 
-                    return;
+        protected String doInBackground(String... arg0) {
 
-                }
-            };
+            DropboxAPI.Entry response = null;
 
+            try {
+
+                // Define path of file to be upload
+                File file = new File(fileUrl);
+                FileInputStream inputStream = new FileInputStream(file);
+
+                // put the file to dropbox
+                response = mDBApi.putFile(fileUrl, inputStream,
+                        file.length(), null, null);
+
+                Log.e("DbExampleLog", "The uploaded file's rev is:" + response.rev);
+
+            } catch (Exception e){
+
+                e.printStackTrace();
+            }
+
+            return response.rev;
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+
+            if(result.isEmpty() == false){
+
+                Toast.makeText(getApplicationContext(), "File Uploaded ", Toast.LENGTH_LONG).show();
+
+                Log.e("DbExampleLog", "The uploaded file's rev is: " + result);
+            }
+        }
+    }
 
     public void downloadFiles(View v){
+        if(drivePrefs.getString("type","").equals("GoogleDrive")){
+            downloadFromGoogleDrive(driveId_str);
+
+        }else if(drivePrefs.getString("type","").equals("DropBox")){
+            String fileUrl="/storage/emulated/0/DCIM/Camera/20170531_130417.jpg";
+            downloadFromDropbox(fileUrl);
+
+        }
+
+    }
+    public void downloadFromGoogleDrive(String driveId_str){
         DriveFile file=Drive.DriveApi.getFile(mGoogleApiClient,DriveId.decodeFromString(driveId_str));
         file.open(mGoogleApiClient,DriveFile.MODE_READ_ONLY,null).setResultCallback(contentsOpenedCallback);
+
     }
     ResultCallback<DriveApi.DriveContentsResult> contentsOpenedCallback =
             new ResultCallback<DriveApi.DriveContentsResult>() {
@@ -445,22 +556,52 @@ public class MainActivity extends AppCompatActivity
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-
-
-//                    BufferedReader reader = new BufferedReader(new InputStreamReader(contents.getInputStream()));
-//                    StringBuilder builder = new StringBuilder();
-//                    String line;
-//                    try {
-//                        while ((line = reader.readLine()) != null) {
-//                            builder.append(line);
-//                        }
-//                    } catch (IOException e) {
-//                        e.printStackTrace();
-//                    }
-//                    String contentsAsString = builder.toString();
-//                    Log.e("RESULT:",contentsAsString);
                 }
             };
+
+    public void downloadFromDropbox(String fileurl){
+       new Download(fileurl).execute();
+
+    }
+    class Download extends AsyncTask<String,Void,String> {
+        String fileUrl;
+        Download(String url){
+            this.fileUrl=url;
+        }
+        protected void onPreExecute(){}
+
+        protected String doInBackground(String... arg0) {
+
+            File file = new File("/storage/emulated/0/Download/abcdefg.jpg");
+            FileOutputStream outputStream = null;
+            try {
+                outputStream = new FileOutputStream(file);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+            DropboxAPI.DropboxFileInfo info = null;
+            try {
+                info = mDBApi.getFile(fileUrl, null, outputStream, null);
+            } catch (DropboxException e) {
+                e.printStackTrace();
+            }
+            return info.getMetadata().rev;
+
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+
+            if(result.isEmpty() == false){
+
+                Toast.makeText(getApplicationContext(), "File Downloaded ", Toast.LENGTH_LONG).show();
+
+                Log.e("DbExampleLog", "The Downloaded file's rev is: " + result);
+            }
+        }
+    }
+
+
 
 
 }

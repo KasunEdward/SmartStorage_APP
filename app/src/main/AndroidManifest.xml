@@ -24,6 +24,19 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name="com.dropbox.client2.android.AuthActivity"
+            android:launchMode="singleTask"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            android:configChanges="orientation|keyboard">
+            <intent-filter>
+                <!-- Change this to be db- followed by your app key -->
+                <data android:scheme="db-idq79rezmauppol" />
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyAzej3KVo-15Jsbo-qDeihbsT5vEUdwj0s" />
