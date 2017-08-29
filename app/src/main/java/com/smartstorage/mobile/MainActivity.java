@@ -89,10 +89,12 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-//        SharedPreferences sp = getSharedPreferences(
-//                "First_share_memory", Activity.MODE_APPEND);
-//        // save in cache memory
-//        sp.edit().putString("accesstoken", accessToken).commit();
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addApi(Drive.API)
+                .addScope(Drive.SCOPE_FILE)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .build();
         prefs=getSharedPreferences(AppParams.PreferenceStr.SHARED_PREFERENCE_NAME,MODE_PRIVATE);
         drivePrefs=getSharedPreferences("Drive_type",Activity.MODE_APPEND);
         sp = getSharedPreferences("First_share_memory", Activity.MODE_APPEND);
@@ -142,6 +144,7 @@ public class MainActivity extends AppCompatActivity
                 // Pass app key pair to the new DropboxAPI object.
                 mDBApi = new DropboxAPI<AndroidAuthSession>(session);
                 mDBApi.getSession().setOAuth2AccessToken(sp.getString("accesstoken",""));
+                Log.i(DROP_BOX_TAG,sp.getString("accesstoken", ""));
             }
         }
         if(mDBApi!=null){
@@ -155,12 +158,13 @@ public class MainActivity extends AppCompatActivity
                     if(sp.getString("accesstoken","").isEmpty()){
                         String accessToken = mDBApi.getSession().getOAuth2AccessToken();
                         sp.edit().putString("accesstoken", accessToken).commit();
+                        String savedAccessToken = sp.getString("accesstoken", "");
+                        mDBApi.getSession().setOAuth2AccessToken(savedAccessToken);
+
                     }
 
-                    String savedAccessToken = sp.getString("accesstoken", "");
-                    mDBApi.getSession().setOAuth2AccessToken(savedAccessToken);
 
-                    Log.i(DROP_BOX_TAG,savedAccessToken);
+                    Log.i(DROP_BOX_TAG,sp.getString("accesstoken", ""));
                 } catch (IllegalStateException e) {
                     Log.i(DROP_BOX_TAG, "Error authenticating", e);
                 }
@@ -250,7 +254,7 @@ public class MainActivity extends AppCompatActivity
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-
+//TODO: change the settings action to switch between drive accounts
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
@@ -374,7 +378,7 @@ public class MainActivity extends AppCompatActivity
 //        Kasun's files
 //        fileList.add("/storage/emulated/0/Download/UoM-Virtual-Server-request-form-Final-Year-Projects.doc");
         fileList.add("/storage/emulated/0/Samsung/Music/Over the Horizon.mp3");
-        fileList.add("/storage/emulated/0/DCIM/Camera/20170531_130417.jpg");
+        fileList.add("/storage/emulated/0/DCIM/Camera/20170531_130539.jpg");
 
         return fileList;
     }
@@ -488,9 +492,13 @@ public class MainActivity extends AppCompatActivity
                 File file = new File(fileUrl);
                 FileInputStream inputStream = new FileInputStream(file);
 
+
                 // put the file to dropbox
                 response = mDBApi.putFile(fileUrl, inputStream,
                         file.length(), null, null);
+//TODO: check below updating part
+                DatabaseHandler db=DatabaseHandler.getDbInstance(context);
+                db.updateFileLink(fileUrl,response.rev);
 
                 Log.e("DbExampleLog", "The uploaded file's rev is:" + response.rev);
 
@@ -515,17 +523,20 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void downloadFiles(View v){
+        String fileUrl="/storage/emulated/0/DCIM/Camera/20170531_130539.jpg";
         if(drivePrefs.getString("type","").equals("GoogleDrive")){
-            downloadFromGoogleDrive(driveId_str);
+            downloadFromGoogleDrive(fileUrl);
 
         }else if(drivePrefs.getString("type","").equals("DropBox")){
-            String fileUrl="/storage/emulated/0/DCIM/Camera/20170531_130417.jpg";
+
             downloadFromDropbox(fileUrl);
 
         }
 
     }
-    public void downloadFromGoogleDrive(String driveId_str){
+    public void downloadFromGoogleDrive(String fileUrl){
+        DatabaseHandler db=DatabaseHandler.getDbInstance(context);
+        String driveId_str=db.getFileLink(fileUrl);
         DriveFile file=Drive.DriveApi.getFile(mGoogleApiClient,DriveId.decodeFromString(driveId_str));
         file.open(mGoogleApiClient,DriveFile.MODE_READ_ONLY,null).setResultCallback(contentsOpenedCallback);
 
@@ -600,6 +611,7 @@ public class MainActivity extends AppCompatActivity
             }
         }
     }
+
 
 
 
