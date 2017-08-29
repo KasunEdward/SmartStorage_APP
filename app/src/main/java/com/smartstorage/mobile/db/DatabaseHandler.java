@@ -101,9 +101,32 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     }
 
     public void updateFileLink(String fileUrl,String file_link){
-        String UPDATE_QUERY="UPDATE "+ TABLE_FILE_DETAILS + " SET file_link=" +file_link + " WHERE file_name="+ fileUrl;
+        ContentValues cv=new ContentValues();
+        cv.put(KEY_FILE_LINK,file_link);
+        cv.put(DRIVE_TYPE,"GoogleDrive");
+
         SQLiteDatabase db=this.getWritableDatabase();
-        db.execSQL(UPDATE_QUERY);
+        db.update(TABLE_FILE_DETAILS,cv,"file_name=?",new String[]{fileUrl});
+    }
+
+    public String getFileLink(String fileUrl){
+        String SELECT_QUERY="SELECT * from "+TABLE_FILE_DETAILS+ " WHERE file_name=?";
+        SQLiteDatabase db=this.getReadableDatabase();
+        Cursor cursor=db.rawQuery(SELECT_QUERY,new String[]{fileUrl});
+        cursor.moveToFirst();
+        return cursor.getString(4);
+
+    }
+
+    //TODO: use below method to update the deleted state of files when they are removed programmatically.
+
+    public void updateDeletedState(String fileUrl){
+        ContentValues cv=new ContentValues();
+        cv.put(KEY_DELETED,"True");
+
+        SQLiteDatabase db=this.getWritableDatabase();
+        db.update(TABLE_FILE_DETAILS,cv,"file_name=?",new String[]{fileUrl});
+
     }
 
 
