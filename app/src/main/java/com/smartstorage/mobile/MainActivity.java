@@ -2,10 +2,14 @@ package com.smartstorage.mobile;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlarmManager;
 import android.app.AlertDialog;
+import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -62,10 +66,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+        implements NavigationView.OnNavigationItemSelectedListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener{
 
     // TODO: 8/23/2017 Fix issue of re-appearing drive select window when back key press
 
@@ -87,12 +92,17 @@ public class MainActivity extends AppCompatActivity
     DriveId driveId;
     String driveId_str;
 
+    private boolean bound;
+    BroadcastReceiver receiver;
+    static MainActivity instance;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        instance=this;
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addApi(Drive.API)
                 .addScope(Drive.SCOPE_FILE)
@@ -120,6 +130,9 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+//        TODO: implement broadcast receiver method here
+
     }
 
     @Override
@@ -180,6 +193,19 @@ public class MainActivity extends AppCompatActivity
 
         }
 
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR_OF_DAY, 11);
+        calendar.set(Calendar.MINUTE, 41);
+        calendar.set(Calendar.SECOND, 0);
+
+        Intent alarmReceiver = new Intent(this.getApplicationContext(),UploadReceiver.class);
+
+
+        //This is alarm manager
+        PendingIntent pi = PendingIntent.getBroadcast(this, 0 , alarmReceiver, PendingIntent.FLAG_UPDATE_CURRENT);
+        AlarmManager am = (AlarmManager) this.getSystemService(ALARM_SERVICE);
+        am.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_FIFTEEN_MINUTES/30, pi);
+
     }
 
     private void setDriveAccount() {
@@ -231,12 +257,12 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onStop() {
         super.onStop();
-        if (mGoogleApiClient != null) {
-
-            // disconnect Google API client connection
-            mGoogleApiClient.disconnect();
-        }
-        super.onPause();
+//        if (mGoogleApiClient != null) {
+//
+//            // disconnect Google API client connection
+//            mGoogleApiClient.disconnect();
+//        }
+//        super.onPause();
     }
 
     @Override
@@ -294,6 +320,11 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+    @Override
+    protected void onPause(){
+        super.onPause();
+      //  unregisterReceiver(receiver);
     }
 
     @Override
@@ -382,16 +413,16 @@ public class MainActivity extends AppCompatActivity
     public ArrayList<String> getFiles() {
         ArrayList<String> fileList = new ArrayList<>();
         // Irfad A7 files
-        fileList.add("/storage/emulated/0/Documents/Batch 13 Student Details.xlsx");
-        fileList.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_1502813011445.jpg");
+//        fileList.add("/storage/emulated/0/Documents/Batch 13 Student Details.xlsx");
+//        fileList.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_1502813011445.jpg");
         // Irfad Note 3 files
 //        fileList.add("/storage/emulated/0/Download/Copy of pro pic.png");
 //        fileList.add("/storage/emulated/0/DCIM/Camera/20170712_223552.jpg");
 //        Kasun's files
 //        fileList.add("/storage/emulated/0/Download/UoM-Virtual-Server-request-form-Final-Year-Projects.doc");
-        fileList.add("/storage/emulated/0/Samsung/Music/Over the Horizon.mp3");
         fileList.add("/storage/emulated/0/DCIM/Camera/20170531_130539.jpg");
-
+        fileList.add("/storage/emulated/0/DCIM/Camera/20170510_163111.mp4");
+        fileList.add("/storage/emulated/0/Samsung/Music/Over the Horizon.mp3");
         return fileList;
     }
 
@@ -399,7 +430,6 @@ public class MainActivity extends AppCompatActivity
 
     String fileName;
 
-    //  TODO : This must be removed.Writing to database must be done in onCreate,for all files in the app
     public void copyFiles(View v) {
         DatabaseHandler db = DatabaseHandler.getDbInstance(context);
         for (int i = 0; i < fileList.size(); i++) {
@@ -408,15 +438,22 @@ public class MainActivity extends AppCompatActivity
             } else if (drivePrefs.getString("type", "").equals("DropBox")) {
                 copyFilesToDropbox(fileList.get(i));
             }
-
         }
 //        db.getFileDetails();
 
 
     }
 
-    String url = "o";
+    public static class UploadReceiver extends BroadcastReceiver {
 
+        @Override
+        public void onReceive(Context context, Intent intent) {
+//            TODO: uploading method should be called here as following.
+//            instance.copyFileToGoogleDrive("/storage/emulated/0/DCIM/Camera/20170531_130539.jpg");
+            Log.i("ALARM.....","This is alarm");
+
+        }
+    }
     public void copyFileToGoogleDrive(final String fileUrl) {
         Drive.DriveApi.newDriveContents(mGoogleApiClient).setResultCallback(new ResultCallback<DriveApi.DriveContentsResult>() {
             @Override
@@ -486,6 +523,8 @@ public class MainActivity extends AppCompatActivity
         new Upload(fileUrl).execute();
     }
 
+
+
     class Upload extends AsyncTask<String, Void, String> {
         String fileUrl;
 
@@ -535,6 +574,8 @@ public class MainActivity extends AppCompatActivity
             }
         }
     }
+
+
 
     public void downloadFiles(View v) {
         String fileUrl = "/storage/emulated/0/DCIM/Camera/20170531_130539.jpg";

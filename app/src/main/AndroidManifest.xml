@@ -48,6 +48,17 @@
             android:name=".service.MigrationService"
             android:enabled="true"
             android:exported="true" />
+        <receiver android:name=".MainActivity$UploadReceiver">
+            <!--<intent-filter>-->
+                <!--<action android:name="com.aaa" />-->
+            <!--</intent-filter>-->
+        </receiver>
+        <!--<service-->
+            <!--android:name=".service.UploadService"-->
+            <!--android:enabled="true"-->
+            <!--android:exported="true" />-->
+
+
     </application>
 
 </manifest>
