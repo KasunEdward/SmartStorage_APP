@@ -113,14 +113,14 @@ public class MainActivity extends AppCompatActivity
         drivePrefs = getSharedPreferences("Drive_type", Activity.MODE_APPEND);
         sp = getSharedPreferences("First_share_memory", Activity.MODE_APPEND);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+//        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+//        fab.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+//                        .setAction("Action", null).show();
+//            }
+//        });
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -139,6 +139,8 @@ public class MainActivity extends AppCompatActivity
     protected void onResume() {
         super.onResume();
 //        TODO: only first run is checked.Must check the connectivity success/failure as well
+
+//        Determine if there
         if (prefs.getBoolean(AppParams.PreferenceStr.FIRST_RUN, true)) {
             if (Build.VERSION.SDK_INT >= 23) {
                 requestRunTimePermission();
@@ -429,20 +431,20 @@ public class MainActivity extends AppCompatActivity
     ArrayList<String> fileList = getFiles();
 
     String fileName;
-
-    public void copyFiles(View v) {
-        DatabaseHandler db = DatabaseHandler.getDbInstance(context);
-        for (int i = 0; i < fileList.size(); i++) {
-            if (drivePrefs.getString("type", "").equals("GoogleDrive")) {
-                copyFileToGoogleDrive(fileList.get(i));
-            } else if (drivePrefs.getString("type", "").equals("DropBox")) {
-                copyFilesToDropbox(fileList.get(i));
-            }
-        }
-//        db.getFileDetails();
-
-
-    }
+//
+//    public void copyFiles(View v) {
+//        DatabaseHandler db = DatabaseHandler.getDbInstance(context);
+//        for (int i = 0; i < fileList.size(); i++) {
+//            if (drivePrefs.getString("type", "").equals("GoogleDrive")) {
+//                copyFileToGoogleDrive(fileList.get(i));
+//            } else if (drivePrefs.getString("type", "").equals("DropBox")) {
+//                copyFilesToDropbox(fileList.get(i));
+//            }
+//        }
+////        db.getFileDetails();
+//
+//
+//    }
 
     public static class UploadReceiver extends BroadcastReceiver {
 
@@ -577,18 +579,18 @@ public class MainActivity extends AppCompatActivity
 
 
 
-    public void downloadFiles(View v) {
-        String fileUrl = "/storage/emulated/0/DCIM/Camera/20170531_130539.jpg";
-        if (drivePrefs.getString("type", "").equals("GoogleDrive")) {
-            downloadFromGoogleDrive(fileUrl);
-
-        } else if (drivePrefs.getString("type", "").equals("DropBox")) {
-
-            downloadFromDropbox(fileUrl);
-
-        }
-
-    }
+//    public void downloadFiles(View v) {
+//        String fileUrl = "/storage/emulated/0/DCIM/Camera/20170531_130539.jpg";
+//        if (drivePrefs.getString("type", "").equals("GoogleDrive")) {
+//            downloadFromGoogleDrive(fileUrl);
+//
+//        } else if (drivePrefs.getString("type", "").equals("DropBox")) {
+//
+//            downloadFromDropbox(fileUrl);
+//
+//        }
+//
+//    }
 
     public void downloadFromGoogleDrive(String fileUrl) {
         DatabaseHandler db = DatabaseHandler.getDbInstance(context);
