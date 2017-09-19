@@ -24,6 +24,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".CopyFileToGoogleDriveActivity"/>
         <activity
             android:name="com.dropbox.client2.android.AuthActivity"
             android:launchMode="singleTask"
@@ -48,10 +49,15 @@
             android:name=".service.MigrationService"
             android:enabled="true"
             android:exported="true" />
-        <receiver android:name=".MainActivity$UploadReceiver">
-            <!--<intent-filter>-->
-                <!--<action android:name="com.aaa" />-->
-            <!--</intent-filter>-->
+        <receiver android:name=".CopyFileToGoogleDriveActivity">
+            <intent-filter>
+            <action android:name="com.smartStorage.copytoGD" />
+            </intent-filter>
+        </receiver>
+        <receiver android:name=".DownloadFromGoogleDriveActivity">
+            <intent-filter>
+                <action android:name="com.smartStorage.downloadFromGD" />
+            </intent-filter>
         </receiver>
         <!--<service-->
             <!--android:name=".service.UploadService"-->

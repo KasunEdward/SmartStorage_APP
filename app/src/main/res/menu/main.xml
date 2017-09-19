@@ -6,4 +6,10 @@
         android:orderInCategory="100"
         android:title="@string/action_settings"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/action_copyfile"
+        android:orderInCategory="100"
+        android:title="@string/action_copyfile"
+        app:showAsAction="never" />
+
 </menu>

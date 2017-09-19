@@ -89,7 +89,7 @@ public class MainActivity extends AppCompatActivity
     SharedPreferences prefs = null;
     SharedPreferences sp = null;
     SharedPreferences drivePrefs = null;
-    DriveId driveId;
+    static DriveId driveId;
     String driveId_str;
 
     private boolean bound;
@@ -112,15 +112,6 @@ public class MainActivity extends AppCompatActivity
         prefs = getSharedPreferences(AppParams.PreferenceStr.SHARED_PREFERENCE_NAME, MODE_PRIVATE);
         drivePrefs = getSharedPreferences("Drive_type", Activity.MODE_APPEND);
         sp = getSharedPreferences("First_share_memory", Activity.MODE_APPEND);
-
-//        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-//        fab.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
-//            }
-//        });
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -196,17 +187,19 @@ public class MainActivity extends AppCompatActivity
         }
 
         Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.HOUR_OF_DAY, 11);
+        calendar.set(Calendar.HOUR_OF_DAY, 00);
         calendar.set(Calendar.MINUTE, 41);
         calendar.set(Calendar.SECOND, 0);
 
-        Intent alarmReceiver = new Intent(this.getApplicationContext(),UploadReceiver.class);
-
-
-        //This is alarm manager
-        PendingIntent pi = PendingIntent.getBroadcast(this, 0 , alarmReceiver, PendingIntent.FLAG_UPDATE_CURRENT);
-        AlarmManager am = (AlarmManager) this.getSystemService(ALARM_SERVICE);
-        am.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_FIFTEEN_MINUTES/30, pi);
+//        TODO: uncomment this part to get CopyFileToGoogleDriveActivity to working state
+//        Intent alarmReceiver = new Intent(this.getApplicationContext(),CopyFileToGoogleDriveActivity.class);
+//        alarmReceiver.setAction("com.smartStorage.copytoGD");
+//
+//
+//        //This is alarm manager
+//        PendingIntent pi = PendingIntent.getBroadcast(this, 0 , alarmReceiver, PendingIntent.FLAG_UPDATE_CURRENT);
+//        AlarmManager am = (AlarmManager) this.getSystemService(ALARM_SERVICE);
+//        am.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_FIFTEEN_MINUTES/30, pi);
 
     }
 
@@ -294,6 +287,12 @@ public class MainActivity extends AppCompatActivity
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
+        }
+        else if(id==R.id.action_copyfile){
+            Log.i("Settings","Downloading Files");
+            Intent intent=new Intent();
+            intent.setAction("com.smartStorage.downloadFromGD");
+            sendBroadcast(intent);
         }
 
         return super.onOptionsItemSelected(item);
@@ -431,95 +430,8 @@ public class MainActivity extends AppCompatActivity
     ArrayList<String> fileList = getFiles();
 
     String fileName;
-//
-//    public void copyFiles(View v) {
-//        DatabaseHandler db = DatabaseHandler.getDbInstance(context);
-//        for (int i = 0; i < fileList.size(); i++) {
-//            if (drivePrefs.getString("type", "").equals("GoogleDrive")) {
-//                copyFileToGoogleDrive(fileList.get(i));
-//            } else if (drivePrefs.getString("type", "").equals("DropBox")) {
-//                copyFilesToDropbox(fileList.get(i));
-//            }
-//        }
-////        db.getFileDetails();
-//
-//
-//    }
 
-    public static class UploadReceiver extends BroadcastReceiver {
 
-        @Override
-        public void onReceive(Context context, Intent intent) {
-//            TODO: uploading method should be called here as following.
-//            instance.copyFileToGoogleDrive("/storage/emulated/0/DCIM/Camera/20170531_130539.jpg");
-            Log.i("ALARM.....","This is alarm");
-
-        }
-    }
-    public void copyFileToGoogleDrive(final String fileUrl) {
-        Drive.DriveApi.newDriveContents(mGoogleApiClient).setResultCallback(new ResultCallback<DriveApi.DriveContentsResult>() {
-            @Override
-            public void onResult(@NonNull DriveApi.DriveContentsResult result) {
-                final DriveContents driveContents = result.getDriveContents();
-                new Thread() {
-                    @Override
-                    public void run() {
-                        // write content to DriveContents
-                        OutputStream outputStream = driveContents.getOutputStream();
-                        Uri resourceUri = Uri.fromFile(new File(fileUrl));
-
-                        try {
-                            InputStream inputStream = getContentResolver().openInputStream(resourceUri);
-                            if (inputStream != null) {
-                                byte[] data = new byte[1024];
-                                while (inputStream.read(data) != -1) {
-                                    outputStream.write(data);
-                                }
-                                inputStream.close();
-                            }
-
-                            outputStream.close();
-                        } catch (IOException e) {
-                            Log.e(GOOGLE_DRIVE_TAG, e.getMessage());
-                        }
-                        String extension = fileUrl.substring(fileUrl.indexOf(".") + 1);
-                        String fileType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
-                        Log.e(GOOGLE_DRIVE_TAG, fileType);
-                        String[] arr = fileUrl.split("/");
-                        String fileName = arr[arr.length - 1].substring(0, arr[arr.length - 1].indexOf("."));
-
-                        MetadataChangeSet changeSet = new MetadataChangeSet.Builder()
-                                .setTitle(fileName)
-                                .setMimeType(fileType)
-                                .setStarred(true).build();
-
-                        // create a file in root folder
-                        DriveFolder folder = driveId.asDriveFolder();
-                        folder.createFile(mGoogleApiClient, changeSet, driveContents)
-                                .setResultCallback(new ResultCallback<DriveFolder.DriveFileResult>() {
-                                    @Override
-                                    public void onResult(@NonNull DriveFolder.DriveFileResult result) {
-                                        if (result.getStatus().isSuccess()) {
-                                            DriveId Did = result.getDriveFile().getDriveId();
-                                            driveId_str = Did.encodeToString();
-
-                                            DatabaseHandler db = DatabaseHandler.getDbInstance(context);
-                                            db.updateFileLink(fileUrl, driveId_str);
-                                            Log.e("Android exxx:", fileUrl);
-                                            Toast.makeText(getApplicationContext(), "file created:" + ";" +
-                                                    result.getDriveFile().getDriveId(), Toast.LENGTH_LONG).show();
-
-                                        }
-
-                                        return;
-                                    }
-                                });
-                    }
-                }.start();
-            }
-        });
-
-    }
 
     public void copyFilesToDropbox(String fileUrl) {
         new Upload(fileUrl).execute();
@@ -576,59 +488,6 @@ public class MainActivity extends AppCompatActivity
             }
         }
     }
-
-
-
-//    public void downloadFiles(View v) {
-//        String fileUrl = "/storage/emulated/0/DCIM/Camera/20170531_130539.jpg";
-//        if (drivePrefs.getString("type", "").equals("GoogleDrive")) {
-//            downloadFromGoogleDrive(fileUrl);
-//
-//        } else if (drivePrefs.getString("type", "").equals("DropBox")) {
-//
-//            downloadFromDropbox(fileUrl);
-//
-//        }
-//
-//    }
-
-    public void downloadFromGoogleDrive(String fileUrl) {
-        DatabaseHandler db = DatabaseHandler.getDbInstance(context);
-        String driveId_str = db.getFileLink(fileUrl);
-        DriveFile file = Drive.DriveApi.getFile(mGoogleApiClient, DriveId.decodeFromString(driveId_str));
-        file.open(mGoogleApiClient, DriveFile.MODE_READ_ONLY, null).setResultCallback(contentsOpenedCallback);
-
-    }
-
-    ResultCallback<DriveApi.DriveContentsResult> contentsOpenedCallback =
-            new ResultCallback<DriveApi.DriveContentsResult>() {
-                @Override
-                public void onResult(DriveApi.DriveContentsResult result) {
-                    if (!result.getStatus().isSuccess()) {
-                        Log.e("Error:", "No such file");
-                        return;
-                    }
-                    DriveContents contents = result.getDriveContents();
-                    InputStream inputStream = contents.getInputStream();
-                    try {
-                        DatabaseHandler db = DatabaseHandler.getDbInstance(context);
-                        String fileName = db.getFileDetails(driveId_str);
-                        Log.i(GOOGLE_DRIVE_TAG, fileName);
-                        File targetFile = new File("/storage/emulated/0/Download/abcdefg.jpg");
-                        OutputStream outputStream = new FileOutputStream(targetFile);
-                        byte[] buffer = new byte[8 * 1024];
-                        int bytesRead;
-                        while ((bytesRead = inputStream.read(buffer)) != -1) {
-                            outputStream.write(buffer, 0, bytesRead);
-                        }
-                        inputStream.close();
-                        outputStream.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            };
-
     public void downloadFromDropbox(String fileurl) {
         new Download(fileurl).execute();
 
@@ -754,5 +613,17 @@ public class MainActivity extends AppCompatActivity
             } else
                 ActivityCompat.requestPermissions(this, reqPermissions, REQUEST_CODE_ASK_MULTIPLE_PERMISSIONS);
         }
+
+
+    }
+
+//    static method to pass googleApiClient
+    public static GoogleApiClient getGoogleApiClient() {
+        return mGoogleApiClient;
+    }
+
+//    static method to pass driveId
+    public static DriveId getDriveId(){
+        return driveId;
     }
 }
