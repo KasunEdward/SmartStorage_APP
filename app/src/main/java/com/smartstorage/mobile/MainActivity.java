@@ -296,6 +296,28 @@ public class MainActivity extends AppCompatActivity
             intent.setAction("com.smartStorage.downloadFromGD");
             sendBroadcast(intent);
         }
+        else if(id == R.id.action_inference){
+            try{
+                loadModel();
+
+            }
+            catch (IOException e){
+                throw new  RuntimeException("Loding NN Model Failed", e);
+            }
+            float input[] = new float[11];
+            input[0] = 3;
+            input[1] = 104809;
+            input[2] = 3;
+            input[3] = 0;
+            input[4] = 231;
+            input[5] = 20480;
+            input[6] = 5392;
+            input[7] = 5392;
+            input[8] = 5393;
+            input[9] = 5393;
+            input[10] = 232;
+            inference(input);
+        }
 
         return super.onOptionsItemSelected(item);
     }
@@ -644,22 +666,8 @@ public class MainActivity extends AppCompatActivity
     }
 
     public float inference(float[] features){
-        float input[] = new float[11];
-        input[0] = 3;
-        input[1] = 104809;
-        input[2] = 3;
-        input[3] = 0;
-        input[4] = 231;
-        input[5] = 20480;
-        input[6] = 5392;
-        input[7] = 5392;
-        input[8] = 5393;
-        input[9] = 5393;
-        input[10] = 232;
 
-        float res = trainedmodel.recognize(input);
-
-
+        float res = trainedmodel.recognize(features);
         return res;
 
         }
