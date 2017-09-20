@@ -32,4 +32,5 @@ dependencies {
     testCompile 'junit:junit:4.12'
     compile files('libs/dropbox-android-sdk-1.6.3.jar')
     compile files('libs/json_simple-1.1.jar')
+    compile 'org.tensorflow:tensorflow-android:1.2.0-rc0'
 }
