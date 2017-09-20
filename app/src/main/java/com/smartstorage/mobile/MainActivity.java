@@ -15,8 +15,11 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.os.StatFs;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -34,6 +37,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.webkit.MimeTypeMap;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.dropbox.client2.DropboxAPI;
@@ -84,7 +89,7 @@ public class MainActivity extends AppCompatActivity
     private static final String DROP_BOX_TAG = "DropBox....";
     final static private String APP_KEY = "idq79rezmauppol";
     final static private String APP_SECRET = "33jvo64wa29qfmr";
-    private DropboxAPI<AndroidAuthSession> mDBApi;
+    private static DropboxAPI<AndroidAuthSession> mDBApi;
 
     SharedPreferences prefs = null;
     SharedPreferences sp = null;
@@ -95,6 +100,10 @@ public class MainActivity extends AppCompatActivity
     private boolean bound;
     BroadcastReceiver receiver;
     static MainActivity instance;
+
+//    variables for diplaying results in GUI
+    String UI_TAG="SmartStorage_UI :";
+    private static final long KILOBYTE = 1024;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -200,6 +209,54 @@ public class MainActivity extends AppCompatActivity
 //        PendingIntent pi = PendingIntent.getBroadcast(this, 0 , alarmReceiver, PendingIntent.FLAG_UPDATE_CURRENT);
 //        AlarmManager am = (AlarmManager) this.getSystemService(ALARM_SERVICE);
 //        am.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_FIFTEEN_MINUTES/30, pi);
+
+
+
+//        monitoring battery status
+        IntentFilter intentFilter=new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+        Intent batteryStatus=context.registerReceiver(null,intentFilter);
+
+        int level = batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
+        int scale = batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
+
+        float batteryPct = level / (float)scale;
+
+        TextView batteryText=(TextView)findViewById(R.id.progress_circle_text1);
+        batteryText.setText(String.valueOf((int)(batteryPct*100))+"%");
+
+        ProgressBar progressBar=(ProgressBar)findViewById(R.id.progressBar1);
+        progressBar.setProgress((int)(batteryPct*100));
+
+        Log.e(UI_TAG,Float.toString(batteryPct*100)+"%");
+
+//Monitoring device storage
+        StatFs internalStatFs = new StatFs( Environment.getRootDirectory().getAbsolutePath() );
+        long internalTotal;
+        long internalFree;
+
+        StatFs externalStatFs = new StatFs( Environment.getExternalStorageDirectory().getAbsolutePath() );
+        long externalTotal;
+        long externalFree;
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+            internalTotal = ( internalStatFs.getBlockCountLong() * internalStatFs.getBlockSizeLong() ) / ( KILOBYTE * KILOBYTE );
+            internalFree = ( internalStatFs.getAvailableBlocksLong() * internalStatFs.getBlockSizeLong() ) / ( KILOBYTE * KILOBYTE );
+            externalTotal = ( externalStatFs.getBlockCountLong() * externalStatFs.getBlockSizeLong() ) / ( KILOBYTE * KILOBYTE );
+            externalFree = ( externalStatFs.getAvailableBlocksLong() * externalStatFs.getBlockSizeLong() ) / ( KILOBYTE * KILOBYTE );
+        }
+        else {
+            internalTotal = ( (long) internalStatFs.getBlockCount() * (long) internalStatFs.getBlockSize() ) / ( KILOBYTE * KILOBYTE );
+            internalFree = ( (long) internalStatFs.getAvailableBlocks() * (long) internalStatFs.getBlockSize() ) / ( KILOBYTE * KILOBYTE );
+            externalTotal = ( (long) externalStatFs.getBlockCount() * (long) externalStatFs.getBlockSize() ) / ( KILOBYTE * KILOBYTE );
+            externalFree = ( (long) externalStatFs.getAvailableBlocks() * (long) externalStatFs.getBlockSize() ) / ( KILOBYTE * KILOBYTE );
+        }
+
+        long total = internalTotal + externalTotal;
+        long free = internalFree + externalFree;
+        long used = total - free;
+        long percentage=(long)((float)used/total*100);
+        Log.e(UI_TAG,Long.toString(percentage)+"%");
+
 
     }
 
@@ -433,106 +490,7 @@ public class MainActivity extends AppCompatActivity
 
 
 
-    public void copyFilesToDropbox(String fileUrl) {
-        new Upload(fileUrl).execute();
-    }
 
-
-
-    class Upload extends AsyncTask<String, Void, String> {
-        String fileUrl;
-
-        Upload(String url) {
-            this.fileUrl = url;
-        }
-
-        protected void onPreExecute() {
-        }
-
-        protected String doInBackground(String... arg0) {
-
-            DropboxAPI.Entry response = null;
-
-            try {
-
-                // Define path of file to be upload
-                File file = new File(fileUrl);
-                FileInputStream inputStream = new FileInputStream(file);
-
-
-                // put the file to dropbox
-                response = mDBApi.putFile(fileUrl, inputStream,
-                        file.length(), null, null);
-//TODO: check below updating part
-                DatabaseHandler db = DatabaseHandler.getDbInstance(context);
-                db.updateFileLink(fileUrl, response.rev);
-
-                Log.e("DbExampleLog", "The uploaded file's rev is:" + response.rev);
-
-            } catch (Exception e) {
-
-                e.printStackTrace();
-            }
-
-            return response.rev;
-        }
-
-        @Override
-        protected void onPostExecute(String result) {
-
-            if (result.isEmpty() == false) {
-
-                Toast.makeText(getApplicationContext(), "File Uploaded ", Toast.LENGTH_LONG).show();
-
-                Log.e("DbExampleLog", "The uploaded file's rev is: " + result);
-            }
-        }
-    }
-    public void downloadFromDropbox(String fileurl) {
-        new Download(fileurl).execute();
-
-    }
-
-    class Download extends AsyncTask<String, Void, String> {
-        String fileUrl;
-
-        Download(String url) {
-            this.fileUrl = url;
-        }
-
-        protected void onPreExecute() {
-        }
-
-        protected String doInBackground(String... arg0) {
-
-            File file = new File("/storage/emulated/0/Download/abcdefg.jpg");
-            FileOutputStream outputStream = null;
-            try {
-                outputStream = new FileOutputStream(file);
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            }
-            DropboxAPI.DropboxFileInfo info = null;
-            try {
-                info = mDBApi.getFile(fileUrl, null, outputStream, null);
-            } catch (DropboxException e) {
-                e.printStackTrace();
-            }
-            return info.getMetadata().rev;
-
-        }
-
-        @Override
-        protected void onPostExecute(String result) {
-
-            if (result.isEmpty() == false) {
-
-                Toast.makeText(getApplicationContext(), "File Downloaded ", Toast.LENGTH_LONG).show();
-
-                Log.e("DbExampleLog", "The Downloaded file's rev is: " + result);
-            }
-        }
-    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -625,5 +583,10 @@ public class MainActivity extends AppCompatActivity
 //    static method to pass driveId
     public static DriveId getDriveId(){
         return driveId;
+    }
+
+//    static method to pass dropbox api
+    public static DropboxAPI getDropboxAPI(){
+        return  mDBApi;
     }
 }
