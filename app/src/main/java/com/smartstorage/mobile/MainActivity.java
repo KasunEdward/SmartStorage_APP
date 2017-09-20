@@ -56,6 +56,8 @@ import com.google.android.gms.drive.query.Filters;
 import com.google.android.gms.drive.query.Query;
 import com.google.android.gms.drive.query.SearchableField;
 import com.smartstorage.mobile.db.DatabaseHandler;
+import com.smartstorage.mobile.machine_learning.Regressor;
+import com.smartstorage.mobile.machine_learning.TensorFlowRegressor;
 import com.smartstorage.mobile.util.FileSystemMapper;
 
 import java.io.File;
@@ -70,7 +72,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener{
+        implements NavigationView.OnNavigationItemSelectedListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
     // TODO: 8/23/2017 Fix issue of re-appearing drive select window when back key press
 
@@ -78,6 +80,9 @@ public class MainActivity extends AppCompatActivity
     private static final String GOOGLE_DRIVE_TAG = "Google Drive....:";
     private static final int REQUEST_CODE_RESOLUTION = 1;
     private static final int REQUEST_CODE_OPENER = 2;
+    private Regressor trainedmodel;
+    //number of input featues of the training model
+    private static final int INPUT_SIZE = 11;
     private static GoogleApiClient mGoogleApiClient;
     final Context context = this;
 
@@ -102,7 +107,7 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        instance=this;
+        instance = this;
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addApi(Drive.API)
                 .addScope(Drive.SCOPE_FILE)
@@ -176,8 +181,6 @@ public class MainActivity extends AppCompatActivity
                         mDBApi.getSession().setOAuth2AccessToken(savedAccessToken);
 
                     }
-
-
                     Log.i(DROP_BOX_TAG, sp.getString("accesstoken", ""));
                 } catch (IllegalStateException e) {
                     Log.i(DROP_BOX_TAG, "Error authenticating", e);
@@ -287,10 +290,9 @@ public class MainActivity extends AppCompatActivity
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
-        }
-        else if(id==R.id.action_copyfile){
-            Log.i("Settings","Downloading Files");
-            Intent intent=new Intent();
+        } else if (id == R.id.action_copyfile) {
+            Log.i("Settings", "Downloading Files");
+            Intent intent = new Intent();
             intent.setAction("com.smartStorage.downloadFromGD");
             sendBroadcast(intent);
         }
@@ -322,10 +324,11 @@ public class MainActivity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
     @Override
-    protected void onPause(){
+    protected void onPause() {
         super.onPause();
-      //  unregisterReceiver(receiver);
+        //  unregisterReceiver(receiver);
     }
 
     @Override
@@ -432,11 +435,9 @@ public class MainActivity extends AppCompatActivity
     String fileName;
 
 
-
     public void copyFilesToDropbox(String fileUrl) {
         new Upload(fileUrl).execute();
     }
-
 
 
     class Upload extends AsyncTask<String, Void, String> {
@@ -488,6 +489,7 @@ public class MainActivity extends AppCompatActivity
             }
         }
     }
+
     public void downloadFromDropbox(String fileurl) {
         new Download(fileurl).execute();
 
@@ -617,13 +619,49 @@ public class MainActivity extends AppCompatActivity
 
     }
 
-//    static method to pass googleApiClient
+    //    static method to pass googleApiClient
     public static GoogleApiClient getGoogleApiClient() {
         return mGoogleApiClient;
     }
 
-//    static method to pass driveId
-    public static DriveId getDriveId(){
+    //    static method to pass driveId
+    public static DriveId getDriveId() {
         return driveId;
     }
+
+    private void loadModel() throws IOException {
+        try{
+            trainedmodel = TensorFlowRegressor.create(getAssets(), "Keras",
+                    "opt_regression_model.pb", INPUT_SIZE,
+                    "dense_1_input", "dense_2/Relu", false);
+        }
+        catch (IOException e){
+            //if they aren't found, throw an error!
+            throw new RuntimeException("Error initializing classifiers!", e);
+        }
+
+
+    }
+
+    public float inference(float[] features){
+        float input[] = new float[11];
+        input[0] = 3;
+        input[1] = 104809;
+        input[2] = 3;
+        input[3] = 0;
+        input[4] = 231;
+        input[5] = 20480;
+        input[6] = 5392;
+        input[7] = 5392;
+        input[8] = 5393;
+        input[9] = 5393;
+        input[10] = 232;
+
+        float res = trainedmodel.recognize(input);
+
+
+        return res;
+
+        }
+
 }
