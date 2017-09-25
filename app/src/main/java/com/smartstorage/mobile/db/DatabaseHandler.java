@@ -28,6 +28,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     private static final String KEY_FILE_LINK = "file_link";
     private static final String MIGRATION_VALUE = "migration_value";
     private static final String KEY_DELETED = "deleted";
+    private static final String KEY_SIZE = "size";
 
     private DatabaseHandler(Context context){
         super(context,DATABASE_NAME,null,DATABASE_VERSION);
@@ -43,7 +44,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         String CREATE_FILE_DETAILS_TABLE = "CREATE TABLE " + TABLE_FILE_DETAILS + "("
             + KEY_ID + " INTEGER PRIMARY KEY," + KEY_FILE_NAME + " TEXT," + DRIVE_TYPE + " TEXT," + MIGRATION_VALUE + " REAL,"
-                + KEY_FILE_LINK + " TEXT," + KEY_DELETED +" TEXT"+ ")";
+                + KEY_FILE_LINK + " TEXT," + KEY_DELETED +" TEXT,"+ KEY_SIZE + "INTEGER" + ")";
         db.execSQL(CREATE_FILE_DETAILS_TABLE);
 
 
@@ -66,6 +67,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         values.put(DRIVE_TYPE,fileDetails.getDrive_type());
         values.put(MIGRATION_VALUE,0.0);
         values.put(KEY_DELETED,"false");
+        values.put(KEY_SIZE, fileDetails.getSize());
 
         db.insert(TABLE_FILE_DETAILS,null,values);
         db.close();
@@ -83,6 +85,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 values.put(DRIVE_TYPE,fileDetail.getDrive_type());
                 values.put(MIGRATION_VALUE,0.0);
                 values.put(KEY_DELETED,"false");
+                values.put(KEY_SIZE, fileDetail.getSize());
                 db.insert(TABLE_FILE_DETAILS,null,values);
             }
             db.setTransactionSuccessful();

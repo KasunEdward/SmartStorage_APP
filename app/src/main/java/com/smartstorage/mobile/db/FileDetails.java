@@ -10,11 +10,13 @@ public class FileDetails {
     private String drive_type;
     private double migration_value;
     private String deleted;
+    private long size;  // size of file in bytes
 
-    public FileDetails(String file_name,String drive_link,String drive_type){
+    public FileDetails(String file_name,String drive_link,String drive_type, long size){
         this.file_name=file_name;
         this.drive_link=drive_link;
         this.drive_type=drive_type;
+        this.size = size;
     }
 
     public int getId() {
@@ -63,5 +65,13 @@ public class FileDetails {
 
     public void setMigration_value(double migration_value) {
         this.migration_value = migration_value;
+    }
+
+    public long getSize() {
+        return size;
+    }
+
+    public void setSize(long size) {
+        this.size = size;
     }
 }
