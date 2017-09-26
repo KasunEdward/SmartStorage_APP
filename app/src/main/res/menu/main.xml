@@ -11,5 +11,15 @@
         android:orderInCategory="100"
         android:title="@string/action_copyfile"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/action_inference"
+        android:orderInCategory="100"
+        android:title="@string/action_inference"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_viewDeletedFiles"
+        android:orderInCategory="100"
+        android:title="Deleted Files"
+        app:showAsAction="never" />
 
 </menu>

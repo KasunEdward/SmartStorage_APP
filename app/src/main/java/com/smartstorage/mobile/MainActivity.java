@@ -2,6 +2,7 @@ package com.smartstorage.mobile;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.PendingIntent;
@@ -13,6 +14,7 @@ import android.content.IntentFilter;
 import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.BatteryManager;
@@ -32,6 +34,9 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
+import android.text.SpannableString;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.RelativeSizeSpan;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -60,8 +65,15 @@ import com.google.android.gms.drive.MetadataChangeSet;
 import com.google.android.gms.drive.query.Filters;
 import com.google.android.gms.drive.query.Query;
 import com.google.android.gms.drive.query.SearchableField;
+import com.hookedonplay.decoviewlib.DecoView;
+import com.hookedonplay.decoviewlib.charts.SeriesItem;
+import com.hookedonplay.decoviewlib.events.DecoEvent;
 import com.smartstorage.mobile.db.DatabaseHandler;
+import com.smartstorage.mobile.display.DeletedFilesActivity;
+import com.smartstorage.mobile.storage.StorageChecker;
 import com.smartstorage.mobile.util.FileSystemMapper;
+
+import org.w3c.dom.Text;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -78,6 +90,8 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener{
 
     // TODO: 8/23/2017 Fix issue of re-appearing drive select window when back key press
+
+    private static final  String APP_TAG="Smart_APP...:";
 
     private static final int REQUEST_CODE_ASK_MULTIPLE_PERMISSIONS = 148;
     private static final String GOOGLE_DRIVE_TAG = "Google Drive....:";
@@ -103,7 +117,22 @@ public class MainActivity extends AppCompatActivity
 
 //    variables for diplaying results in GUI
     String UI_TAG="SmartStorage_UI :";
-    private static final long KILOBYTE = 1024;
+
+
+
+    /**
+     * DecoView animated arc based chart
+     */
+    private DecoView decoView;
+
+
+    private int mBackIndex;
+    private int mSeries1Index;
+    private int mSeries2Index;
+    private int mSeries3Index;
+
+    private final float mSeriesMax = 50f;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,6 +140,47 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        decoView = (DecoView) findViewById(R.id.dynamicArcView);
+        final SeriesItem seriesItem = new SeriesItem.Builder(Color.parseColor("#870b39"))
+                .setRange(0, 100, 0)
+                .build();
+
+        int series1Index = decoView.addSeries(seriesItem);
+        final TextView textPercentage = (TextView) findViewById(R.id.textPercentage);
+        seriesItem.addArcSeriesItemListener(new SeriesItem.SeriesItemListener() {
+            @Override
+            public void onSeriesItemAnimationProgress(float percentComplete, float currentPosition) {
+                float percentFilled = ((currentPosition - seriesItem.getMinValue()) / (seriesItem.getMaxValue() - seriesItem.getMinValue()));
+                String s= String.format("%.0f%%", percentFilled * 100f)+ " storage is full";
+                SpannableString ss1=  new SpannableString(s);
+                ss1.setSpan(new RelativeSizeSpan(0.5f), s.length()-15,s.length(), 0); // set size
+                ss1.setSpan(new ForegroundColorSpan(Color.RED), 0, 3, 0);// set color
+//                textPercentage.setText(String.format("%.0f%%", percentFilled * 100f)+ "is full");
+                textPercentage.setText(ss1);
+            }
+
+            @Override
+            public void onSeriesItemDisplayProgress(float percentComplete) {
+
+            }
+        });
+
+        decoView.addEvent(new DecoEvent.Builder(StorageChecker.returnFreeStorage())
+                .setIndex(series1Index)
+                .setDelay(10)
+                .build());
+/**  Add copied files details to the chart*/
+        final SeriesItem seriesItem2 = new SeriesItem.Builder(Color.parseColor("#110b87"))
+                .setRange(0, 100, 0)
+                .build();
+
+        int series1Index2 = decoView.addSeries(seriesItem2);
+        decoView.addEvent(new DecoEvent.Builder(30f)
+                .setIndex(series1Index2)
+                .setDelay(10)
+                .build());
+
         instance=this;
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addApi(Drive.API)
@@ -131,8 +201,20 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-//        TODO: implement broadcast receiver method here
+        /**Calling database handler to get total num of total num of files
+         * */
+        DatabaseHandler db=DatabaseHandler.getDbInstance(context);
+        int total=db.getNumOfTotalFiles();
+        Log.i(APP_TAG,String.valueOf(total));
 
+
+        TextView txtMsg=(TextView)findViewById(R.id.textView6);
+        String s= String.valueOf(total)+ " total files";
+        SpannableString ss1=  new SpannableString(s);
+        ss1.setSpan(new RelativeSizeSpan(2f), 0,s.length()-11, 0); // set size
+        ss1.setSpan(new ForegroundColorSpan(Color.parseColor("#870b39")), 0, s.length()-11, 0);// set color
+//                textPercentage.setText(String.format("%.0f%%", percentFilled * 100f)+ "is full");
+        txtMsg.setText(ss1);
     }
 
     @Override
@@ -213,49 +295,42 @@ public class MainActivity extends AppCompatActivity
 
 
 //        monitoring battery status
-        IntentFilter intentFilter=new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
-        Intent batteryStatus=context.registerReceiver(null,intentFilter);
+//        IntentFilter intentFilter=new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+//        Intent batteryStatus=context.registerReceiver(null,intentFilter);
+//
+//        int level = batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
+//        int scale = batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
+//
+//        float batteryPct = level / (float)scale;
+//
+//        TextView batteryText=(TextView)findViewById(R.id.progress_circle_text1);
+//        batteryText.setText(String.valueOf((int)(batteryPct*100))+"%");
+//
+//        ProgressBar progressBar1=(ProgressBar)findViewById(R.id.progressBar1);
+//        progressBar1.setProgress((int)(batteryPct*100));
+//
+//        Log.e(UI_TAG,Integer.toString((int)(batteryPct*100))+"%");
+//
 
-        int level = batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
-        int scale = batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
+////        Monitoring RAM state
+//        ActivityManager.MemoryInfo mi = new ActivityManager.MemoryInfo();
+//        ActivityManager activityManager = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
+//        activityManager.getMemoryInfo(mi);
+//        double availableMegs = mi.availMem / 0x100000L;
+//
+////Percentage can be calculated for API 16+
+//        double percentAvail = (double)((float)(mi.totalMem-mi.availMem) /mi.totalMem*100);
+//        Log.e(UI_TAG,Integer.toString((int)percentAvail)+"%");
+//
+//        TextView ramText=(TextView)findViewById(R.id.progress_circle_text3);
+//        ramText.setText(String.valueOf((int)(percentAvail))+"%");
+//
+//        ProgressBar progressBar3=(ProgressBar)findViewById(R.id.progressBar3);
+//        progressBar3.setProgress((int)(percentAvail));
 
-        float batteryPct = level / (float)scale;
 
-        TextView batteryText=(TextView)findViewById(R.id.progress_circle_text1);
-        batteryText.setText(String.valueOf((int)(batteryPct*100))+"%");
 
-        ProgressBar progressBar=(ProgressBar)findViewById(R.id.progressBar1);
-        progressBar.setProgress((int)(batteryPct*100));
 
-        Log.e(UI_TAG,Float.toString(batteryPct*100)+"%");
-
-//Monitoring device storage
-        StatFs internalStatFs = new StatFs( Environment.getRootDirectory().getAbsolutePath() );
-        long internalTotal;
-        long internalFree;
-
-        StatFs externalStatFs = new StatFs( Environment.getExternalStorageDirectory().getAbsolutePath() );
-        long externalTotal;
-        long externalFree;
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-            internalTotal = ( internalStatFs.getBlockCountLong() * internalStatFs.getBlockSizeLong() ) / ( KILOBYTE * KILOBYTE );
-            internalFree = ( internalStatFs.getAvailableBlocksLong() * internalStatFs.getBlockSizeLong() ) / ( KILOBYTE * KILOBYTE );
-            externalTotal = ( externalStatFs.getBlockCountLong() * externalStatFs.getBlockSizeLong() ) / ( KILOBYTE * KILOBYTE );
-            externalFree = ( externalStatFs.getAvailableBlocksLong() * externalStatFs.getBlockSizeLong() ) / ( KILOBYTE * KILOBYTE );
-        }
-        else {
-            internalTotal = ( (long) internalStatFs.getBlockCount() * (long) internalStatFs.getBlockSize() ) / ( KILOBYTE * KILOBYTE );
-            internalFree = ( (long) internalStatFs.getAvailableBlocks() * (long) internalStatFs.getBlockSize() ) / ( KILOBYTE * KILOBYTE );
-            externalTotal = ( (long) externalStatFs.getBlockCount() * (long) externalStatFs.getBlockSize() ) / ( KILOBYTE * KILOBYTE );
-            externalFree = ( (long) externalStatFs.getAvailableBlocks() * (long) externalStatFs.getBlockSize() ) / ( KILOBYTE * KILOBYTE );
-        }
-
-        long total = internalTotal + externalTotal;
-        long free = internalFree + externalFree;
-        long used = total - free;
-        long percentage=(long)((float)used/total*100);
-        Log.e(UI_TAG,Long.toString(percentage)+"%");
 
 
     }
@@ -350,6 +425,10 @@ public class MainActivity extends AppCompatActivity
             Intent intent=new Intent();
             intent.setAction("com.smartStorage.downloadFromGD");
             sendBroadcast(intent);
+        }
+        else if(id==R.id.action_viewDeletedFiles){
+            Intent intent=new Intent(this,DeletedFilesActivity.class);
+            startActivity(intent);
         }
 
         return super.onOptionsItemSelected(item);

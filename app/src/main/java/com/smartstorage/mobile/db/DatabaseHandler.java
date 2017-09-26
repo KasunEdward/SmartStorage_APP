@@ -129,6 +129,16 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     }
 
+    public int getNumOfTotalFiles(){
+        String SELECT_QUERY="SELECT * from "+TABLE_FILE_DETAILS;
+        SQLiteDatabase db=this.getReadableDatabase();
+        Cursor cursor=db.rawQuery(SELECT_QUERY,null);
+        cursor.moveToFirst();
+        int total=cursor.getCount();
+        return total;
+
+    }
+
 
 
 
