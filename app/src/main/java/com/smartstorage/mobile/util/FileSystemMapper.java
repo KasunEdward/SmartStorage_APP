@@ -23,7 +23,6 @@ public class FileSystemMapper extends AsyncTask<Void, Void, Boolean> {
 
     private ArrayList<FileDetails> fileDetailsList;
     private Context context;
-    private String logFileName = "info.txt";
 
     public FileSystemMapper(Context context) {
         this.context = context;
@@ -67,7 +66,7 @@ public class FileSystemMapper extends AsyncTask<Void, Void, Boolean> {
                 if (child.isDirectory()) {
                     traverseChildren(child);
                 }else{
-                    fileDetailsList.add(new FileDetails(child.getAbsolutePath(), AppParams.DRIVE_NO_LINK, ""));
+                    fileDetailsList.add(new FileDetails(child.getAbsolutePath(), AppParams.DRIVE_NO_LINK, "", child.length()));
                 }
             }
         }
