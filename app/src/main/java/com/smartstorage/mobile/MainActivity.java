@@ -70,6 +70,7 @@ import com.hookedonplay.decoviewlib.charts.SeriesItem;
 import com.hookedonplay.decoviewlib.events.DecoEvent;
 import com.smartstorage.mobile.db.DatabaseHandler;
 import com.smartstorage.mobile.display.DeletedFilesActivity;
+import com.smartstorage.mobile.display.FilesByTypeActivity;
 import com.smartstorage.mobile.storage.StorageChecker;
 import com.smartstorage.mobile.util.FileSystemMapper;
 
@@ -207,14 +208,21 @@ public class MainActivity extends AppCompatActivity
         int total=db.getNumOfTotalFiles();
         Log.i(APP_TAG,String.valueOf(total));
 
-
+//textview to display total num of files
         TextView txtMsg=(TextView)findViewById(R.id.textView6);
-        String s= String.valueOf(total)+ " total files";
+        String s= String.valueOf(total)+ " Total Files";
         SpannableString ss1=  new SpannableString(s);
         ss1.setSpan(new RelativeSizeSpan(2f), 0,s.length()-11, 0); // set size
-        ss1.setSpan(new ForegroundColorSpan(Color.parseColor("#870b39")), 0, s.length()-11, 0);// set color
-//                textPercentage.setText(String.format("%.0f%%", percentFilled * 100f)+ "is full");
+        ss1.setSpan(new ForegroundColorSpan(Color.parseColor("#870b39")), 0, s.length()-11, 0);
         txtMsg.setText(ss1);
+
+// textview to display num of copied files
+        TextView copiedMsg=(TextView)findViewById(R.id.textView3);
+        String s2= String.valueOf(total)+ " Copied Files";
+        SpannableString ss2=  new SpannableString(s2);
+        ss2.setSpan(new RelativeSizeSpan(2f), 0,s.length()-11, 0); // set size
+        ss2.setSpan(new ForegroundColorSpan(Color.parseColor("#110b87")), 0, s.length()-11, 0);
+        copiedMsg.setText(ss2);
     }
 
     @Override
@@ -277,63 +285,55 @@ public class MainActivity extends AppCompatActivity
 
         }
 
+
+
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.HOUR_OF_DAY, 00);
-        calendar.set(Calendar.MINUTE, 41);
+        calendar.set(Calendar.MINUTE, 10);
         calendar.set(Calendar.SECOND, 0);
 
 //        TODO: uncomment this part to get CopyFileToGoogleDriveActivity to working state
 //        Intent alarmReceiver = new Intent(this.getApplicationContext(),CopyFileToGoogleDriveActivity.class);
+//        ArrayList<String> fileList = getFiles();
+//        alarmReceiver.putStringArrayListExtra("copyingListToGD",fileList);
 //        alarmReceiver.setAction("com.smartStorage.copytoGD");
 //
 //
 //        //This is alarm manager
 //        PendingIntent pi = PendingIntent.getBroadcast(this, 0 , alarmReceiver, PendingIntent.FLAG_UPDATE_CURRENT);
 //        AlarmManager am = (AlarmManager) this.getSystemService(ALARM_SERVICE);
-//        am.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_FIFTEEN_MINUTES/30, pi);
+//        am.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_FIFTEEN_MINUTES/5, pi);
 
+//
+//        DatabaseHandler db=DatabaseHandler.getDbInstance(context);
 
+//        int copiedTotal=db.getNumOfCopiedFiles();
+//        Log.i(APP_TAG,String.valueOf(copiedTotal));
 
-//        monitoring battery status
-//        IntentFilter intentFilter=new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
-//        Intent batteryStatus=context.registerReceiver(null,intentFilter);
-//
-//        int level = batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
-//        int scale = batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
-//
-//        float batteryPct = level / (float)scale;
-//
-//        TextView batteryText=(TextView)findViewById(R.id.progress_circle_text1);
-//        batteryText.setText(String.valueOf((int)(batteryPct*100))+"%");
-//
-//        ProgressBar progressBar1=(ProgressBar)findViewById(R.id.progressBar1);
-//        progressBar1.setProgress((int)(batteryPct*100));
-//
-//        Log.e(UI_TAG,Integer.toString((int)(batteryPct*100))+"%");
-//
-
-////        Monitoring RAM state
-//        ActivityManager.MemoryInfo mi = new ActivityManager.MemoryInfo();
-//        ActivityManager activityManager = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
-//        activityManager.getMemoryInfo(mi);
-//        double availableMegs = mi.availMem / 0x100000L;
-//
-////Percentage can be calculated for API 16+
-//        double percentAvail = (double)((float)(mi.totalMem-mi.availMem) /mi.totalMem*100);
-//        Log.e(UI_TAG,Integer.toString((int)percentAvail)+"%");
-//
-//        TextView ramText=(TextView)findViewById(R.id.progress_circle_text3);
-//        ramText.setText(String.valueOf((int)(percentAvail))+"%");
-//
-//        ProgressBar progressBar3=(ProgressBar)findViewById(R.id.progressBar3);
-//        progressBar3.setProgress((int)(percentAvail));
-
-
-
-
-
+//        DatabaseHandler ndb=DatabaseHandler.getDbInstance(context);
+////        ArrayList al=ndb.getListOfFilesToBeDeleted();
+////        String a=String.valueOf(al.size());
+//        Log.i(APP_TAG,a);
 
     }
+    //TODO: dummy method to create a list of files
+    public ArrayList<String> getFiles() {
+        ArrayList<String> fileList = new ArrayList<>();
+        // Irfad A7 files
+//        fileList.add("/storage/emulated/0/Documents/Batch 13 Student Details.xlsx");
+//        fileList.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_1502813011445.jpg");
+        // Irfad Note 3 files
+//        fileList.add("/storage/emulated/0/Download/Copy of pro pic.png");
+//        fileList.add("/storage/emulated/0/DCIM/Camera/20170712_223552.jpg");
+//        Kasun's files
+//        fileList.add("/storage/emulated/0/Download/UoM-Virtual-Server-request-form-Final-Year-Projects.doc");
+        fileList.add("/storage/emulated/0/DCIM/Camera/20170531_130539.jpg");
+        fileList.add("/storage/emulated/0/DCIM/Camera/20170510_163111.mp4");
+        fileList.add("/storage/emulated/0/Samsung/Music/Over the Horizon.mp3");
+        return fileList;
+    }
+
+
 
     private void setDriveAccount() {
         Log.e("Smart storge", "first run");
@@ -421,13 +421,22 @@ public class MainActivity extends AppCompatActivity
             return true;
         }
         else if(id==R.id.action_copyfile){
-            Log.i("Settings","Downloading Files");
+            Log.i("Settings","Deleting Files");
             Intent intent=new Intent();
-            intent.setAction("com.smartStorage.downloadFromGD");
+            intent.setAction("com.smartStorage.deleteFile");
+            ArrayList<String> strAL=new ArrayList<>();
+            strAL.add("dddddddddd/sssss");
+            strAL.add("df/gh/sssss");
+            strAL.add("as/fg/hj/sssss");
+            intent.putStringArrayListExtra("deletingList",strAL);
             sendBroadcast(intent);
         }
         else if(id==R.id.action_viewDeletedFiles){
             Intent intent=new Intent(this,DeletedFilesActivity.class);
+            startActivity(intent);
+        }
+        else if(id==R.id.action_viewPercentages){
+            Intent intent=new Intent(this,FilesByTypeActivity.class);
             startActivity(intent);
         }
 
@@ -546,24 +555,7 @@ public class MainActivity extends AppCompatActivity
 
     }
 
-    //TODO: dummy method to create a list of files
-    public ArrayList<String> getFiles() {
-        ArrayList<String> fileList = new ArrayList<>();
-        // Irfad A7 files
-//        fileList.add("/storage/emulated/0/Documents/Batch 13 Student Details.xlsx");
-//        fileList.add("/storage/emulated/0/DCIM/Facebook/FB_IMG_1502813011445.jpg");
-        // Irfad Note 3 files
-//        fileList.add("/storage/emulated/0/Download/Copy of pro pic.png");
-//        fileList.add("/storage/emulated/0/DCIM/Camera/20170712_223552.jpg");
-//        Kasun's files
-//        fileList.add("/storage/emulated/0/Download/UoM-Virtual-Server-request-form-Final-Year-Projects.doc");
-        fileList.add("/storage/emulated/0/DCIM/Camera/20170531_130539.jpg");
-        fileList.add("/storage/emulated/0/DCIM/Camera/20170510_163111.mp4");
-        fileList.add("/storage/emulated/0/Samsung/Music/Over the Horizon.mp3");
-        return fileList;
-    }
 
-    ArrayList<String> fileList = getFiles();
 
     String fileName;
 
@@ -668,4 +660,9 @@ public class MainActivity extends AppCompatActivity
     public static DropboxAPI getDropboxAPI(){
         return  mDBApi;
     }
+
+
+
 }
+
+

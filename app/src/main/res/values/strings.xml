@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">SmartStorageApp</string>
+    <string name="app_name">Smart Storage</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
@@ -13,5 +13,6 @@
     <string name="fit_cycling">Cycling</string>
     <string name="fit_running">Running</string>
     <string name="title_activity_copied_files">CopiedFilesActivity</string>
-    <string name="title_activity_deleted_files">DeletedFilesActivity</string>
+    <string name="title_activity_deleted_files">Deleted Files</string>
+    <string name="title_activity_files_by_type">Percentage By Type</string>
 </resources>

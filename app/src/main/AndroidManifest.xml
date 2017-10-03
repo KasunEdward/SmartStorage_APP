@@ -64,6 +64,11 @@
                 <action android:name="com.smartStorage.downloadFromGD" />
             </intent-filter>
         </receiver>
+        <receiver android:name=".DeleteFilesActivity">
+            <intent-filter>
+                <action android:name="com.smartStorage.deleteFile" />
+            </intent-filter>
+        </receiver>
         <!-- <service -->
         <!-- android:name=".service.UploadService" -->
         <!-- android:enabled="true" -->
@@ -76,7 +81,16 @@
         <activity
             android:name=".display.DeletedFilesActivity"
             android:label="@string/title_activity_deleted_files"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".display.FilesByTypeActivity"
+            android:label="@string/title_activity_files_by_type"
             android:theme="@style/AppTheme.NoActionBar"></activity>
+        <service android:name=".GoogleDriveEventService" android:exported="true">
+            <intent-filter>
+                <action android:name="com.google.android.gms.drive.events.HANDLE_EVENT"/>
+            </intent-filter>
+        </service>
     </application>
 
 </manifest>

@@ -24,15 +24,19 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.util.ArrayList;
 
 /**
  * Created by kasun on 9/17/17.
  */
 
 public class CopyFileToGoogleDriveActivity extends BroadcastReceiver{
-    private static final String TAG = "CreateFileActivity";
+    private static final String TAG = "Copying to Google Drive";
+
+
+
 //    TODO: This should be replaced with an arraylist of files
-    private String fileUrl="/storage/emulated/0/Samsung/Music/Over the Horizon.mp3";
+    private String fileUrl;
     Context context;
 
     private String GOOGLE_DRIVE_TAG="Google Drive..:";
@@ -43,7 +47,17 @@ public class CopyFileToGoogleDriveActivity extends BroadcastReceiver{
     @Override
     public void onReceive(Context context, Intent intent) {
         this.context=context;
+        //    get the Arraylist of files
+        ArrayList<String> coyingFilesList=intent.getStringArrayListExtra("copyingListToGD");
         Log.i(GOOGLE_DRIVE_TAG,"copying files");
+
+        for(int i=0;i<coyingFilesList.size();i++){
+            fileUrl=coyingFilesList.get(i);
+            Drive.DriveApi.newDriveContents(MainActivity.getGoogleApiClient())
+                    .setResultCallback(driveContentsCallback);
+        }
+
+
         Drive.DriveApi.newDriveContents(MainActivity.getGoogleApiClient())
                 .setResultCallback(driveContentsCallback);
     }
