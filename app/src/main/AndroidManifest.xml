@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.smartstorage.mobile">
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission
-        android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.GET_ACCOUNTS"/>
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
 
     <application
         android:allowBackup="true"
@@ -15,7 +15,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name="com.smartstorage.mobile.MainActivity"
+            android:name=".MainActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
@@ -24,20 +24,24 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".CopyFileToGoogleDriveActivity"/>
+        <activity android:name=".CopyFileToGoogleDriveActivity" />
         <activity
             android:name="com.dropbox.client2.android.AuthActivity"
+            android:configChanges="orientation|keyboard"
             android:launchMode="singleTask"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar"
-            android:configChanges="orientation|keyboard">
+            android:theme="@android:style/Theme.Translucent.NoTitleBar">
             <intent-filter>
+
                 <!-- Change this to be db- followed by your app key -->
                 <data android:scheme="db-idq79rezmauppol" />
+
                 <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.BROWSABLE"/>
+
+                <category android:name="android.intent.category.BROWSABLE" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyAzej3KVo-15Jsbo-qDeihbsT5vEUdwj0s" />
@@ -49,9 +53,10 @@
             android:name=".service.MigrationService"
             android:enabled="true"
             android:exported="true" />
+
         <receiver android:name=".CopyFileToGoogleDriveActivity">
             <intent-filter>
-            <action android:name="com.smartStorage.copytoGD" />
+                <action android:name="com.smartStorage.copytoGD" />
             </intent-filter>
         </receiver>
         <receiver android:name=".DownloadFromGoogleDriveActivity">
@@ -59,12 +64,33 @@
                 <action android:name="com.smartStorage.downloadFromGD" />
             </intent-filter>
         </receiver>
-        <!--<service-->
-            <!--android:name=".service.UploadService"-->
-            <!--android:enabled="true"-->
-            <!--android:exported="true" />-->
+        <receiver android:name=".DeleteFilesActivity">
+            <intent-filter>
+                <action android:name="com.smartStorage.deleteFile" />
+            </intent-filter>
+        </receiver>
+        <!-- <service -->
+        <!-- android:name=".service.UploadService" -->
+        <!-- android:enabled="true" -->
+        <!-- android:exported="true" /> -->
 
-
+        <activity
+            android:name=".display.CopiedFilesActivity"
+            android:label="@string/title_activity_copied_files"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".display.DeletedFilesActivity"
+            android:label="@string/title_activity_deleted_files"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".display.FilesByTypeActivity"
+            android:label="@string/title_activity_files_by_type"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
+        <service android:name=".GoogleDriveEventService" android:exported="true">
+            <intent-filter>
+                <action android:name="com.google.android.gms.drive.events.HANDLE_EVENT"/>
+            </intent-filter>
+        </service>
     </application>
 
 </manifest>

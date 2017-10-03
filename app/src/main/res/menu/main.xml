@@ -16,5 +16,16 @@
         android:orderInCategory="100"
         android:title="@string/action_inference"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/action_viewDeletedFiles"
+        android:orderInCategory="100"
+        android:title="Deleted Files"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_viewPercentages"
+        android:orderInCategory="100"
+        android:title="View Percentages"
+        app:showAsAction="never" />
+
 
 </menu>

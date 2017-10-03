@@ -1,12 +1,16 @@
 package com.smartstorage.mobile.db;
 
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.net.Uri;
 import android.util.Log;
+import android.webkit.MimeTypeMap;
 
+import java.io.File;
 import java.util.ArrayList;
 
 /**
@@ -28,6 +32,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     private static final String KEY_FILE_LINK = "file_link";
     private static final String MIGRATION_VALUE = "migration_value";
     private static final String KEY_DELETED = "deleted";
+    private static final String KEY_SIZE = "size";
 
     private DatabaseHandler(Context context){
         super(context,DATABASE_NAME,null,DATABASE_VERSION);
@@ -43,7 +48,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         String CREATE_FILE_DETAILS_TABLE = "CREATE TABLE " + TABLE_FILE_DETAILS + "("
             + KEY_ID + " INTEGER PRIMARY KEY," + KEY_FILE_NAME + " TEXT," + DRIVE_TYPE + " TEXT," + MIGRATION_VALUE + " REAL,"
-                + KEY_FILE_LINK + " TEXT," + KEY_DELETED +" TEXT"+ ")";
+                + KEY_FILE_LINK + " TEXT," + KEY_DELETED +" TEXT,"+ KEY_SIZE + " INTEGER" + ")";
         db.execSQL(CREATE_FILE_DETAILS_TABLE);
 
 
@@ -66,6 +71,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         values.put(DRIVE_TYPE,fileDetails.getDrive_type());
         values.put(MIGRATION_VALUE,0.0);
         values.put(KEY_DELETED,"false");
+        values.put(KEY_SIZE, fileDetails.getSize());
 
         db.insert(TABLE_FILE_DETAILS,null,values);
         db.close();
@@ -79,10 +85,10 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             for (FileDetails fileDetail: fileDetails) {
                 values.put(KEY_FILE_NAME,fileDetail.getFile_name());
                 values.put(KEY_FILE_LINK,fileDetail.getDrive_link());
-                values.put(KEY_FILE_LINK,fileDetail.getDrive_link());
                 values.put(DRIVE_TYPE,fileDetail.getDrive_type());
                 values.put(MIGRATION_VALUE,0.0);
                 values.put(KEY_DELETED,"false");
+                values.put(KEY_SIZE, fileDetail.getSize());
                 db.insert(TABLE_FILE_DETAILS,null,values);
             }
             db.setTransactionSuccessful();
@@ -128,6 +134,62 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.update(TABLE_FILE_DETAILS,cv,"file_name=?",new String[]{fileUrl});
 
     }
+
+    public int getNumOfTotalFiles(){
+        String SELECT_QUERY="SELECT * from "+TABLE_FILE_DETAILS;
+        SQLiteDatabase db=this.getReadableDatabase();
+        Cursor cursor=db.rawQuery(SELECT_QUERY,null);
+        cursor.moveToFirst();
+        int total=cursor.getCount();
+        return total;
+
+    }
+
+    public int getNumOfCopiedFiles(){
+        String SELECT_QUERY="SELECT * from "+TABLE_FILE_DETAILS +" WHERE "+KEY_FILE_LINK+"!='no_link_yet'";
+        SQLiteDatabase db=this.getReadableDatabase();
+        Cursor cursor=db.rawQuery(SELECT_QUERY,null);
+        cursor.moveToFirst();
+        int total=cursor.getCount();
+        return total;
+    }
+    public int[] getTypesAmountList(Context context){
+        int arr[]={0,0,0,0};
+        String SELECT_QUERY="SELECT * from "+TABLE_FILE_DETAILS;
+        SQLiteDatabase db=this.getReadableDatabase();
+        Cursor cursor=db.rawQuery(SELECT_QUERY,null);
+        cursor.moveToFirst();
+        while(cursor.moveToNext()){
+            String type = "other";
+            String extension = MimeTypeMap.getFileExtensionFromUrl(cursor.getString(1));
+            if (extension != null) {
+                type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
+            }
+            if(type==null){
+                type="other";
+            }
+            Log.i("db_test",type);
+        }
+        return arr;
+
+    }
+
+    public ArrayList getListOfFilesToBeDeleted(){
+        ArrayList filesList=new ArrayList();
+        String SELECT_QUERY="select * from file_details where file_link !='no_link_yet' and deleted ='false'";
+        SQLiteDatabase db=this.getReadableDatabase();
+        Cursor cursor=db.rawQuery(SELECT_QUERY,null);
+        cursor.moveToFirst();
+        filesList.add(cursor.getString(1));
+        while(cursor.moveToNext()){
+            filesList.add(cursor.getString(1));
+        }
+        return filesList;
+
+    }
+
+
+
 
 
 

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context="com.smartstorage.mobile.display.FilesByTypeActivity"
+    tools:showIn="@layout/activity_files_by_type">
+
+    <org.eazegraph.lib.charts.PieChart
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/piechart"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:layout_width="match_parent"
+        android:layout_height="500dp"
+        android:padding="8dp"
+        app:egLegendTextSize="18sp"
+        app:egUsePieRotation="true"
+        app:egValueTextSize="36sp"/>
+
+</android.support.constraint.ConstraintLayout>
