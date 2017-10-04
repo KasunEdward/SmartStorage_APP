@@ -1,10 +1,13 @@
 package com.smartstorage.mobile;
 
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 import android.widget.Toast;
@@ -33,9 +36,6 @@ import java.util.ArrayList;
 public class CopyFileToGoogleDriveActivity extends BroadcastReceiver{
     private static final String TAG = "Copying to Google Drive";
 
-
-
-//    TODO: This should be replaced with an arraylist of files
     private String fileUrl;
     Context context;
 
@@ -44,11 +44,16 @@ public class CopyFileToGoogleDriveActivity extends BroadcastReceiver{
     private DriveId driveId=MainActivity.getDriveId();
     String driveId_str;
 
+//arraylist of files
+    ArrayList<String> coyingFilesList;
+//    when this value equals to the arraylist size, Notification will be invoked
+    private static int fileCount;
+
     @Override
     public void onReceive(Context context, Intent intent) {
         this.context=context;
         //    get the Arraylist of files
-        ArrayList<String> coyingFilesList=intent.getStringArrayListExtra("copyingListToGD");
+        coyingFilesList=intent.getStringArrayListExtra("copyingListToGD");
         Log.i(GOOGLE_DRIVE_TAG,"copying files");
 
         for(int i=0;i<coyingFilesList.size();i++){
@@ -117,6 +122,25 @@ public class CopyFileToGoogleDriveActivity extends BroadcastReceiver{
                                             DatabaseHandler db = DatabaseHandler.getDbInstance(context);
                                             db.updateFileLink(fileUrl, driveId_str);
                                             Log.e("Android exxx:", driveId_str);
+                                            fileCount++;
+                                            if(fileCount==coyingFilesList.size()){
+                                                NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context);
+                                                mBuilder.setSmallIcon(R.drawable.ic_cast_dark);
+                                                String str=String.valueOf(fileCount)+" files were copied to Google Drive";
+                                                String subStr="Total 75 MB";
+                                                mBuilder.setContentTitle(str);
+                                                mBuilder.setContentText(subStr);
+
+                                                NotificationManager mNotificationManager = (NotificationManager) context.getSystemService(context.NOTIFICATION_SERVICE);
+                                                Notification notification = mBuilder.build();
+
+                                                notification.flags |= Notification.FLAG_AUTO_CANCEL;
+                                                notification.defaults |= Notification.DEFAULT_SOUND;
+                                                notification.defaults |= Notification.DEFAULT_VIBRATE;
+
+//                                                 notificationID allows you to update the notification later on.
+                                                mNotificationManager.notify(0, notification);
+                                            }
                                         }
 
                                         return;

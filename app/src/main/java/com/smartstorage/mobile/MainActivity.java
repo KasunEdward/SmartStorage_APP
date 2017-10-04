@@ -74,15 +74,24 @@ import com.smartstorage.mobile.display.FilesByTypeActivity;
 import com.smartstorage.mobile.storage.StorageChecker;
 import com.smartstorage.mobile.util.FileSystemMapper;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.w3c.dom.Text;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLConnection;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -293,22 +302,22 @@ public class MainActivity extends AppCompatActivity
         calendar.set(Calendar.SECOND, 0);
 
 //        TODO: uncomment this part to get CopyFileToGoogleDriveActivity to working state
-//        Intent alarmReceiver = new Intent(this.getApplicationContext(),CopyFileToGoogleDriveActivity.class);
-//        ArrayList<String> fileList = getFiles();
-//        alarmReceiver.putStringArrayListExtra("copyingListToGD",fileList);
-//        alarmReceiver.setAction("com.smartStorage.copytoGD");
-//
-//
-//        //This is alarm manager
-//        PendingIntent pi = PendingIntent.getBroadcast(this, 0 , alarmReceiver, PendingIntent.FLAG_UPDATE_CURRENT);
-//        AlarmManager am = (AlarmManager) this.getSystemService(ALARM_SERVICE);
-//        am.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_FIFTEEN_MINUTES/5, pi);
+        Intent alarmReceiver = new Intent(this.getApplicationContext(),CopyFileToGoogleDriveActivity.class);
+        ArrayList<String> fileList = getFiles();
+        alarmReceiver.putStringArrayListExtra("copyingListToGD",fileList);
+        alarmReceiver.setAction("com.smartStorage.copytoGD");
 
-//
-//        DatabaseHandler db=DatabaseHandler.getDbInstance(context);
 
-//        int copiedTotal=db.getNumOfCopiedFiles();
-//        Log.i(APP_TAG,String.valueOf(copiedTotal));
+        //This is alarm manager
+        PendingIntent pi = PendingIntent.getBroadcast(this, 0 , alarmReceiver, PendingIntent.FLAG_UPDATE_CURRENT);
+        AlarmManager am = (AlarmManager) this.getSystemService(ALARM_SERVICE);
+        am.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_FIFTEEN_MINUTES/5, pi);
+
+
+        DatabaseHandler db=DatabaseHandler.getDbInstance(context);
+
+        int copiedTotal=db.getNumOfCopiedFiles();
+        Log.i(APP_TAG,String.valueOf(copiedTotal));
 
 //        DatabaseHandler ndb=DatabaseHandler.getDbInstance(context);
 ////        ArrayList al=ndb.getListOfFilesToBeDeleted();
@@ -418,7 +427,20 @@ public class MainActivity extends AppCompatActivity
 //TODO: change the settings action to switch between drive accounts
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
-            return true;
+            Thread thread = new Thread(new Runnable() {
+
+                @Override
+                public void run() {
+                    try  {
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+
+            thread.start();
+
         }
         else if(id==R.id.action_copyfile){
             Log.i("Settings","Deleting Files");
