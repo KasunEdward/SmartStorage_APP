@@ -1,6 +1,7 @@
 package com.smartstorage.mobile;
 
 import android.Manifest;
+import android.accounts.AccountManager;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AlarmManager;
@@ -21,6 +22,7 @@ import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Parcelable;
 import android.os.StatFs;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
@@ -65,6 +67,8 @@ import com.google.android.gms.drive.MetadataChangeSet;
 import com.google.android.gms.drive.query.Filters;
 import com.google.android.gms.drive.query.Query;
 import com.google.android.gms.drive.query.SearchableField;
+import com.google.android.gms.plus.Account;
+import com.google.android.gms.plus.Plus;
 import com.hookedonplay.decoviewlib.DecoView;
 import com.hookedonplay.decoviewlib.charts.SeriesItem;
 import com.hookedonplay.decoviewlib.events.DecoEvent;
@@ -192,7 +196,7 @@ public class MainActivity extends AppCompatActivity
                 .build());
 
         instance=this;
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
+        GoogleClientHandler.googleApiClient = new GoogleApiClient.Builder(this)
                 .addApi(Drive.API)
                 .addScope(Drive.SCOPE_FILE)
                 .addConnectionCallbacks(this)
@@ -200,6 +204,7 @@ public class MainActivity extends AppCompatActivity
                 .build();
         prefs = getSharedPreferences(AppParams.PreferenceStr.SHARED_PREFERENCE_NAME, MODE_PRIVATE);
         drivePrefs = getSharedPreferences("Drive_type", Activity.MODE_APPEND);
+        drivePrefs.edit().putString("type", "NoDrive").commit();
         sp = getSharedPreferences("First_share_memory", Activity.MODE_APPEND);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -240,12 +245,13 @@ public class MainActivity extends AppCompatActivity
 //        TODO: only first run is checked.Must check the connectivity success/failure as well
 
 //        Determine if there
-        if (prefs.getBoolean(AppParams.PreferenceStr.FIRST_RUN, true)) {
-            if (Build.VERSION.SDK_INT >= 23) {
+        if (prefs.getBoolean(AppParams.PreferenceStr.FIRST_RUN, true)||(!drivePrefs.getString("type",null).equals("GoogleDrive")&&!drivePrefs.getString("type",null).equals("DropBox"))) {
+            if (Build.VERSION.SDK_INT >= 23) {            prefs.edit().putBoolean(AppParams.PreferenceStr.FIRST_RUN, false).commit();
+
                 requestRunTimePermission();
-            } else {
-                setDriveAccount();
             }
+            setDriveAccount();
+
             new FileSystemMapper(this).execute();
             prefs.edit().putBoolean(AppParams.PreferenceStr.FIRST_RUN, false).commit();
 
@@ -256,7 +262,7 @@ public class MainActivity extends AppCompatActivity
 
             if (drivePrefs.getString("type", "").equals("GoogleDrive")) {
                 Log.i(GOOGLE_DRIVE_TAG, "GoogleDrive drive......");
-                mGoogleApiClient.connect();
+                GoogleClientHandler.googleApiClient.connect();
 
             } else if (drivePrefs.getString("type", "").equals("DropBox")) {
                 Log.i(DROP_BOX_TAG, "Dropbox drive......");
@@ -302,17 +308,32 @@ public class MainActivity extends AppCompatActivity
         calendar.set(Calendar.SECOND, 0);
 
 //        TODO: uncomment this part to get CopyFileToGoogleDriveActivity to working state
-        Intent alarmReceiver = new Intent(this.getApplicationContext(),CopyFileToGoogleDriveActivity.class);
-        ArrayList<String> fileList = getFiles();
-        alarmReceiver.putStringArrayListExtra("copyingListToGD",fileList);
-        alarmReceiver.setAction("com.smartStorage.copytoGD");
+        if(drivePrefs.getString("type",null).equals("GoogleDrive")||drivePrefs.getString("type",null).equals("DropBox")){
+            if(drivePrefs.getString("type",null).equals("GoogleDrive")){
+                Intent alarmReceiver = new Intent(this.getApplicationContext(),CopyFileToGoogleDriveActivity.class);
+                ArrayList<String> fileList = getFiles();
+//                GoogleClientHandler.googleApiClient=mGoogleApiClient;
+//                alarmReceiver.putExtra("aa", (Parcelable) mGoogleApiClient);
+//                alarmReceiver.putExtra("bb", driveId);
+//                GoogleClientHandler.driveId=driveId;
+                alarmReceiver.putStringArrayListExtra("copyingListToGD",fileList);
+                alarmReceiver.setAction("com.smartStorage.copytoGD");
 
 
-        //This is alarm manager
-        PendingIntent pi = PendingIntent.getBroadcast(this, 0 , alarmReceiver, PendingIntent.FLAG_UPDATE_CURRENT);
-        AlarmManager am = (AlarmManager) this.getSystemService(ALARM_SERVICE);
-        am.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_FIFTEEN_MINUTES/5, pi);
+                //This is alarm manager
+                PendingIntent pi = PendingIntent.getBroadcast(this, 0 , alarmReceiver, PendingIntent.FLAG_UPDATE_CURRENT);
+                AlarmManager am = (AlarmManager) this.getSystemService(ALARM_SERVICE);
+                am.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_FIFTEEN_MINUTES/5, pi);
 
+            }
+            else{
+
+            }
+        }
+
+        if(drivePrefs.getString("type",null).equals("GoogleDrive")){
+            Log.i(APP_TAG,drivePrefs.getString("type",""));
+        }
 
         DatabaseHandler db=DatabaseHandler.getDbInstance(context);
 
@@ -379,14 +400,15 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void googleDriveConnect() {
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
+        GoogleClientHandler.googleApiClient = new GoogleApiClient.Builder(this)
                 .addApi(Drive.API)
                 .addScope(Drive.SCOPE_FILE)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .build();
-        mGoogleApiClient.connect();
+       GoogleClientHandler.googleApiClient.connect();
         drivePrefs.edit().putString("type", "GoogleDrive").commit();
+
     }
 
 
@@ -530,7 +552,7 @@ public class MainActivity extends AppCompatActivity
         Query query =
                 new Query.Builder().addFilter(Filters.and(Filters.eq(SearchableField.TITLE, "SmartApp"), Filters.eq(SearchableField.TRASHED, false)))
                         .build();
-        Drive.DriveApi.query(mGoogleApiClient, query).setResultCallback(new ResultCallback<DriveApi.MetadataBufferResult>() {
+        Drive.DriveApi.query(GoogleClientHandler.googleApiClient, query).setResultCallback(new ResultCallback<DriveApi.MetadataBufferResult>() {
             @Override
             public void onResult(DriveApi.MetadataBufferResult result) {
                 if (!result.getStatus().isSuccess()) {
@@ -541,7 +563,7 @@ public class MainActivity extends AppCompatActivity
                         if (m.getTitle().equals("SmartApp")) {
                             Log.e(GOOGLE_DRIVE_TAG, "Folder exists");
                             isFound = true;
-                            driveId = m.getDriveId();
+                            GoogleClientHandler.driveId = m.getDriveId();
                             //create_file_in_folder(driveId);
                             break;
                         }
@@ -549,8 +571,8 @@ public class MainActivity extends AppCompatActivity
                     if (!isFound) {
                         Log.i(GOOGLE_DRIVE_TAG, "Folder not found; creating it.");
                         MetadataChangeSet changeSet = new MetadataChangeSet.Builder().setTitle("SmartApp").build();
-                        Drive.DriveApi.getRootFolder(mGoogleApiClient)
-                                .createFolder(mGoogleApiClient, changeSet)
+                        Drive.DriveApi.getRootFolder(GoogleClientHandler.googleApiClient)
+                                .createFolder(GoogleClientHandler.googleApiClient, changeSet)
                                 .setResultCallback(new ResultCallback<DriveFolder.DriveFolderResult>() {
                                     @Override
                                     public void onResult(DriveFolder.DriveFolderResult result) {
@@ -558,7 +580,7 @@ public class MainActivity extends AppCompatActivity
                                             Log.e(GOOGLE_DRIVE_TAG, "U AR A MORON! Error while trying to create the folder");
                                         } else {
                                             Log.i(GOOGLE_DRIVE_TAG, "Created a folder");
-                                            driveId = result.getDriveFolder().getDriveId();
+                                            GoogleClientHandler.driveId = result.getDriveFolder().getDriveId();
 //                                            create_file_in_folder(driveId);
                                         }
                                     }

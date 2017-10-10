@@ -106,10 +106,10 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         return String.valueOf(cursor.getString(1));
     }
 
-    public void updateFileLink(String fileUrl,String file_link){
+    public void updateFileLink(String fileUrl,String file_link,String drive_type){
         ContentValues cv=new ContentValues();
         cv.put(KEY_FILE_LINK,file_link);
-        cv.put(DRIVE_TYPE,"GoogleDrive");
+        cv.put(DRIVE_TYPE,drive_type);
 
         SQLiteDatabase db=this.getWritableDatabase();
         db.update(TABLE_FILE_DETAILS,cv,"file_name=?",new String[]{fileUrl});

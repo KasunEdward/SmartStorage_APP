@@ -53,7 +53,7 @@ public class CopyFileToDropboxActivity  extends BroadcastReceiver{
                         file.length(), null, null);
 //TODO: check below updating part
                 DatabaseHandler db = DatabaseHandler.getDbInstance(context);
-                db.updateFileLink(fileUrl, response.rev);
+                db.updateFileLink(fileUrl, response.rev,"DropBox");
 
                 Log.e("DbExampleLog", "The uploaded file's rev is:" + response.rev);
 

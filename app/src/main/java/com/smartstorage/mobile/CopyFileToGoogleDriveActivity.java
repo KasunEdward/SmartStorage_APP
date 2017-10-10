@@ -12,6 +12,7 @@ import android.util.Log;
 import android.webkit.MimeTypeMap;
 import android.widget.Toast;
 
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.drive.Drive;
 import com.google.android.gms.drive.DriveApi;
@@ -41,30 +42,36 @@ public class CopyFileToGoogleDriveActivity extends BroadcastReceiver{
 
     private String GOOGLE_DRIVE_TAG="Google Drive..:";
 
-    private DriveId driveId=MainActivity.getDriveId();
+    private DriveId driveId;
     String driveId_str;
 
 //arraylist of files
     ArrayList<String> coyingFilesList;
 //    when this value equals to the arraylist size, Notification will be invoked
     private static int fileCount;
+    private static int fileCountInsideCallback=0;
+    private static GoogleApiClient mGoogleApiClient;
+
 
     @Override
     public void onReceive(Context context, Intent intent) {
         this.context=context;
+
         //    get the Arraylist of files
         coyingFilesList=intent.getStringArrayListExtra("copyingListToGD");
+//        mGoogleApiClient=intent.getParcelableExtra("aa");
+//        driveId=intent.getParcelableExtra("bb");
         Log.i(GOOGLE_DRIVE_TAG,"copying files");
 
         for(int i=0;i<coyingFilesList.size();i++){
             fileUrl=coyingFilesList.get(i);
-            Drive.DriveApi.newDriveContents(MainActivity.getGoogleApiClient())
+            Drive.DriveApi.newDriveContents(GoogleClientHandler.googleApiClient)
                     .setResultCallback(driveContentsCallback);
         }
 
 
-        Drive.DriveApi.newDriveContents(MainActivity.getGoogleApiClient())
-                .setResultCallback(driveContentsCallback);
+//        Drive.DriveApi.newDriveContents(MainActivity.getGoogleApiClient())
+//                .setResultCallback(driveContentsCallback);
     }
     ResultCallback<DriveApi.DriveContentsResult> driveContentsCallback = new
             ResultCallback<DriveApi.DriveContentsResult>() {
@@ -82,7 +89,8 @@ public class CopyFileToGoogleDriveActivity extends BroadcastReceiver{
                     public void run() {
                         // write content to DriveContents
                         OutputStream outputStream = driveContents.getOutputStream();
-                        Uri resourceUri = Uri.fromFile(new File(fileUrl));
+                        String url=coyingFilesList.get(fileCountInsideCallback++);
+                        Uri resourceUri = Uri.fromFile(new File(url));
 
                         try {
                             InputStream inputStream = context.getContentResolver().openInputStream(resourceUri);
@@ -98,10 +106,10 @@ public class CopyFileToGoogleDriveActivity extends BroadcastReceiver{
                         } catch (IOException e) {
                             Log.e(GOOGLE_DRIVE_TAG, e.getMessage());
                         }
-                        String extension = fileUrl.substring(fileUrl.indexOf(".") + 1);
+                        String extension = url.substring(url.indexOf(".") + 1);
                         String fileType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
                         Log.e(GOOGLE_DRIVE_TAG, fileType);
-                        String[] arr = fileUrl.split("/");
+                        String[] arr = url.split("/");
                         String fileName = arr[arr.length - 1].substring(0, arr[arr.length - 1].indexOf("."));
 
                         MetadataChangeSet changeSet = new MetadataChangeSet.Builder()
@@ -110,8 +118,8 @@ public class CopyFileToGoogleDriveActivity extends BroadcastReceiver{
                                 .setStarred(true).build();
 
                         // create a file in root folder
-                        DriveFolder folder = driveId.asDriveFolder();
-                        folder.createFile(MainActivity.getGoogleApiClient(), changeSet, driveContents)
+                        DriveFolder folder = GoogleClientHandler.driveId.asDriveFolder();
+                        folder.createFile(GoogleClientHandler.googleApiClient, changeSet, driveContents)
                                 .setResultCallback(new ResultCallback<DriveFolder.DriveFileResult>() {
                                     @Override
                                     public void onResult(DriveFolder.DriveFileResult result) {
@@ -120,9 +128,12 @@ public class CopyFileToGoogleDriveActivity extends BroadcastReceiver{
                                             driveId_str = Did.encodeToString();
 
                                             DatabaseHandler db = DatabaseHandler.getDbInstance(context);
-                                            db.updateFileLink(fileUrl, driveId_str);
+                                            db.updateFileLink(fileUrl, driveId_str,"GoogleDrive");
                                             Log.e("Android exxx:", driveId_str);
                                             fileCount++;
+                                            if(fileCount==coyingFilesList.size()-1){
+                                                fileCountInsideCallback=0;
+                                            }
                                             if(fileCount==coyingFilesList.size()){
                                                 NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context);
                                                 mBuilder.setSmallIcon(R.drawable.ic_cast_dark);
@@ -150,4 +161,6 @@ public class CopyFileToGoogleDriveActivity extends BroadcastReceiver{
                 }.start();
                 }
             };
+
+
 }
