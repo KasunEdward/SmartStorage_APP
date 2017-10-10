@@ -17,9 +17,9 @@
         android:title="@string/action_inference"
         app:showAsAction="never" />
     <item
-        android:id="@+id/action_viewDeletedFiles"
+        android:id="@+id/action_viewFilesDetails"
         android:orderInCategory="100"
-        android:title="Deleted Files"
+        android:title="Files Details"
         app:showAsAction="never" />
     <item
         android:id="@+id/action_viewPercentages"
