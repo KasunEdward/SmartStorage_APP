@@ -148,15 +148,15 @@ public class MainActivity extends AppCompatActivity
                 .setDelay(10)
                 .build());
 /**  Add copied files details to the chart*/
-        final SeriesItem seriesItem2 = new SeriesItem.Builder(Color.parseColor("#110b87"))
-                .setRange(0, 100, 0)
-                .build();
-
-        int series1Index2 = decoView.addSeries(seriesItem2);
-        decoView.addEvent(new DecoEvent.Builder(30f)
-                .setIndex(series1Index2)
-                .setDelay(10)
-                .build());
+//        final SeriesItem seriesItem2 = new SeriesItem.Builder(Color.parseColor("#110b87"))
+//                .setRange(0, 100, 0)
+//                .build();
+//
+//        int series1Index2 = decoView.addSeries(seriesItem2);
+//        decoView.addEvent(new DecoEvent.Builder(30f)
+//                .setIndex(series1Index2)
+//                .setDelay(10)
+//                .build());
 
         instance=this;
         GoogleClientHandler.googleApiClient = new GoogleApiClient.Builder(this)
