@@ -148,15 +148,15 @@ public class MainActivity extends AppCompatActivity
                 .setDelay(10)
                 .build());
 /**  Add copied files details to the chart*/
-        final SeriesItem seriesItem2 = new SeriesItem.Builder(Color.parseColor("#110b87"))
-                .setRange(0, 100, 0)
-                .build();
-
-        int series1Index2 = decoView.addSeries(seriesItem2);
-        decoView.addEvent(new DecoEvent.Builder(30f)
-                .setIndex(series1Index2)
-                .setDelay(10)
-                .build());
+//        final SeriesItem seriesItem2 = new SeriesItem.Builder(Color.parseColor("#110b87"))
+//                .setRange(0, 100, 0)
+//                .build();
+//
+//        int series1Index2 = decoView.addSeries(seriesItem2);
+//        decoView.addEvent(new DecoEvent.Builder(30f)
+//                .setIndex(series1Index2)
+//                .setDelay(10)
+//                .build());
 
         instance=this;
         GoogleClientHandler.googleApiClient = new GoogleApiClient.Builder(this)
@@ -167,9 +167,10 @@ public class MainActivity extends AppCompatActivity
                 .build();
         prefs = getSharedPreferences(AppParams.PreferenceStr.SHARED_PREFERENCE_NAME, MODE_PRIVATE);
         drivePrefs = getSharedPreferences("Drive_type", Activity.MODE_APPEND);
-        drivePrefs.edit().putString("type", "NoDrive").commit();
+        if(drivePrefs.getString("type",null)==null){
+            drivePrefs.edit().putString("type", "NoDrive").commit();
+        }
         sp = getSharedPreferences("First_share_memory", Activity.MODE_APPEND);
-
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -266,8 +267,8 @@ public class MainActivity extends AppCompatActivity
 
 
         Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.HOUR_OF_DAY, 00);
-        calendar.set(Calendar.MINUTE, 10);
+        calendar.set(Calendar.HOUR_OF_DAY, 23);
+        calendar.set(Calendar.MINUTE, 25);
         calendar.set(Calendar.SECOND, 0);
 
 //        TODO: uncomment this part to get CopyFileToGoogleDriveActivity to working state
@@ -286,7 +287,7 @@ public class MainActivity extends AppCompatActivity
                 //This is alarm manager
                 PendingIntent pi = PendingIntent.getBroadcast(this, 0 , alarmReceiver, PendingIntent.FLAG_UPDATE_CURRENT);
                 AlarmManager am = (AlarmManager) this.getSystemService(ALARM_SERVICE);
-                am.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_FIFTEEN_MINUTES/5, pi);
+                am.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_FIFTEEN_MINUTES/3, pi);
 
             }
             else{
