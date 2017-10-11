@@ -76,7 +76,7 @@ public class MigrationService extends Service {
 
     private void generateObservers(File file) {
         if (!CommonUtils.isTempOrCacheFile(file.getAbsolutePath()) && file.isDirectory()) {
-            addFileObserver(new SSFileObserver(file));
+            addFileObserver(new SSFileObserver(file, getApplicationContext()));
             File[] childFiles = file.listFiles();
             if (childFiles != null) {
                 for (File child : childFiles) {

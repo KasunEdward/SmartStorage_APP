@@ -23,4 +23,7 @@ public class AppParams {
     public static final String IGNORE_FILE_TEMP = "temp";
     public static final String IGNORE_FILE_TMP = "tmp";
 
+    public static final int MIGRATION_X = 2048;
+    public static final double MIGRATION_FACTOR = 0.9;
+
 }
