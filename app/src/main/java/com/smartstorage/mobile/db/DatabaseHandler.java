@@ -74,7 +74,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         values.put(KEY_SIZE, fileDetails.getSize());
 
         db.insert(TABLE_FILE_DETAILS,null,values);
-        db.close();
+//        db.close();
     }
 
     public void addMultipleFileDetails(ArrayList<FileDetails> fileDetails){
@@ -94,7 +94,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();
-            db.close();
+//            db.close();
         }
     }
 
@@ -108,7 +108,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     public ArrayList getAllFileNames(){
         ArrayList filesNames=new ArrayList();
-        String SELECT_QUERY="SELECT file_name FROM " + TABLE_FILE_DETAILS + " WHERE deleted=?";
+        String SELECT_QUERY="SELECT * FROM " + TABLE_FILE_DETAILS + " WHERE deleted=?";
         SQLiteDatabase db=this.getReadableDatabase();
         Cursor cursor=db.rawQuery(SELECT_QUERY, new String[]{"false"});
         cursor.moveToFirst();
@@ -121,7 +121,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     public ArrayList getAllFileSizes(){
         ArrayList filesSizes=new ArrayList();
-        String SELECT_QUERY="SELECT size FROM " + TABLE_FILE_DETAILS + " WHERE deleted=?";
+        String SELECT_QUERY="SELECT * FROM " + TABLE_FILE_DETAILS + " WHERE deleted=?";
         SQLiteDatabase db=this.getReadableDatabase();
         Cursor cursor=db.rawQuery(SELECT_QUERY,new String[]{"false"});
         cursor.moveToFirst();
@@ -190,6 +190,11 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             String extension = MimeTypeMap.getFileExtensionFromUrl(cursor.getString(1));
             if (extension != null) {
                 type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
+//                if(type_before!=null){
+//                    String[] type_arr=type_before.split("/");
+//                    type=type_arr[0];
+//                }
+
             }
             if(type==null){
                 type="other";

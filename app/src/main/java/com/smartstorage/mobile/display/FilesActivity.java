@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.webkit.MimeTypeMap;
 
 import com.smartstorage.mobile.R;
 import com.smartstorage.mobile.db.DatabaseHandler;
@@ -51,10 +52,18 @@ public class FilesActivity extends AppCompatActivity {
         for (int i=0;i<fileSizes.size();i++){
             String fileName = String.valueOf(fileNames.get(i));
             double size = Double.valueOf(String.valueOf(fileSizes.get(i)));
-            int begin = fileName.lastIndexOf('.');
-            int end = fileName.length();
-            String fileType = fileName.substring(begin,end);
-            switch (fileType){
+            String type = "other";
+            String extension = MimeTypeMap.getFileExtensionFromUrl(fileName);
+            if (extension != null) {
+                String type_before = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
+                String[] type_arr=type_before.split("/");
+                type=type_arr[0];
+
+            }
+            if(type==null){
+                type="other";
+            }
+            switch (type){
                 case "mp3":
                     fileDetails =new FileDetail(fileName,"dddddddd",size,R.drawable.ic_mp3,false);
                     fileDetailList.add(fileDetails);

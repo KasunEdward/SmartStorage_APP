@@ -16,6 +16,7 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -297,7 +298,7 @@ public class MainActivity extends AppCompatActivity
 
 
         Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.HOUR_OF_DAY, 17);
+        calendar.set(Calendar.HOUR_OF_DAY, 20);
         calendar.set(Calendar.MINUTE, 41);
         calendar.set(Calendar.SECOND, 0);
 
@@ -344,6 +345,10 @@ public class MainActivity extends AppCompatActivity
 ////        ArrayList al=ndb.getListOfFilesToBeDeleted();
 ////        String a=String.valueOf(al.size());
 //        Log.i(APP_TAG,a);
+
+
+        DatabaseHandler ndb= DatabaseHandler.getDbInstance(context);
+//        int arr[]=ndb.getTypesAmountList(context);
 
     }
     //TODO: dummy method to create a list of files

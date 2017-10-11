@@ -89,6 +89,7 @@ public class SSFileObserver extends FileObserver {
                 break;
             case OPEN:
                 eventType = EVENT_OPEN_STR;
+                Log.i("Inside FileObserver..:","Open");
                 break;
             default:
 //                Log.d(LOG_TAG, "No matching event");
