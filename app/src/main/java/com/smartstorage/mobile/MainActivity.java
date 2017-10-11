@@ -9,6 +9,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -16,6 +17,7 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -56,6 +58,7 @@ import com.hookedonplay.decoviewlib.events.DecoEvent;
 import com.smartstorage.mobile.db.DatabaseHandler;
 import com.smartstorage.mobile.display.FilesActivity;
 import com.smartstorage.mobile.display.FilesByTypeActivity;
+import com.smartstorage.mobile.service.MigrationService;
 import com.smartstorage.mobile.storage.StorageChecker;
 import com.smartstorage.mobile.util.FileSystemMapper;
 
@@ -243,8 +246,11 @@ public class MainActivity extends AppCompatActivity
             if (Build.VERSION.SDK_INT >= 23) {            prefs.edit().putBoolean(AppParams.PreferenceStr.FIRST_RUN, false).commit();
 
                 requestRunTimePermission();
+            } else {
+                setDriveAccount();
+                Intent serviceIntent = new Intent(getApplicationContext(), MigrationService.class);
+                startService(serviceIntent);
             }
-            setDriveAccount();
 
             new FileSystemMapper(this).execute();
             prefs.edit().putBoolean(AppParams.PreferenceStr.FIRST_RUN, false).commit();
@@ -297,7 +303,7 @@ public class MainActivity extends AppCompatActivity
 
 
         Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.HOUR_OF_DAY, 17);
+        calendar.set(Calendar.HOUR_OF_DAY, 00);
         calendar.set(Calendar.MINUTE, 41);
         calendar.set(Calendar.SECOND, 0);
 
@@ -317,7 +323,7 @@ public class MainActivity extends AppCompatActivity
                 //This is alarm manager
                 PendingIntent pi = PendingIntent.getBroadcast(this, 0 , alarmReceiver, PendingIntent.FLAG_UPDATE_CURRENT);
                 AlarmManager am = (AlarmManager) this.getSystemService(ALARM_SERVICE);
-                am.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_FIFTEEN_MINUTES/3, pi);
+                am.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pi);
 
 //              Intent for check low storage
 
@@ -344,6 +350,10 @@ public class MainActivity extends AppCompatActivity
 ////        ArrayList al=ndb.getListOfFilesToBeDeleted();
 ////        String a=String.valueOf(al.size());
 //        Log.i(APP_TAG,a);
+
+
+        DatabaseHandler ndb= DatabaseHandler.getDbInstance(context);
+//        int arr[]=ndb.getTypesAmountList(context);
 
     }
     //TODO: dummy method to create a list of files
@@ -626,6 +636,8 @@ public class MainActivity extends AppCompatActivity
                 }
                 if (criticalPermissionGranted) {
                     setDriveAccount();
+                    Intent serviceIntent = new Intent(getApplicationContext(), MigrationService.class);
+                    startService(serviceIntent);
                 } else {
                     new android.support.v7.app.AlertDialog.Builder(MainActivity.this)
                             .setMessage(Html.fromHtml("One or more required permission not granted. The app will not function correctly without the permission."))

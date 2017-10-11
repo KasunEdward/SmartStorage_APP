@@ -10,6 +10,8 @@ import android.net.Uri;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 
+import com.smartstorage.mobile.AppParams;
+
 import java.io.File;
 import java.util.ArrayList;
 
@@ -19,6 +21,7 @@ import java.util.ArrayList;
 
 public class DatabaseHandler extends SQLiteOpenHelper {
 
+    private static final String LOG_TAG = "SS_DatabaseHandler";
     private static DatabaseHandler dbInstance;
 
     private static final int DATABASE_VERSION = 1;
@@ -69,7 +72,11 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         values.put(KEY_FILE_NAME,fileDetails.getFile_name());
         values.put(KEY_FILE_LINK,fileDetails.getDrive_link());
         values.put(DRIVE_TYPE,fileDetails.getDrive_type());
-        values.put(MIGRATION_VALUE,0.0);
+        if (fileDetails.getSize() == 0){
+            values.put(MIGRATION_VALUE, 0.0);
+        }else {
+            values.put(MIGRATION_VALUE, (AppParams.MIGRATION_X / fileDetails.getSize()) * AppParams.MIGRATION_FACTOR);
+        }
         values.put(KEY_DELETED,"false");
         values.put(KEY_SIZE, fileDetails.getSize());
 
@@ -83,10 +90,17 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         try {
             ContentValues values = new ContentValues();
             for (FileDetails fileDetail: fileDetails) {
+                if (fileDetail.getFile_name().startsWith("/storage/emulated/0/Download")){
+                    Log.i(LOG_TAG,"In downloads");
+                }
                 values.put(KEY_FILE_NAME,fileDetail.getFile_name());
                 values.put(KEY_FILE_LINK,fileDetail.getDrive_link());
                 values.put(DRIVE_TYPE,fileDetail.getDrive_type());
-                values.put(MIGRATION_VALUE,0.0);
+                if (fileDetail.getSize() == 0){
+                    values.put(MIGRATION_VALUE, 0.0);
+                }else {
+                    values.put(MIGRATION_VALUE, (AppParams.MIGRATION_X / fileDetail.getSize()) * AppParams.MIGRATION_FACTOR);
+                }
                 values.put(KEY_DELETED,"false");
                 values.put(KEY_SIZE, fileDetail.getSize());
                 db.insert(TABLE_FILE_DETAILS,null,values);
@@ -108,7 +122,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     public ArrayList getAllFileNames(){
         ArrayList filesNames=new ArrayList();
-        String SELECT_QUERY="SELECT file_name FROM " + TABLE_FILE_DETAILS + " WHERE deleted=?";
+        String SELECT_QUERY="SELECT * FROM " + TABLE_FILE_DETAILS + " WHERE deleted=?";
         SQLiteDatabase db=this.getReadableDatabase();
         Cursor cursor=db.rawQuery(SELECT_QUERY, new String[]{"false"});
         cursor.moveToFirst();
@@ -121,7 +135,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     public ArrayList getAllFileSizes(){
         ArrayList filesSizes=new ArrayList();
-        String SELECT_QUERY="SELECT size FROM " + TABLE_FILE_DETAILS + " WHERE deleted=?";
+        String SELECT_QUERY="SELECT * FROM " + TABLE_FILE_DETAILS + " WHERE deleted=?";
         SQLiteDatabase db=this.getReadableDatabase();
         Cursor cursor=db.rawQuery(SELECT_QUERY,new String[]{"false"});
         cursor.moveToFirst();
@@ -167,6 +181,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         Cursor cursor=db.rawQuery(SELECT_QUERY,null);
         cursor.moveToFirst();
         int total=cursor.getCount();
+        db.close();
         return total;
 
     }
@@ -190,6 +205,11 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             String extension = MimeTypeMap.getFileExtensionFromUrl(cursor.getString(1));
             if (extension != null) {
                 type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
+//                if(type_before!=null){
+//                    String[] type_arr=type_before.split("/");
+//                    type=type_arr[0];
+//                }
+
             }
             if(type==null){
                 type="other";
@@ -214,10 +234,33 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     }
 
+    public void updateMigrationValue(String path, double value){
+        SQLiteDatabase db = this.getWritableDatabase();
+        String query = "SELECT " + KEY_ID + "," + MIGRATION_VALUE + " FROM " + TABLE_FILE_DETAILS + "WHERE " + KEY_FILE_NAME + " = " + path;
+        Cursor cursor = db.rawQuery(query, null);
+        if (cursor.moveToFirst()){
+            int fileID = cursor.getInt(1);
+            double migrationValue = cursor.getDouble(2);
+            Log.d(LOG_TAG, "file id " + fileID + " path " + path + " mig val " + migrationValue + " diff " + value);
+            ContentValues values = new ContentValues();
+            values.put(KEY_ID, fileID);
+            values.put(MIGRATION_VALUE, migrationValue);
 
+        }
+    }
 
-
-
+    public ArrayList<String> getFilesToMigrate(){
+        ArrayList<String> fileToMigrate = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT " + KEY_FILE_NAME + " FROM " + TABLE_FILE_DETAILS + " WHERE " + MIGRATION_VALUE + " < " + AppParams.MIGRATION_THRESHOLD + " AND NOT" + MIGRATION_VALUE + " = 0";
+        Cursor cursor = db.rawQuery(query, null);
+        while(cursor.moveToNext()){
+            fileToMigrate.add(cursor.getString(1));
+        }
+        db.close();
+        Log.e(LOG_TAG, "num of files to migrate" + fileToMigrate.size());
+        return fileToMigrate;
+    }
 
 
 }

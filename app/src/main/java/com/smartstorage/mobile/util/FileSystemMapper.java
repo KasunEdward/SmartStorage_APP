@@ -63,10 +63,12 @@ public class FileSystemMapper extends AsyncTask<Void, Void, Boolean> {
         File[] children = parent.listFiles();
         if (children != null) {
             for (File child : children) {
-                if (child.isDirectory()) {
-                    traverseChildren(child);
-                }else{
-                    fileDetailsList.add(new FileDetails(child.getAbsolutePath(), AppParams.DRIVE_NO_LINK, "", child.length()));
+                if (!CommonUtils.isTempOrCacheFile(child.getAbsolutePath())) {
+                    if (child.isDirectory()) {
+                        traverseChildren(child);
+                    } else {
+                        fileDetailsList.add(new FileDetails(child.getAbsolutePath(), AppParams.DRIVE_NO_LINK, "", child.length()));
+                    }
                 }
             }
         }
