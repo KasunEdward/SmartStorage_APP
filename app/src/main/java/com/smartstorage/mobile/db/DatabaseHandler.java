@@ -169,6 +169,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         Cursor cursor=db.rawQuery(SELECT_QUERY,null);
         cursor.moveToFirst();
         int total=cursor.getCount();
+        db.close();
         return total;
 
     }

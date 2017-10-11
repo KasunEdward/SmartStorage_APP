@@ -44,7 +44,7 @@ public class DeleteFilesActivity extends BroadcastReceiver {
             }
         }
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context);
-        mBuilder.setSmallIcon(R.drawable.ic_cast_dark);
+        mBuilder.setSmallIcon(R.drawable.ic_folder);
         String str=String.valueOf(listSize)+" files were deleted";
         String subStr="100 MB cleared";
         mBuilder.setContentTitle(str);
@@ -59,14 +59,5 @@ public class DeleteFilesActivity extends BroadcastReceiver {
 
 // notificationID allows you to update the notification later on.
         mNotificationManager.notify(0, notification);
-        if (!file.exists()) {
-            try {
-//                file.createNewFile();
-
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
     }
 }

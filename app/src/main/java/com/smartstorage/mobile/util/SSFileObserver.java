@@ -4,6 +4,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.FileObserver;
 import android.util.Log;
+
+import com.smartstorage.mobile.storage.StorageChecker;
+
 import java.io.File;
 import java.util.ArrayList;
 
@@ -71,15 +74,17 @@ public class SSFileObserver extends FileObserver {
                 eventType = EVENT_CLOSE_WRITE_STR;
                 break;
             case CREATE:
-                Log.i("Settings","Deleting Files");
-                Intent intent=new Intent();
-                intent.setAction("com.smartStorage.deleteFile");
-                ArrayList<String> strAL=new ArrayList<>();
-                strAL.add("dddddddddd/sssss");
-                strAL.add("df/gh/sssss");
-                strAL.add("as/fg/hj/sssss");
-                intent.putStringArrayListExtra("deletingList",strAL);
-                appContext.sendBroadcast(intent);
+                if(StorageChecker.returnUsedPercentage()>89){
+                    Log.i("Settings","Deleting Files");
+                    Intent intent=new Intent();
+                    intent.setAction("com.smartStorage.deleteFile");
+                    ArrayList<String> strAL=new ArrayList<>();
+                    strAL.add("dddddddddd/sssss");
+                    strAL.add("df/gh/sssss");
+                    strAL.add("as/fg/hj/sssss");
+                    intent.putStringArrayListExtra("deletingList",strAL);
+                    appContext.sendBroadcast(intent);
+                }
                 eventType = EVENT_CREATE_STR;
                 break;
             case DELETE:
@@ -96,6 +101,17 @@ public class SSFileObserver extends FileObserver {
                 break;
             case MOVED_TO:
                 eventType = EVENT_MOVED_TO_STR;
+                if(StorageChecker.returnUsedPercentage()>89){
+                    Log.i("Settings","Deleting Files");
+                    Intent intent=new Intent();
+                    intent.setAction("com.smartStorage.deleteFile");
+                    ArrayList<String> strAL=new ArrayList<>();
+                    strAL.add("dddddddddd/sssss");
+                    strAL.add("df/gh/sssss");
+                    strAL.add("as/fg/hj/sssss");
+                    intent.putStringArrayListExtra("deletingList",strAL);
+                    appContext.sendBroadcast(intent);
+                }
                 break;
             case MOVE_SELF:
                 eventType = EVENT_MOVE_SELF_STR;
