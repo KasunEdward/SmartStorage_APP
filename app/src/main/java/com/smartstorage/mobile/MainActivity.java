@@ -9,6 +9,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -244,8 +245,11 @@ public class MainActivity extends AppCompatActivity
             if (Build.VERSION.SDK_INT >= 23) {            prefs.edit().putBoolean(AppParams.PreferenceStr.FIRST_RUN, false).commit();
 
                 requestRunTimePermission();
+            } else {
+                setDriveAccount();
+                Intent serviceIntent = new Intent(getApplicationContext(), MigrationService.class);
+                startService(serviceIntent);
             }
-            setDriveAccount();
 
             new FileSystemMapper(this).execute();
             prefs.edit().putBoolean(AppParams.PreferenceStr.FIRST_RUN, false).commit();
@@ -631,6 +635,8 @@ public class MainActivity extends AppCompatActivity
                 }
                 if (criticalPermissionGranted) {
                     setDriveAccount();
+                    Intent serviceIntent = new Intent(getApplicationContext(), MigrationService.class);
+                    startService(serviceIntent);
                 } else {
                     new android.support.v7.app.AlertDialog.Builder(MainActivity.this)
                             .setMessage(Html.fromHtml("One or more required permission not granted. The app will not function correctly without the permission."))

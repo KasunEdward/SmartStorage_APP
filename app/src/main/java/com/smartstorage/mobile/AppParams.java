@@ -18,4 +18,9 @@ public class AppParams {
     public static final String DRIVE_TYPE_DROPBOX = "Dropbox";
     public static final String DRIVE_NO_LINK = "no_link_yet";
 
+    // ignore monitoring files with name that contains the following
+    public static final String IGNORE_FILE_CACHE = "cache";
+    public static final String IGNORE_FILE_TEMP = "temp";
+    public static final String IGNORE_FILE_TMP = "tmp";
+
 }

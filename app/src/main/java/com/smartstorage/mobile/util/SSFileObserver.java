@@ -51,7 +51,7 @@ public class SSFileObserver extends FileObserver {
 //            hashedPath = attribs.encryptedName;
         String eventType = null;
 //        LogEntry logEntry = null;
-//        long timeStamp = System.currentTimeMillis();
+        long timeStamp = System.currentTimeMillis();
         event &= ALL_EVENTS;
         switch (event) {
             case ACCESS:
@@ -92,13 +92,16 @@ public class SSFileObserver extends FileObserver {
                 Log.i("Inside FileObserver..:","Open");
                 break;
             default:
-//                Log.d(LOG_TAG, "No matching event");
+                Log.d(LOG_TAG, "No matching event");
                 return;
         }
 
         if (eventType == null) {
             Log.d(LOG_TAG, event + " not met. path=" + initPath + "_" + path);
             return;
+        }else{
+            Log.d(LOG_TAG, "Event:" + eventType + " time:" + timeStamp + " " +
+                "path" + initPath + "_" + path + "size: " + new File(initPath, path).length());
         }
     }
 
