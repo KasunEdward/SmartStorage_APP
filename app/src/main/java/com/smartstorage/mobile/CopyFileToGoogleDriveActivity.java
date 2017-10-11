@@ -136,7 +136,7 @@ public class CopyFileToGoogleDriveActivity extends BroadcastReceiver{
                                             }
                                             if(fileCount==coyingFilesList.size()){
                                                 NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context);
-                                                mBuilder.setSmallIcon(R.drawable.ic_cast_dark);
+                                                mBuilder.setSmallIcon(R.drawable.ic_folder);
                                                 String str=String.valueOf(fileCount)+" files were copied to Google Drive";
                                                 String subStr="Total 75 MB";
                                                 mBuilder.setContentTitle(str);

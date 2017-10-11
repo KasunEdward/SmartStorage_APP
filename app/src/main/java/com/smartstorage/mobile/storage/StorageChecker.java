@@ -51,7 +51,7 @@ public class StorageChecker {
 
     public static long returnUsedSpace(){
         calculateValues();
-        return used;
+        return used/1024;
     }
 
 

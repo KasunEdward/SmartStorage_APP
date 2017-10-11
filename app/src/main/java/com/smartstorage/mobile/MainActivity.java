@@ -211,6 +211,8 @@ public class MainActivity extends AppCompatActivity
         int total=db_files.getNumOfTotalFiles();
         Log.i(APP_TAG,String.valueOf(total));
 
+        long total_size=StorageChecker.returnUsedSpace();
+
 //textview to display total num of files
         TextView txtMsg=(TextView)findViewById(R.id.textView6);
         String s= String.valueOf(total)+ " Total Files";
@@ -218,6 +220,15 @@ public class MainActivity extends AppCompatActivity
         ss1.setSpan(new RelativeSizeSpan(2f), 0,s.length()-11, 0); // set size
         ss1.setSpan(new ForegroundColorSpan(Color.parseColor("#870b39")), 0, s.length()-11, 0);
         txtMsg.setText(ss1);
+
+        TextView totalSize=(TextView)findViewById(R.id.textView7);
+        String totalSizeStr= String.valueOf(total_size)+ " GB";
+        SpannableString ss3=  new SpannableString(totalSizeStr);
+//        ss3.setSpan(new RelativeSizeSpan(2f), 0,totalSizeStr.length()-11, 0); // set size
+//        ss3.setSpan(new ForegroundColorSpan(Color.parseColor("#870b39")), 0, t.length()-11, 0);
+        totalSize.setText(ss3);
+
+
 
 // textview to display num of copied files
         TextView copiedMsg=(TextView)findViewById(R.id.textView3);
@@ -286,8 +297,8 @@ public class MainActivity extends AppCompatActivity
 
 
         Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.HOUR_OF_DAY, 23);
-        calendar.set(Calendar.MINUTE, 25);
+        calendar.set(Calendar.HOUR_OF_DAY, 17);
+        calendar.set(Calendar.MINUTE, 41);
         calendar.set(Calendar.SECOND, 0);
 
 //        TODO: uncomment this part to get CopyFileToGoogleDriveActivity to working state
