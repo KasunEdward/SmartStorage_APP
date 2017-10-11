@@ -143,7 +143,7 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        decoView.addEvent(new DecoEvent.Builder(StorageChecker.returnFreeStorage())
+        decoView.addEvent(new DecoEvent.Builder(StorageChecker.returnUsedPercentage())
                 .setIndex(series1Index)
                 .setDelay(10)
                 .build());
@@ -207,6 +207,25 @@ public class MainActivity extends AppCompatActivity
     protected void onResume() {
         super.onResume();
 //        TODO: only first run is checked.Must check the connectivity success/failure as well
+        DatabaseHandler db_files=DatabaseHandler.getDbInstance(context);
+        int total=db_files.getNumOfTotalFiles();
+        Log.i(APP_TAG,String.valueOf(total));
+
+//textview to display total num of files
+        TextView txtMsg=(TextView)findViewById(R.id.textView6);
+        String s= String.valueOf(total)+ " Total Files";
+        SpannableString ss1=  new SpannableString(s);
+        ss1.setSpan(new RelativeSizeSpan(2f), 0,s.length()-11, 0); // set size
+        ss1.setSpan(new ForegroundColorSpan(Color.parseColor("#870b39")), 0, s.length()-11, 0);
+        txtMsg.setText(ss1);
+
+// textview to display num of copied files
+        TextView copiedMsg=(TextView)findViewById(R.id.textView3);
+        String s2= String.valueOf(total)+ " Copied Files";
+        SpannableString ss2=  new SpannableString(s2);
+        ss2.setSpan(new RelativeSizeSpan(2f), 0,s.length()-11, 0); // set size
+        ss2.setSpan(new ForegroundColorSpan(Color.parseColor("#110b87")), 0, s.length()-11, 0);
+        copiedMsg.setText(ss2);
 
 //        Determine if there
         if (prefs.getBoolean(AppParams.PreferenceStr.FIRST_RUN, true)||(!drivePrefs.getString("type",null).equals("GoogleDrive")&&!drivePrefs.getString("type",null).equals("DropBox"))) {
@@ -288,6 +307,12 @@ public class MainActivity extends AppCompatActivity
                 PendingIntent pi = PendingIntent.getBroadcast(this, 0 , alarmReceiver, PendingIntent.FLAG_UPDATE_CURRENT);
                 AlarmManager am = (AlarmManager) this.getSystemService(ALARM_SERVICE);
                 am.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_FIFTEEN_MINUTES/3, pi);
+
+//              Intent for check low storage
+
+
+
+
 
             }
             else{

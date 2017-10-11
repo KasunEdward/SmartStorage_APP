@@ -3,6 +3,7 @@ package com.smartstorage.mobile.storage;
 import android.os.Build;
 import android.os.Environment;
 import android.os.StatFs;
+import android.util.Log;
 
 /**
  * Created by kasun on 9/22/17.
@@ -19,7 +20,16 @@ public class StorageChecker {
         static StatFs externalStatFs = new StatFs( Environment.getExternalStorageDirectory().getAbsolutePath() );
         static long externalTotal;
         static long externalFree;
-    public static long returnFreeStorage(){
+        static  long percentage;
+        static  long total;
+        static  long free;
+        static  long used;
+    public static long returnUsedPercentage(){
+        calculateValues();
+        return percentage;
+    }
+
+    private static void calculateValues(){
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
             internalTotal = ( internalStatFs.getBlockCountLong() * internalStatFs.getBlockSizeLong() ) / ( KILOBYTE * KILOBYTE );
             internalFree = ( internalStatFs.getAvailableBlocksLong() * internalStatFs.getBlockSizeLong() ) / ( KILOBYTE * KILOBYTE );
@@ -33,13 +43,16 @@ public class StorageChecker {
             externalFree = ( (long) externalStatFs.getAvailableBlocks() * (long) externalStatFs.getBlockSize() ) / ( KILOBYTE * KILOBYTE );
         }
 
-        long total = internalTotal + externalTotal;
-        long free = internalFree + externalFree;
-        long used = total - free;
-        long percentage=(long)((float)used/total*100);
-
-        return percentage;
-
+        total = internalTotal + externalTotal;
+        free = internalFree + externalFree;
+        used = total - free;
+        percentage=(long)((float)used/total*100);
     }
+
+    public static long returnUsedSpace(){
+        calculateValues();
+        return used;
+    }
+
 
 }

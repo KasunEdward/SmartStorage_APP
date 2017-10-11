@@ -66,9 +66,10 @@
         </receiver>
         <receiver android:name=".DeleteFilesActivity">
             <intent-filter>
-                <action android:name="com.smartStorage.deleteFile" />
+                <action android:name="android.intent.action.DEVICE_STORAGE_LOW" />
             </intent-filter>
         </receiver>
+
         <!-- <service -->
         <!-- android:name=".service.UploadService" -->
         <!-- android:enabled="true" -->
