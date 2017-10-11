@@ -58,6 +58,7 @@ import com.hookedonplay.decoviewlib.events.DecoEvent;
 import com.smartstorage.mobile.db.DatabaseHandler;
 import com.smartstorage.mobile.display.FilesActivity;
 import com.smartstorage.mobile.display.FilesByTypeActivity;
+import com.smartstorage.mobile.service.MigrationService;
 import com.smartstorage.mobile.storage.StorageChecker;
 import com.smartstorage.mobile.util.FileSystemMapper;
 
