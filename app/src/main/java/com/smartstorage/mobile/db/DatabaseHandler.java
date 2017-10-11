@@ -143,6 +143,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         while(cursor.moveToNext()){
             filesSizes.add(cursor.getString(6));
         }
+        db.close();
         return filesSizes;
     }
 
@@ -252,10 +253,13 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public ArrayList<String> getFilesToMigrate(){
         ArrayList<String> fileToMigrate = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
-        String query = "SELECT " + KEY_FILE_NAME + " FROM " + TABLE_FILE_DETAILS + " WHERE " + MIGRATION_VALUE + " < " + AppParams.MIGRATION_THRESHOLD + " AND NOT" + MIGRATION_VALUE + " = 0";
+        String query = "SELECT " + KEY_FILE_NAME + " FROM " + TABLE_FILE_DETAILS + " WHERE " + MIGRATION_VALUE + " < " + AppParams.MIGRATION_THRESHOLD + " AND NOT " + MIGRATION_VALUE + " = 0";
         Cursor cursor = db.rawQuery(query, null);
-        while(cursor.moveToNext()){
+        if (cursor.moveToFirst()) {
             fileToMigrate.add(cursor.getString(1));
+            while (cursor.moveToNext()) {
+                fileToMigrate.add(cursor.getString(1));
+            }
         }
         db.close();
         Log.e(LOG_TAG, "num of files to migrate" + fileToMigrate.size());

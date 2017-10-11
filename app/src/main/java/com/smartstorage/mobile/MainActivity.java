@@ -353,7 +353,7 @@ public class MainActivity extends AppCompatActivity
 
 
         DatabaseHandler ndb= DatabaseHandler.getDbInstance(context);
-//        int arr[]=ndb.getTypesAmountList(context);
+        ArrayList<String> migratedArray=ndb.getFilesToMigrate();
 
     }
     //TODO: dummy method to create a list of files
