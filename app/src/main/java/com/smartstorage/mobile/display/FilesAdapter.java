@@ -1,6 +1,7 @@
 package com.smartstorage.mobile.display;
 
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +20,7 @@ import java.util.List;
 
 public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.DeletedFilesviewHolder> {
     private List<FileDetail> filesListDetail;
+    private boolean isSelectedAll=false;
 
 
     public class DeletedFilesviewHolder extends RecyclerView.ViewHolder{
@@ -57,11 +59,26 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.DeletedFiles
         holder.icon_image.setImageResource(fileDetail.getIconImage());
         holder.checkbox_value.setChecked(fileDetail.getCheckboxValue());
 
+        if (!isSelectedAll) holder.checkbox_value.setChecked(false);
+        else holder.checkbox_value.setChecked(true);
+
     }
 
     @Override
     public int getItemCount() {
         return filesListDetail.size();
+    }
+
+    public void selectAll(){
+        Log.d("onClickSelectAll","yes");
+        isSelectedAll=true;
+        notifyDataSetChanged();
+    }
+
+    public void deSelectAll(){
+        Log.d("onClickSelectAll","yes");
+        isSelectedAll=false;
+        notifyDataSetChanged();
     }
 
 }

@@ -17,4 +17,10 @@
     <string name="title_activity_deleted_files">Deleted Files</string>
     <string name="title_activity_files_by_type">Percentage By Type</string>
     <string name="title_activity_files_details">FilesActivity</string>
+    <string name="select_all">Select All</string>
+    <string name="copy">Copy</string>
+    <string name="delete">Delete</string>
+    <string name="never_copy">Never Copy</string>
+    <string name="never_delete">Never Delete</string>
+    <string name="deselect_all">Deselect All</string>
 </resources>

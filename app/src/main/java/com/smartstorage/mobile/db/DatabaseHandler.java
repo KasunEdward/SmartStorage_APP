@@ -106,6 +106,32 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         return String.valueOf(cursor.getString(1));
     }
 
+    public ArrayList getAllFileNames(){
+        ArrayList filesNames=new ArrayList();
+        String SELECT_QUERY="SELECT file_name FROM " + TABLE_FILE_DETAILS + " WHERE deleted=?";
+        SQLiteDatabase db=this.getReadableDatabase();
+        Cursor cursor=db.rawQuery(SELECT_QUERY, new String[]{"false"});
+        cursor.moveToFirst();
+        filesNames.add(cursor.getString(1));
+        while(cursor.moveToNext()){
+            filesNames.add(cursor.getString(1));
+        }
+        return filesNames;
+    }
+
+    public ArrayList getAllFileSizes(){
+        ArrayList filesSizes=new ArrayList();
+        String SELECT_QUERY="SELECT size FROM " + TABLE_FILE_DETAILS + " WHERE deleted=?";
+        SQLiteDatabase db=this.getReadableDatabase();
+        Cursor cursor=db.rawQuery(SELECT_QUERY,new String[]{"false"});
+        cursor.moveToFirst();
+        filesSizes.add(cursor.getString(6));
+        while(cursor.moveToNext()){
+            filesSizes.add(cursor.getString(6));
+        }
+        return filesSizes;
+    }
+
     public void updateFileLink(String fileUrl,String file_link,String drive_type){
         ContentValues cv=new ContentValues();
         cv.put(KEY_FILE_LINK,file_link);
