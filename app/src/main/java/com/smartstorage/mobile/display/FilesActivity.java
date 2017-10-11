@@ -7,6 +7,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
 import android.view.View;
 
 import com.smartstorage.mobile.R;
@@ -40,21 +41,21 @@ public class FilesActivity extends AppCompatActivity {
     }
 
     private void prepareMovieData() {
-        FileDetail fileDetail =new FileDetail("document 1","dddddddd",10.5,R.drawable.ic_doc,true);
+        FileDetail fileDetail =new FileDetail("document 1","dddddddd",10.5,R.drawable.ic_doc,false);
         fileDetailList.add(fileDetail);
         fileDetail =new FileDetail("photo jpg","dddddddd",153.4,R.drawable.ic_jpg,false);
         fileDetailList.add(fileDetail);
-        fileDetail =new FileDetail("music 1","dddddddd",200.2,R.drawable.ic_mp3,true);
+        fileDetail =new FileDetail("music 1","dddddddd",200.2,R.drawable.ic_mp3,false);
         fileDetailList.add(fileDetail);
         fileDetail =new FileDetail("video 1","dddddddd",600.35,R.drawable.ic_mp4,false);
         fileDetailList.add(fileDetail);
         fileDetail =new FileDetail("document pdf 1","dddddddd",53.63,R.drawable.ic_pdf,false);
         fileDetailList.add(fileDetail);
-        fileDetail =new FileDetail("document pdf 2","dddddddd",80.95,R.drawable.ic_pdf,true);
+        fileDetail =new FileDetail("document pdf 2","dddddddd",80.95,R.drawable.ic_pdf,false);
         fileDetailList.add(fileDetail);
         fileDetail =new FileDetail("music 2","dddddddd",163.23,R.drawable.ic_mp3,false);
         fileDetailList.add(fileDetail);
-        fileDetail =new FileDetail("document 2","dddddddd",15.5,R.drawable.ic_doc,true);
+        fileDetail =new FileDetail("document 2","dddddddd",15.5,R.drawable.ic_doc,false);
         fileDetailList.add(fileDetail);
         fileDetail =new FileDetail("photo png","dddddddd",120.5,R.drawable.ic_png,false);
         fileDetailList.add(fileDetail);
@@ -64,6 +65,12 @@ public class FilesActivity extends AppCompatActivity {
 
     public void clickCheckBox(View v){
         Log.d("checkbox "," testing checkbox");
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu){
+        getMenuInflater().inflate(R.menu.activity_files_list,menu);
+        return true;
     }
 
 }
