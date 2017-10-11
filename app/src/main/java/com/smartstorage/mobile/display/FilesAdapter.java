@@ -9,9 +9,11 @@ import android.widget.CheckBox;
 import android.widget.Checkable;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.smartstorage.mobile.R;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -21,13 +23,14 @@ import java.util.List;
 public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.DeletedFilesviewHolder> {
     private List<FileDetail> filesListDetail;
     private boolean isSelectedAll=false;
+    private ArrayList filenames=new ArrayList();
 
 
     public class DeletedFilesviewHolder extends RecyclerView.ViewHolder{
         public TextView url,drive_link,size;
 
         public ImageView icon_image;
-        public Checkable checkbox_value;
+        public CheckBox checkbox_value;
 
         public DeletedFilesviewHolder(View view) {
             super(view);
@@ -52,7 +55,8 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.DeletedFiles
 
     @Override
     public void onBindViewHolder(DeletedFilesviewHolder holder, int position) {
-        FileDetail fileDetail = filesListDetail.get(position);
+        final FileDetail fileDetail = filesListDetail.get(position);
+        final int pos=position;
         holder.url.setText(fileDetail.getUrl());
         holder.drive_link.setText(fileDetail.getDrive_link());
         holder.size.setText(String.valueOf(fileDetail.getSize()));
@@ -62,6 +66,26 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.DeletedFiles
         if (!isSelectedAll) holder.checkbox_value.setChecked(false);
         else holder.checkbox_value.setChecked(true);
 
+        holder.checkbox_value.setTag(fileDetail);
+        holder.checkbox_value.setOnClickListener(
+                new View.OnClickListener() {
+                    public void onClick(View v) {
+                        CheckBox cb = (CheckBox) v;
+                        FileDetail fd = (FileDetail) cb.getTag();
+
+                        fd.setCheckboxValue(cb.isChecked());
+                        filesListDetail.get(pos).setCheckboxValue(cb.isChecked());
+
+//                        Toast.makeText(
+//                                v.getContext(),
+//                                "Selected files: " + fd.getUrl() + " is "
+//                                        + cb.isChecked(), Toast.LENGTH_LONG).show();
+                        Log.d("file name:",fd.getUrl());
+                        filenames.add(fd.getUrl());
+                    }
+                }
+        );
+
     }
 
     @Override
@@ -70,15 +94,22 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.DeletedFiles
     }
 
     public void selectAll(){
-        Log.d("onClickSelectAll","yes");
+        Log.d("SelectAll","yes");
         isSelectedAll=true;
         notifyDataSetChanged();
     }
 
     public void deSelectAll(){
-        Log.d("onClickSelectAll","yes");
+        Log.d("deselectAll","yes");
         isSelectedAll=false;
         notifyDataSetChanged();
+    }
+
+    public void copyFiles(){
+        Log.d("copy files","yes");
+        if(!filenames.isEmpty()){
+
+        }
     }
 
 }
