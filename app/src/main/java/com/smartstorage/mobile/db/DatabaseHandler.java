@@ -10,6 +10,8 @@ import android.net.Uri;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 
+import com.smartstorage.mobile.AppParams;
+
 import java.io.File;
 import java.util.ArrayList;
 
@@ -69,12 +71,12 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         values.put(KEY_FILE_NAME,fileDetails.getFile_name());
         values.put(KEY_FILE_LINK,fileDetails.getDrive_link());
         values.put(DRIVE_TYPE,fileDetails.getDrive_type());
-        values.put(MIGRATION_VALUE,0.0);
+        values.put(MIGRATION_VALUE,(AppParams.MIGRATION_X/fileDetails.getSize())*AppParams.MIGRATION_FACTOR);
         values.put(KEY_DELETED,"false");
         values.put(KEY_SIZE, fileDetails.getSize());
 
         db.insert(TABLE_FILE_DETAILS,null,values);
-//        db.close();
+        db.close();
     }
 
     public void addMultipleFileDetails(ArrayList<FileDetails> fileDetails){
@@ -86,7 +88,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 values.put(KEY_FILE_NAME,fileDetail.getFile_name());
                 values.put(KEY_FILE_LINK,fileDetail.getDrive_link());
                 values.put(DRIVE_TYPE,fileDetail.getDrive_type());
-                values.put(MIGRATION_VALUE,0.0);
+                values.put(MIGRATION_VALUE,(AppParams.MIGRATION_X/fileDetail.getSize())*AppParams.MIGRATION_FACTOR);
                 values.put(KEY_DELETED,"false");
                 values.put(KEY_SIZE, fileDetail.getSize());
                 db.insert(TABLE_FILE_DETAILS,null,values);
@@ -94,7 +96,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();
-//            db.close();
+            db.close();
         }
     }
 
