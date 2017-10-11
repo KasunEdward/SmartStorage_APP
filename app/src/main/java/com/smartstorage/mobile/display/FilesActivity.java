@@ -51,7 +51,9 @@ public class FilesActivity extends AppCompatActivity {
         for (int i=0;i<fileSizes.size();i++){
             String fileName = String.valueOf(fileNames.get(i));
             double size = Double.valueOf(String.valueOf(fileSizes.get(i)));
-            int begin = fileName.lastIndexOf('.');
+            fileDetails =new FileDetail(fileName,"dddddddd",size,R.drawable.ic_file,false);
+            fileDetailList.add(fileDetails);
+            /*int begin = fileName.lastIndexOf('.');
             int end = fileName.length();
             String fileType = fileName.substring(begin,end);
             switch (fileType){
@@ -83,7 +85,7 @@ public class FilesActivity extends AppCompatActivity {
                     fileDetails =new FileDetail(fileName,"dddddddd",size,R.drawable.ic_file,false);
                     fileDetailList.add(fileDetails);
                     break;
-            }
+            }*/
         }
         
         FileDetail fileDetail =new FileDetail("document 1","dddddddd",10.5,R.drawable.ic_doc,false);
