@@ -318,7 +318,7 @@ public class MainActivity extends AppCompatActivity
                 //This is alarm manager
                 PendingIntent pi = PendingIntent.getBroadcast(this, 0 , alarmReceiver, PendingIntent.FLAG_UPDATE_CURRENT);
                 AlarmManager am = (AlarmManager) this.getSystemService(ALARM_SERVICE);
-                am.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_FIFTEEN_MINUTES/3, pi);
+                am.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pi);
 
 //              Intent for check low storage
 
