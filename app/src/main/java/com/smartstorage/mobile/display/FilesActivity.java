@@ -110,9 +110,9 @@ public class FilesActivity extends AppCompatActivity {
         filesAdapter.notifyDataSetChanged();
     }
 
-    public void clickCheckBox(View v){
+/*    public void clickCheckBox(View v){
         Log.d("checkbox "," testing checkbox");
-    }
+    }*/
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu){
@@ -129,6 +129,7 @@ public class FilesActivity extends AppCompatActivity {
                 return true;
             case R.id.copyfiles:
                 Log.d("file action","Copy");
+                filesAdapter.copyFiles();
                 return true;
             case R.id.deletefiles:
                 Log.d("file action","Delete");
