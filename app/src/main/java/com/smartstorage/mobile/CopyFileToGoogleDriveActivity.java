@@ -48,7 +48,7 @@ public class CopyFileToGoogleDriveActivity extends BroadcastReceiver{
 //arraylist of files
     ArrayList<String> coyingFilesList;
 //    when this value equals to the arraylist size, Notification will be invoked
-    private static int fileCount;
+    private static int fileCount=0;
     private static int fileCountInsideCallback=0;
     private static GoogleApiClient mGoogleApiClient;
 
@@ -62,6 +62,8 @@ public class CopyFileToGoogleDriveActivity extends BroadcastReceiver{
 //        mGoogleApiClient=intent.getParcelableExtra("aa");
 //        driveId=intent.getParcelableExtra("bb");
         Log.i(GOOGLE_DRIVE_TAG,"copying files");
+        fileCount=0;
+        fileCountInsideCallback=0;
 
         for(int i=0;i<coyingFilesList.size();i++){
             fileUrl=coyingFilesList.get(i);
@@ -89,7 +91,7 @@ public class CopyFileToGoogleDriveActivity extends BroadcastReceiver{
                     public void run() {
                         // write content to DriveContents
                         OutputStream outputStream = driveContents.getOutputStream();
-                        String url=coyingFilesList.get(fileCountInsideCallback++);
+                        final String url=coyingFilesList.get(fileCountInsideCallback++);
                         Uri resourceUri = Uri.fromFile(new File(url));
 
                         try {
@@ -128,11 +130,12 @@ public class CopyFileToGoogleDriveActivity extends BroadcastReceiver{
                                             driveId_str = Did.encodeToString();
 
                                             DatabaseHandler db = DatabaseHandler.getDbInstance(context);
-                                            db.updateFileLink(fileUrl, driveId_str,"GoogleDrive");
+                                            db.updateFileLink(url, driveId_str,"GoogleDrive");
                                             Log.e("Android exxx:", driveId_str);
                                             fileCount++;
                                             if(fileCount==coyingFilesList.size()-1){
                                                 fileCountInsideCallback=0;
+
                                             }
                                             if(fileCount==coyingFilesList.size()){
                                                 NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context);
@@ -151,6 +154,7 @@ public class CopyFileToGoogleDriveActivity extends BroadcastReceiver{
 
 //                                                 notificationID allows you to update the notification later on.
                                                 mNotificationManager.notify(0, notification);
+                                                fileCount=0;
                                             }
                                         }
 

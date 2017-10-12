@@ -45,11 +45,12 @@ public class FilesActivity extends AppCompatActivity {
 
     private void prepareMovieData() {
         dbHandler= DatabaseHandler.getDbInstance(this.getApplicationContext());
-        ArrayList fileNames = dbHandler.getAllFileNames();
+        ArrayList fileNames = dbHandler.getFilesToMigrate();
         ArrayList fileSizes = dbHandler.getAllFileSizes();
         FileDetail fileDetails;
-        for (int i=0;i<fileSizes.size();i++){
+        for (int i=0;i<fileNames.size();i++){
             String fileName = String.valueOf(fileNames.get(i));
+//            fileName = fileName.substring(fileName.lastIndexOf('/')+1, fileName.length());
             double size = Double.valueOf(String.valueOf(fileSizes.get(i)));
             fileDetails =new FileDetail(fileName,"dddddddd",size,R.drawable.ic_file,false);
             fileDetailList.add(fileDetails);
@@ -88,7 +89,7 @@ public class FilesActivity extends AppCompatActivity {
             }*/
         }
         
-        FileDetail fileDetail =new FileDetail("document 1","dddddddd",10.5,R.drawable.ic_doc,false);
+        /*FileDetail fileDetail =new FileDetail("document 1","dddddddd",10.5,R.drawable.ic_doc,false);
         fileDetailList.add(fileDetail);
         fileDetail =new FileDetail("photo jpg","dddddddd",153.4,R.drawable.ic_jpg,false);
         fileDetailList.add(fileDetail);
@@ -106,7 +107,7 @@ public class FilesActivity extends AppCompatActivity {
         fileDetailList.add(fileDetail);
         fileDetail =new FileDetail("photo png","dddddddd",120.5,R.drawable.ic_png,false);
         fileDetailList.add(fileDetail);
-
+*/
         filesAdapter.notifyDataSetChanged();
     }
 

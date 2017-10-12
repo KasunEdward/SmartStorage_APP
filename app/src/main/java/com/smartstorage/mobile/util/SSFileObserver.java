@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.FileObserver;
 import android.util.Log;
 
+import com.smartstorage.mobile.db.DatabaseHandler;
 import com.smartstorage.mobile.storage.StorageChecker;
 
 import java.io.File;
@@ -79,9 +80,8 @@ public class SSFileObserver extends FileObserver {
                     Intent intent=new Intent();
                     intent.setAction("com.smartStorage.deleteFile");
                     ArrayList<String> strAL=new ArrayList<>();
-                    strAL.add("dddddddddd/sssss");
-                    strAL.add("df/gh/sssss");
-                    strAL.add("as/fg/hj/sssss");
+                    DatabaseHandler db=DatabaseHandler.getDbInstance(appContext);
+                    strAL=db.getListOfFilesToBeDeleted();
                     intent.putStringArrayListExtra("deletingList",strAL);
                     appContext.sendBroadcast(intent);
                 }
@@ -106,9 +106,8 @@ public class SSFileObserver extends FileObserver {
                     Intent intent=new Intent();
                     intent.setAction("com.smartStorage.deleteFile");
                     ArrayList<String> strAL=new ArrayList<>();
-                    strAL.add("dddddddddd/sssss");
-                    strAL.add("df/gh/sssss");
-                    strAL.add("as/fg/hj/sssss");
+                    DatabaseHandler db=DatabaseHandler.getDbInstance(appContext);
+                    strAL=db.getListOfFilesToBeDeleted();
                     intent.putStringArrayListExtra("deletingList",strAL);
                     appContext.sendBroadcast(intent);
                 }

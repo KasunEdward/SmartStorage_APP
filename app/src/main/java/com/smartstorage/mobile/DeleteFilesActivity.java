@@ -26,22 +26,8 @@ public class DeleteFilesActivity extends BroadcastReceiver {
 //        File file = new File("/storage/emulated/0/DCIM/Camera/20171005_223016.jpg");
 //        file.delete();
         Log.i("Deleting elements",String.valueOf(arl.size()));
-        File file=null;
-        file=new File("/storage/emulated/0/DCIM/Camera/20171006_193824.jpg");
-        file.delete();
-
         for(int i=0;i<listSize;i++){
-//            String url=arl.get(i);
-//            file=new File(url);
-        }
-
-        file=new File("/storage/emulated/0/DCIM/Camera/20171006_193824.jpg");
-        if (!file.exists()) {
-            try {
-                file.createNewFile();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            Log.i("Deleted File names...:",arl.get(i));
         }
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context);
         mBuilder.setSmallIcon(R.drawable.ic_folder);

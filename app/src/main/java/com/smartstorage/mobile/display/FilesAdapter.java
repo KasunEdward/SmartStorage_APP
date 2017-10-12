@@ -1,5 +1,6 @@
 package com.smartstorage.mobile.display;
 
+import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -11,6 +12,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.smartstorage.mobile.CopyFileToGoogleDriveActivity;
 import com.smartstorage.mobile.R;
 
 import java.util.ArrayList;
@@ -24,6 +26,7 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.DeletedFiles
     private List<FileDetail> filesListDetail;
     private boolean isSelectedAll=false;
     private ArrayList filenames=new ArrayList();
+    private ViewGroup parent;
 
 
     public class DeletedFilesviewHolder extends RecyclerView.ViewHolder{
@@ -31,6 +34,7 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.DeletedFiles
 
         public ImageView icon_image;
         public CheckBox checkbox_value;
+
 
         public DeletedFilesviewHolder(View view) {
             super(view);
@@ -47,6 +51,7 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.DeletedFiles
     }
     @Override
     public DeletedFilesviewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        this.parent=parent;
         View itemView = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.deleted_files_list_row, parent, false);
 
@@ -108,7 +113,11 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.DeletedFiles
     public void copyFiles(){
         Log.d("copy files","yes");
         if(!filenames.isEmpty()){
-
+            Log.i("Files Selected...:",String.valueOf(filenames.size()));
+            Intent copyFilesIntent=new Intent(parent.getContext(), CopyFileToGoogleDriveActivity.class);
+            copyFilesIntent.putStringArrayListExtra("copyingListToGD",filenames);
+            copyFilesIntent.setAction("com.smartStorage.copytoGD");
+            parent.getContext().sendBroadcast(copyFilesIntent);
         }
     }
 

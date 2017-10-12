@@ -256,9 +256,9 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         String query = "SELECT " + KEY_FILE_NAME + " FROM " + TABLE_FILE_DETAILS + " WHERE " + MIGRATION_VALUE + " < " + AppParams.MIGRATION_THRESHOLD + " AND NOT " + MIGRATION_VALUE + " = 0";
         Cursor cursor = db.rawQuery(query, null);
         if (cursor.moveToFirst()) {
-            fileToMigrate.add(cursor.getString(1));
+            fileToMigrate.add(cursor.getString(0));
             while (cursor.moveToNext()) {
-                fileToMigrate.add(cursor.getString(1));
+                fileToMigrate.add(cursor.getString(0));
             }
         }
         db.close();
