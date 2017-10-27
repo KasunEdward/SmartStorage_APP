@@ -9,6 +9,7 @@ import android.support.annotation.IntDef;
 import android.util.Log;
 
 import com.smartstorage.mobile.util.CommonUtils;
+import com.smartstorage.mobile.util.CustomFileObserver;
 import com.smartstorage.mobile.util.SSFileObserver;
 
 import java.io.File;
@@ -19,6 +20,7 @@ public class MigrationService extends Service {
     public static final String LOG_TAG = "SS_MigrationService";
     public static boolean running = false;
     public static ArrayList<SSFileObserver> fileObserverList = new ArrayList<>();
+    public static CustomFileObserver tempObserver;
 
     public MigrationService() {
     }
@@ -61,6 +63,8 @@ public class MigrationService extends Service {
         for (SSFileObserver observer : fileObserverList){
             observer.startWatching();
         }
+        tempObserver = new CustomFileObserver(new File("/storage/emulated/0/Pictures/Layout"),getApplicationContext());
+        tempObserver.startWatching();
         Log.i(LOG_TAG, "Starting migration service");
         return Service.START_STICKY;
     }
@@ -72,6 +76,7 @@ public class MigrationService extends Service {
         for (SSFileObserver observer : fileObserverList){
             observer.stopWatching();
         }
+        tempObserver.stopWatching();
     }
 
     private void generateObservers(File file) {

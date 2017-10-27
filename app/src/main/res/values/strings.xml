@@ -6,7 +6,7 @@
 
     <string name="action_settings">Settings</string>
     <string name="action_inference">Prefetch Data</string>
-    <string name="action_copyfile">Copy Files</string>
+    <string name="action_copyfile">Delete Files</string>
     <string name="action_file">Files Details</string>
     <string name="permission_not_grant_message">One or more permission not granted. The app will
         not function correctly without the permission. To fix this go to settings -> apps -> SmartStorageApp

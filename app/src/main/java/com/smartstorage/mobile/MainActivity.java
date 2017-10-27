@@ -303,8 +303,8 @@ public class MainActivity extends AppCompatActivity
 
 
         Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.HOUR_OF_DAY, 23);
-        calendar.set(Calendar.MINUTE, 41);
+        calendar.set(Calendar.HOUR_OF_DAY,8);
+        calendar.set(Calendar.MINUTE, 46);
         calendar.set(Calendar.SECOND, 0);
 
 //        TODO: uncomment this part to get CopyFileToGoogleDriveActivity to working state
@@ -321,10 +321,11 @@ public class MainActivity extends AppCompatActivity
 
 
                 //This is alarm manager
-                PendingIntent pi = PendingIntent.getBroadcast(this, 0 , alarmReceiver, PendingIntent.FLAG_UPDATE_CURRENT);
-                AlarmManager am = (AlarmManager) this.getSystemService(ALARM_SERVICE);
-                am.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pi);
-
+                if (PendingIntent.getBroadcast(this, 0 , alarmReceiver, PendingIntent.FLAG_NO_CREATE) == null) {
+                    PendingIntent pi = PendingIntent.getBroadcast(this, 0, alarmReceiver, PendingIntent.FLAG_UPDATE_CURRENT);
+                    AlarmManager am = (AlarmManager) this.getSystemService(ALARM_SERVICE);
+                    am.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_HOUR, pi);
+                }
 //              Intent for check low storage
 
 

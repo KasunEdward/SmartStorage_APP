@@ -18,13 +18,13 @@ import org.apache.http.impl.client.DefaultHttpClient;
  */
 public class RestAPI {
 
-    public String predict(int[] arr) {
+    public static void predict(/*int[] arr*/) {
 
         HttpClient httpClient = new DefaultHttpClient();
 //
-//        int[] arr = {
-//                6,3,2074,4096,2073,2072,2073,2074,2075
-//        };
+        int[] arr = {
+                6,3,2074,4096,2073,2072,2073,2074,2075
+        };
 
         StringBuilder stringBuilder = new StringBuilder();
         for(int i=0 ; i<arr.length; ++i){
@@ -55,7 +55,7 @@ public class RestAPI {
                     while ((bytesRead = bis.read(buffer)) != -1) {
                         chunk = new String(buffer, 0, bytesRead);
                         System.out.println(chunk);
-                        return chunk;
+                        //return chunk;
                     }
 
                 } catch (Exception e) {
@@ -69,6 +69,6 @@ public class RestAPI {
         } finally {
             httpClient.getConnectionManager().shutdown();
         }
-       return "";
+        System.out.println("[5749, 5750, 5751, 4521]");;
     }
 }

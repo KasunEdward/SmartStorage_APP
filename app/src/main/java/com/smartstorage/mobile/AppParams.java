@@ -25,5 +25,5 @@ public class AppParams {
 
     public static final double MIGRATION_X = 169916.5;
     public static final double MIGRATION_FACTOR = 0.9;
-    public static final double MIGRATION_THRESHOLD = 1.0;
+    public static final double MIGRATION_THRESHOLD = 0.02;
 }

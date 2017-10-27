@@ -36,6 +36,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     private static final String MIGRATION_VALUE = "migration_value";
     private static final String KEY_DELETED = "deleted";
     private static final String KEY_SIZE = "size";
+    private static final String KEY_NEVER_DELETE="never_delete";
+    private static final String KEY_NEVER_COPY="never_copy";
 
     private DatabaseHandler(Context context){
         super(context,DATABASE_NAME,null,DATABASE_VERSION);
@@ -51,7 +53,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         String CREATE_FILE_DETAILS_TABLE = "CREATE TABLE " + TABLE_FILE_DETAILS + "("
             + KEY_ID + " INTEGER PRIMARY KEY," + KEY_FILE_NAME + " TEXT," + DRIVE_TYPE + " TEXT," + MIGRATION_VALUE + " REAL,"
-                + KEY_FILE_LINK + " TEXT," + KEY_DELETED +" TEXT,"+ KEY_SIZE + " INTEGER" + ")";
+                + KEY_FILE_LINK + " TEXT," + KEY_DELETED +" TEXT,"+ KEY_SIZE + " INTEGER," + KEY_NEVER_DELETE + " TEXT," + KEY_NEVER_COPY+" TEXT"+" )";
         db.execSQL(CREATE_FILE_DETAILS_TABLE);
 
 
@@ -256,9 +258,9 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         String query = "SELECT " + KEY_FILE_NAME + " FROM " + TABLE_FILE_DETAILS + " WHERE " + MIGRATION_VALUE + " < " + AppParams.MIGRATION_THRESHOLD + " AND NOT " + MIGRATION_VALUE + " = 0";
         Cursor cursor = db.rawQuery(query, null);
         if (cursor.moveToFirst()) {
-            fileToMigrate.add(cursor.getString(1));
+            fileToMigrate.add(cursor.getString(0));
             while (cursor.moveToNext()) {
-                fileToMigrate.add(cursor.getString(1));
+                fileToMigrate.add(cursor.getString(0));
             }
         }
         db.close();
@@ -266,5 +268,12 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         return fileToMigrate;
     }
 
+    public void updateNeverDeleteStatus(String fileUrl){
+        ContentValues cv=new ContentValues();
+        cv.put(KEY_NEVER_DELETE,"TRUE");
+
+        SQLiteDatabase db=this.getWritableDatabase();
+        db.update(TABLE_FILE_DETAILS,cv,"file_name=?",new String[]{fileUrl});
+    }
 
 }

@@ -6,6 +6,7 @@ import android.os.FileObserver;
 import android.util.Log;
 
 import com.smartstorage.mobile.db.DatabaseHandler;
+import com.smartstorage.mobile.machine_learning.RestAPI;
 import com.smartstorage.mobile.storage.StorageChecker;
 
 import java.io.File;
@@ -15,7 +16,7 @@ import java.util.ArrayList;
  * Created by Irfad Hussain on 3/17/2017.
  */
 
-public class SSFileObserver extends FileObserver {
+public class CustomFileObserver extends FileObserver {
 
     private static final String LOG_TAG = "SS_SSFileObserver";
 
@@ -37,7 +38,7 @@ public class SSFileObserver extends FileObserver {
     private String initPath;
     private Context appContext;
 
-    public SSFileObserver(File file, Context appContext) {
+    public CustomFileObserver(File file, Context appContext) {
         super(file.getAbsolutePath(), ALL_EVENTS);
         this.initPath = file.getAbsolutePath();
         this.appContext = appContext;
@@ -48,17 +49,7 @@ public class SSFileObserver extends FileObserver {
         if (path == null) {
             path = "";
         }
-//        EventAttribs attribs = this.fileEventAttribs.get(path);
-//        if (attribs == null) {
-//            Log.d(LOG_TAG, "attribs null for path" + path);
-//            File newFile = new File(initPath, path);
-//            attribs = new EventAttribs(path, newFile.isDirectory());
-//            fileEventAttribs.put(path, attribs);
-//        }
-//        if (!path.isEmpty())
-//            hashedPath = attribs.encryptedName;
         String eventType = null;
-//        LogEntry logEntry = null;
         long timeStamp = System.currentTimeMillis();
         event &= ALL_EVENTS;
         switch (event) {
@@ -75,16 +66,6 @@ public class SSFileObserver extends FileObserver {
                 eventType = EVENT_CLOSE_WRITE_STR;
                 break;
             case CREATE:
-                if(StorageChecker.returnUsedPercentage()>=89){
-                    Log.i("Settings","Deleting Files");
-                    Intent intent=new Intent();
-                    intent.setAction("com.smartStorage.deleteFile");
-                    ArrayList<String> strAL=new ArrayList<>();
-                    DatabaseHandler db=DatabaseHandler.getDbInstance(appContext);
-                    strAL=db.getListOfFilesToBeDeleted();
-                    intent.putStringArrayListExtra("deletingList",strAL);
-                    appContext.sendBroadcast(intent);
-                }
                 eventType = EVENT_CREATE_STR;
                 break;
             case DELETE:
@@ -101,29 +82,19 @@ public class SSFileObserver extends FileObserver {
                 break;
             case MOVED_TO:
                 eventType = EVENT_MOVED_TO_STR;
-                if(StorageChecker.returnUsedPercentage()>89){
-                    Log.i("Settings","Deleting Files");
-                    Intent intent=new Intent();
-                    intent.setAction("com.smartStorage.deleteFile");
-                    ArrayList<String> strAL=new ArrayList<>();
-                    DatabaseHandler db=DatabaseHandler.getDbInstance(appContext);
-                    strAL=db.getListOfFilesToBeDeleted();
-                    intent.putStringArrayListExtra("deletingList",strAL);
-                    appContext.sendBroadcast(intent);
-                }
                 break;
             case MOVE_SELF:
                 eventType = EVENT_MOVE_SELF_STR;
                 break;
             case OPEN:
                 eventType = EVENT_OPEN_STR;
-                Log.i("Inside FileObserver..:","Open");
+                Log.i("Inside Custom Observer:","Open");
                 break;
             default:
                 Log.d(LOG_TAG, "No matching event");
                 return;
         }
-
+        RestAPI.predict();
         if (eventType == null) {
             Log.d(LOG_TAG, event + " not met. path=" + initPath + "_" + path);
             return;
