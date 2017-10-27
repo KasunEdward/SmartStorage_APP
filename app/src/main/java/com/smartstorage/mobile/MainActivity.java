@@ -303,8 +303,8 @@ public class MainActivity extends AppCompatActivity
 
 
         Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.HOUR_OF_DAY, 03);
-        calendar.set(Calendar.MINUTE, 32);
+        calendar.set(Calendar.HOUR_OF_DAY,8);
+        calendar.set(Calendar.MINUTE, 46);
         calendar.set(Calendar.SECOND, 0);
 
 //        TODO: uncomment this part to get CopyFileToGoogleDriveActivity to working state

@@ -14,6 +14,7 @@ import android.widget.Toast;
 
 import com.smartstorage.mobile.CopyFileToGoogleDriveActivity;
 import com.smartstorage.mobile.R;
+import com.smartstorage.mobile.db.DatabaseHandler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -119,6 +120,17 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.DeletedFiles
             copyFilesIntent.setAction("com.smartStorage.copytoGD");
             parent.getContext().sendBroadcast(copyFilesIntent);
         }
+    }
+    public void setNeverDelete(){
+        Log.d("files Adapter:","updating never deleting status.......");
+        if(!filenames.isEmpty()){
+            for(int i=0;i<filenames.size();i++){
+                DatabaseHandler db=DatabaseHandler.getDbInstance(parent.getContext());
+                db.updateNeverDeleteStatus(String.valueOf(filenames.get(i)));
+
+            }
+        }
+
     }
 
 }

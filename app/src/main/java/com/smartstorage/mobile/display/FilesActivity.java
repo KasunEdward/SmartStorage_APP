@@ -89,25 +89,6 @@ public class FilesActivity extends AppCompatActivity {
             }*/
         }
         
-        /*FileDetail fileDetail =new FileDetail("document 1","dddddddd",10.5,R.drawable.ic_doc,false);
-        fileDetailList.add(fileDetail);
-        fileDetail =new FileDetail("photo jpg","dddddddd",153.4,R.drawable.ic_jpg,false);
-        fileDetailList.add(fileDetail);
-        fileDetail =new FileDetail("music 1","dddddddd",200.2,R.drawable.ic_mp3,false);
-        fileDetailList.add(fileDetail);
-        fileDetail =new FileDetail("video 1","dddddddd",600.35,R.drawable.ic_mp4,false);
-        fileDetailList.add(fileDetail);
-        fileDetail =new FileDetail("document pdf 1","dddddddd",53.63,R.drawable.ic_pdf,false);
-        fileDetailList.add(fileDetail);
-        fileDetail =new FileDetail("document pdf 2","dddddddd",80.95,R.drawable.ic_pdf,false);
-        fileDetailList.add(fileDetail);
-        fileDetail =new FileDetail("music 2","dddddddd",163.23,R.drawable.ic_mp3,false);
-        fileDetailList.add(fileDetail);
-        fileDetail =new FileDetail("document 2","dddddddd",15.5,R.drawable.ic_doc,false);
-        fileDetailList.add(fileDetail);
-        fileDetail =new FileDetail("photo png","dddddddd",120.5,R.drawable.ic_png,false);
-        fileDetailList.add(fileDetail);
-*/
         filesAdapter.notifyDataSetChanged();
     }
 
@@ -140,6 +121,7 @@ public class FilesActivity extends AppCompatActivity {
                 return true;
             case R.id.neverdelete:
                 Log.d("file action","Never Delete");
+                filesAdapter.setNeverDelete();
                 return true;
             case R.id.deselectall:
                 Log.d("file action","Deselect All");
