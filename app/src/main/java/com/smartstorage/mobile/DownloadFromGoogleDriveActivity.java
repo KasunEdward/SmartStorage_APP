@@ -34,6 +34,7 @@ public class DownloadFromGoogleDriveActivity extends BroadcastReceiver{
     public void onReceive(Context context, Intent intent) {
         this.context=context;
         DatabaseHandler db = DatabaseHandler.getDbInstance(context);
+        fileUrl = intent.getStringExtra("fileUrl");
         String driveId_str = db.getFileLink(fileUrl);
 //        driveId_str="DriveId:CAASABjkDiCO9tni-lQoAA==";
         DriveFile file = Drive.DriveApi.getFile(MainActivity.getGoogleApiClient(), DriveId.decodeFromString(driveId_str));
