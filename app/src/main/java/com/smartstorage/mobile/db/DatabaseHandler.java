@@ -1,10 +1,12 @@
 package com.smartstorage.mobile.db;
 
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.net.Uri;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 
@@ -58,6 +60,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 + KEY_FILE_LINK + " TEXT," + KEY_DELETED + " TEXT," + KEY_SIZE + " INTEGER," + KEY_NEVER_DELETE + " TEXT," + KEY_NEVER_COPY + " TEXT, "
                 + KEY_LAST_ACCESS + " INTEGER " + " )";
         db.execSQL(CREATE_FILE_DETAILS_TABLE);
+
+
     }
 
     @Override
@@ -121,24 +125,53 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         return String.valueOf(cursor.getString(1));
     }
 
-    public ArrayList getAllFileNames() {
-        ArrayList filesNames = new ArrayList();
-        String SELECT_QUERY = "SELECT * FROM " + TABLE_FILE_DETAILS + " WHERE deleted=?";
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery(SELECT_QUERY, new String[]{"false"});
+    public String getFileId(String drive_link){
+        String SELECT_QUERY="SELECT * FROM " + TABLE_FILE_DETAILS + " WHERE file_name=?";
+        SQLiteDatabase db=this.getReadableDatabase();
+        Cursor cursor=db.rawQuery(SELECT_QUERY,new String[]{drive_link});
+        cursor.moveToFirst();
+        return String.valueOf(cursor.getString(0));
+    }
+
+    public String getFileName(String fileID){
+        String SELECT_QUERY="SELECT * FROM " + TABLE_FILE_DETAILS + " WHERE id=?";
+        SQLiteDatabase db=this.getReadableDatabase();
+        Cursor cursor=db.rawQuery(SELECT_QUERY,new String[]{fileID});
+        cursor.moveToFirst();
+        String fileName = String.valueOf(cursor.getString(1));
+        fileName = fileName.substring(fileName.lastIndexOf("/")+1,fileName.length());
+        return fileName;
+    }
+
+    public boolean isDeleted(String fileID){
+        String SELECT_QUERY="SELECT * FROM " + TABLE_FILE_DETAILS + " WHERE id=?";
+        SQLiteDatabase db=this.getReadableDatabase();
+        Cursor cursor=db.rawQuery(SELECT_QUERY,new String[]{fileID});
+        cursor.moveToFirst();
+        String fileName = String.valueOf(cursor.getString(5));
+        if(fileName.equals("true"))
+            return true;
+        return false;
+    }
+
+    public ArrayList getAllFileNames(){
+        ArrayList filesNames=new ArrayList();
+        String SELECT_QUERY="SELECT * FROM " + TABLE_FILE_DETAILS + " WHERE deleted=?";
+        SQLiteDatabase db=this.getReadableDatabase();
+        Cursor cursor=db.rawQuery(SELECT_QUERY, new String[]{"false"});
         cursor.moveToFirst();
         filesNames.add(cursor.getString(1));
-        while (cursor.moveToNext()) {
+        while(cursor.moveToNext()){
             filesNames.add(cursor.getString(1));
         }
         return filesNames;
     }
 
-    public ArrayList getAllFileSizes() {
-        ArrayList filesSizes = new ArrayList();
-        String SELECT_QUERY = "SELECT * FROM " + TABLE_FILE_DETAILS + " WHERE deleted=?";
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery(SELECT_QUERY, new String[]{"false"});
+    public ArrayList getAllFileSizes(){
+        ArrayList filesSizes=new ArrayList();
+        String SELECT_QUERY="SELECT * FROM " + TABLE_FILE_DETAILS + " WHERE deleted=?";
+        SQLiteDatabase db=this.getReadableDatabase();
+        Cursor cursor=db.rawQuery(SELECT_QUERY,new String[]{"false"});
         cursor.moveToFirst();
         filesSizes.add(cursor.getString(6));
         while (cursor.moveToNext()) {

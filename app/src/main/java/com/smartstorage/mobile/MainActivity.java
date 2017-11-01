@@ -190,6 +190,7 @@ public class MainActivity extends AppCompatActivity
          * */
         DatabaseHandler db=DatabaseHandler.getDbInstance(context);
         int total=db.getNumOfTotalFiles();
+        int copied=db.getNumOfCopiedFiles();
         Log.i(APP_TAG,String.valueOf(total));
 
 //textview to display total num of files
@@ -202,10 +203,10 @@ public class MainActivity extends AppCompatActivity
 
 // textview to display num of copied files
         TextView copiedMsg=(TextView)findViewById(R.id.textView3);
-        String s2= String.valueOf(total)+ " Copied Files";
+        String s2= String.valueOf(copied)+ " Copied Files";
         SpannableString ss2=  new SpannableString(s2);
-        ss2.setSpan(new RelativeSizeSpan(2f), 0,s.length()-11, 0); // set size
-        ss2.setSpan(new ForegroundColorSpan(Color.parseColor("#110b87")), 0, s.length()-11, 0);
+        ss2.setSpan(new RelativeSizeSpan(2f), 0,2, 0); // set size
+        ss2.setSpan(new ForegroundColorSpan(Color.parseColor("#110b87")), 0, 2, 0);
         copiedMsg.setText(ss2);
 
         /*if (!MigrationValueUpdateAlarm.isAlarmSet(this)){
@@ -222,6 +223,7 @@ public class MainActivity extends AppCompatActivity
 //        TODO: only first run is checked.Must check the connectivity success/failure as well
         DatabaseHandler db_files=DatabaseHandler.getDbInstance(context);
         int total=db_files.getNumOfTotalFiles();
+        int copied=db_files.getNumOfCopiedFiles();
         Log.i(APP_TAG,String.valueOf(total));
 
         long total_size=StorageChecker.returnUsedSpace();
@@ -245,10 +247,10 @@ public class MainActivity extends AppCompatActivity
 
 // textview to display num of copied files
         TextView copiedMsg=(TextView)findViewById(R.id.textView3);
-        String s2= String.valueOf(total)+ " Copied Files";
+        String s2= String.valueOf(copied)+ " Copied Files";
         SpannableString ss2=  new SpannableString(s2);
-        ss2.setSpan(new RelativeSizeSpan(2f), 0,s.length()-11, 0); // set size
-        ss2.setSpan(new ForegroundColorSpan(Color.parseColor("#110b87")), 0, s.length()-11, 0);
+        ss2.setSpan(new RelativeSizeSpan(2f), 0,2, 0); // set size
+        ss2.setSpan(new ForegroundColorSpan(Color.parseColor("#110b87")), 0,2, 0);
         copiedMsg.setText(ss2);
 
 //        Determine if there
@@ -262,10 +264,7 @@ public class MainActivity extends AppCompatActivity
                 startService(serviceIntent);
             }
 
-            String fileMapperStatus = prefs.getString(AppParams.PreferenceStr.FILE_SYSTEM_MAPPED, "not mapped");
-            if (fileMapperStatus.equals("not mapped")){
-                new FileSystemMapper(this).execute();
-            }
+            new FileSystemMapper(this).execute();
             prefs.edit().putBoolean(AppParams.PreferenceStr.FIRST_RUN, false).commit();
 
         } else {
@@ -318,10 +317,9 @@ public class MainActivity extends AppCompatActivity
         }
 
 
-
         Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.HOUR_OF_DAY,23);
-        calendar.set(Calendar.MINUTE, 56);
+        calendar.set(Calendar.HOUR_OF_DAY,14);
+        calendar.set(Calendar.MINUTE, 29);
         calendar.set(Calendar.SECOND, 0);
 
 //        TODO: uncomment this part to get CopyFileToGoogleDriveActivity to working state
@@ -386,7 +384,7 @@ public class MainActivity extends AppCompatActivity
 //        Kasun's files
 //        fileList.add("/storage/emulated/0/Download/UoM-Virtual-Server-request-form-Final-Year-Projects.doc");
         fileList.add("/storage/emulated/0/DCIM/Camera/20170531_130539.jpg");
-        fileList.add("/storage/emulated/0/DCIM/Camera/20170510_163111.mp4");
+        fileList.add("/storage/emulated/0/Prefetch/Pic1.jpg");
         fileList.add("/storage/emulated/0/Samsung/Music/Over the Horizon.mp3");
         return fileList;
     }
