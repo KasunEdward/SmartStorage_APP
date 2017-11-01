@@ -56,6 +56,7 @@ import com.hookedonplay.decoviewlib.DecoView;
 import com.hookedonplay.decoviewlib.charts.SeriesItem;
 import com.hookedonplay.decoviewlib.events.DecoEvent;
 import com.smartstorage.mobile.db.DatabaseHandler;
+import com.smartstorage.mobile.display.DemoMigrationValActivity;
 import com.smartstorage.mobile.display.FilesActivity;
 import com.smartstorage.mobile.display.FilesByTypeActivity;
 import com.smartstorage.mobile.service.MigrationService;
@@ -459,40 +460,50 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 //TODO: change the settings action to switch between drive accounts
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            Thread thread = new Thread(new Runnable() {
+        switch (id) {
+            case R.id.action_settings:
+                Thread thread = new Thread(new Runnable() {
 
-                @Override
-                public void run() {
-                    try  {
+                    @Override
+                    public void run() {
+                        try {
 
-                    } catch (Exception e) {
-                        e.printStackTrace();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                     }
-                }
-            });
+                });
 
-            thread.start();
+                thread.start();
 
-        }
-        else if(id==R.id.action_copyfile){
-            Log.i("Settings","Deleting Files");
-            Intent intent=new Intent();
-            intent.setAction("com.smartStorage.deleteFile");
-            ArrayList<String> strAL=new ArrayList<>();
-            strAL.add("dddddddddd/sssss");
-            strAL.add("df/gh/sssss");
-            strAL.add("as/fg/hj/sssss");
-            intent.putStringArrayListExtra("deletingList",strAL);
-            sendBroadcast(intent);
-        }
-        else if(id==R.id.action_viewFilesDetails){
-            Intent intent=new Intent(this,FilesActivity.class);
-            startActivity(intent);
-        }
-        else if(id==R.id.action_viewPercentages){
-            Intent intent=new Intent(this,FilesByTypeActivity.class);
-            startActivity(intent);
+                break;
+            case R.id.action_copyfile: {
+                Log.i("Settings", "Deleting Files");
+                Intent intent = new Intent();
+                intent.setAction("com.smartStorage.deleteFile");
+                ArrayList<String> strAL = new ArrayList<>();
+                strAL.add("dddddddddd/sssss");
+                strAL.add("df/gh/sssss");
+                strAL.add("as/fg/hj/sssss");
+                intent.putStringArrayListExtra("deletingList", strAL);
+                sendBroadcast(intent);
+                break;
+            }
+            case R.id.action_viewFilesDetails: {
+                Intent intent = new Intent(this, FilesActivity.class);
+                startActivity(intent);
+                break;
+            }
+            case R.id.action_viewPercentages: {
+                Intent intent = new Intent(this, FilesByTypeActivity.class);
+                startActivity(intent);
+                break;
+            }
+            case R.id.action_viewMigration:{
+                Intent intent = new Intent(this, DemoMigrationValActivity.class);
+                startActivity(intent);
+                break;
+            }
         }
 
         return super.onOptionsItemSelected(item);

@@ -1,7 +1,5 @@
 package com.smartstorage.mobile.display;
 
-import android.graphics.drawable.Drawable;
-
 /**
  * Created by kasun on 9/25/17.
  */
@@ -11,11 +9,14 @@ public class FileDetail {
     private String drive_link;
     private double size;
     private int icon_image;
+    private double migration_value;
 
     private boolean checkbox_value;
-    public FileDetail(){
+
+    public FileDetail() {
     }
-    public FileDetail(String url, String drive_link, double size,int icon_image,boolean checkbox_value){
+
+    public FileDetail(String url, String drive_link, double size, int icon_image, boolean checkbox_value) {
         this.setUrl(url);
         this.setDrive_link(drive_link);
         this.setSize(size);
@@ -62,5 +63,13 @@ public class FileDetail {
 
     public void setCheckboxValue(boolean selected) {
         checkbox_value = selected;
+    }
+
+    public double getMigration_value() {
+        return migration_value;
+    }
+
+    public void setMigration_value(double migration_value) {
+        this.migration_value = migration_value;
     }
 }

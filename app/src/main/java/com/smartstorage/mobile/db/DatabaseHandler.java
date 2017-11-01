@@ -11,6 +11,7 @@ import android.util.Log;
 import android.webkit.MimeTypeMap;
 
 import com.smartstorage.mobile.AppParams;
+import com.smartstorage.mobile.display.FileDetail;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -274,6 +275,25 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
         SQLiteDatabase db=this.getWritableDatabase();
         db.update(TABLE_FILE_DETAILS,cv,"file_name=?",new String[]{fileUrl});
+    }
+
+    public ArrayList<FileDetail> getMigrationFilesForDemo(){
+        ArrayList<FileDetail> migrationFiles = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT * FROM " + TABLE_FILE_DETAILS + " WHERE LOWER(" + KEY_FILE_NAME + ") LIKE %/download/% OR LOWER(" + KEY_FILE_NAME + ") LIKE %/demo/%";
+        Cursor cursor = db.rawQuery(query, null);
+        if (cursor.moveToFirst()) {
+            String url;
+            double size, migration_val;
+
+            FileDetail fileDetail = new FileDetail();
+            migrationFiles.add(fileDetail);
+            while (cursor.moveToNext()) {
+                migrationFiles.add(fileDetail);
+            }
+        }
+        db.close();
+        return migrationFiles;
     }
 
 }
