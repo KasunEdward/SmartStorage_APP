@@ -303,7 +303,7 @@ public class MainActivity extends AppCompatActivity
 
 
         Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.HOUR_OF_DAY,8);
+        calendar.set(Calendar.HOUR_OF_DAY,23);
         calendar.set(Calendar.MINUTE, 46);
         calendar.set(Calendar.SECOND, 0);
 

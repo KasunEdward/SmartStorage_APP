@@ -122,6 +122,35 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         return String.valueOf(cursor.getString(1));
     }
 
+    public String getFileId(String drive_link){
+        String SELECT_QUERY="SELECT * FROM " + TABLE_FILE_DETAILS + " WHERE file_name=?";
+        SQLiteDatabase db=this.getReadableDatabase();
+        Cursor cursor=db.rawQuery(SELECT_QUERY,new String[]{drive_link});
+        cursor.moveToFirst();
+        return String.valueOf(cursor.getString(0));
+    }
+
+    public String getFileName(String fileID){
+        String SELECT_QUERY="SELECT * FROM " + TABLE_FILE_DETAILS + " WHERE id=?";
+        SQLiteDatabase db=this.getReadableDatabase();
+        Cursor cursor=db.rawQuery(SELECT_QUERY,new String[]{fileID});
+        cursor.moveToFirst();
+        String fileName = String.valueOf(cursor.getString(1));
+        fileName = fileName.substring(fileName.lastIndexOf("/")+1,fileName.length());
+        return fileName;
+    }
+
+    public boolean isDeleted(String fileID){
+        String SELECT_QUERY="SELECT * FROM " + TABLE_FILE_DETAILS + " WHERE id=?";
+        SQLiteDatabase db=this.getReadableDatabase();
+        Cursor cursor=db.rawQuery(SELECT_QUERY,new String[]{fileID});
+        cursor.moveToFirst();
+        String fileName = String.valueOf(cursor.getString(5));
+        if(fileName.equals("true"))
+            return true;
+        return false;
+    }
+
     public ArrayList getAllFileNames(){
         ArrayList filesNames=new ArrayList();
         String SELECT_QUERY="SELECT * FROM " + TABLE_FILE_DETAILS + " WHERE deleted=?";
