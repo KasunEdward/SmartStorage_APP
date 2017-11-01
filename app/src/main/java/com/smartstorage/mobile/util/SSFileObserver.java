@@ -128,8 +128,8 @@ public class SSFileObserver extends FileObserver {
             Log.d(LOG_TAG, event + " not met. path=" + initPath + "_" + path);
             return;
         }else{
-            Log.d(LOG_TAG, "Event:" + eventType + " time:" + timeStamp + " " +
-                "path" + initPath + "_" + path + "size: " + new File(initPath, path).length());
+//            Log.d(LOG_TAG, "Event:" + eventType + " time:" + timeStamp + " " +
+//                "path" + initPath + "_" + path + "size: " + new File(initPath, path).length());
         }
     }
 

@@ -8,6 +8,8 @@ import android.content.Intent;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
+import com.smartstorage.mobile.db.DatabaseHandler;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -23,12 +25,25 @@ public class DeleteFilesActivity extends BroadcastReceiver {
         ArrayList<String> arl=intent.getStringArrayListExtra("deletingList");
         int listSize=arl.size();
 
-//        File file = new File("/storage/emulated/0/DCIM/Camera/20171005_223016.jpg");
-//        file.delete();
+        File file = new File("/storage/emulated/0/Prefetch/Pic1.jpg");
+        file.delete();
         Log.i("Deleting elements",String.valueOf(arl.size()));
+        DatabaseHandler db=DatabaseHandler.getDbInstance(context);
         for(int i=0;i<listSize;i++){
             Log.i("Deleted File names...:",arl.get(i));
+            db.updateDeletedState(arl.get(i));
+
         }
+        File newFile = new File("/storage/emulated/0/Prefetch/Pic1.jpg");
+        if(!newFile.exists()){
+            try{
+                newFile.createNewFile();
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+
+
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context);
         mBuilder.setSmallIcon(R.drawable.ic_folder);
         String str=String.valueOf(listSize)+" files were deleted";
