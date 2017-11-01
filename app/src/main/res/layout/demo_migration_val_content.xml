@@ -5,11 +5,11 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="com.smartstorage.mobile.display.FilesActivity"
-    tools:showIn="@layout/activity_deleted_files">
+    tools:context="com.smartstorage.mobile.display.DemoMigrationValActivity"
+    tools:showIn="@layout/activity_demo_migration_val">
 
     <android.support.v7.widget.RecyclerView
-        android:id="@+id/deleted_files_view"
+        android:id="@+id/migration_files_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:scrollbars="vertical" />

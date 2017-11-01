@@ -11,6 +11,7 @@ public class AppParams {
         public static final String SHARED_PREFERENCE_NAME = "com.smartstorage.mobile";
         public static final String FIRST_RUN = "firstRun";
         public static final String FILE_SYSTEM_MAPPED = "fileSystemMapped";
+        public static final String LAST_MIGRATION_VAL_UPDATE = "lastMigrationValUpdate";
 
     }
 

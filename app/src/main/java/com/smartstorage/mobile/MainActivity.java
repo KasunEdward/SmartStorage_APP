@@ -60,6 +60,8 @@ import com.smartstorage.mobile.display.DemoMigrationValActivity;
 import com.smartstorage.mobile.display.FilesActivity;
 import com.smartstorage.mobile.display.FilesByTypeActivity;
 import com.smartstorage.mobile.service.MigrationService;
+import com.smartstorage.mobile.service.MigrationValUpdateThread;
+import com.smartstorage.mobile.service.MigrationValueUpdateAlarm;
 import com.smartstorage.mobile.storage.StorageChecker;
 import com.smartstorage.mobile.util.FileSystemMapper;
 
@@ -205,6 +207,13 @@ public class MainActivity extends AppCompatActivity
         ss2.setSpan(new RelativeSizeSpan(2f), 0,s.length()-11, 0); // set size
         ss2.setSpan(new ForegroundColorSpan(Color.parseColor("#110b87")), 0, s.length()-11, 0);
         copiedMsg.setText(ss2);
+
+        /*if (!MigrationValueUpdateAlarm.isAlarmSet(this)){
+            MigrationValueUpdateAlarm.createAlarm(this);
+        }*/
+        if (!MigrationValUpdateThread.running){
+            new MigrationValUpdateThread(getApplicationContext()).start();
+        }
     }
 
     @Override
@@ -253,13 +262,20 @@ public class MainActivity extends AppCompatActivity
                 startService(serviceIntent);
             }
 
-            new FileSystemMapper(this).execute();
+            String fileMapperStatus = prefs.getString(AppParams.PreferenceStr.FILE_SYSTEM_MAPPED, "not mapped");
+            if (fileMapperStatus.equals("not mapped")){
+                new FileSystemMapper(this).execute();
+            }
             prefs.edit().putBoolean(AppParams.PreferenceStr.FIRST_RUN, false).commit();
 
         } else {
             Log.i("App...", "not first run");
             Log.i("App...", drivePrefs.getString("type", ""));
 
+            if (!MigrationService.running){
+                Intent serviceIntent = new Intent(getApplicationContext(), MigrationService.class);
+                startService(serviceIntent);
+            }
 
             if (drivePrefs.getString("type", "").equals("GoogleDrive")) {
                 Log.i(GOOGLE_DRIVE_TAG, "GoogleDrive drive......");
@@ -304,8 +320,8 @@ public class MainActivity extends AppCompatActivity
 
 
         Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.HOUR_OF_DAY,8);
-        calendar.set(Calendar.MINUTE, 46);
+        calendar.set(Calendar.HOUR_OF_DAY,23);
+        calendar.set(Calendar.MINUTE, 56);
         calendar.set(Calendar.SECOND, 0);
 
 //        TODO: uncomment this part to get CopyFileToGoogleDriveActivity to working state

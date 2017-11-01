@@ -23,7 +23,7 @@ public class DemoMigrationFilesAdapter extends RecyclerView.Adapter<DemoMigratio
 
 
     public class MigrationFilesviewHolder extends RecyclerView.ViewHolder {
-        public TextView url, drive_link, size;
+        public TextView url, migration_val, size;
 
         public ImageView icon_image;
 
@@ -31,7 +31,7 @@ public class DemoMigrationFilesAdapter extends RecyclerView.Adapter<DemoMigratio
         public MigrationFilesviewHolder(View view) {
             super(view);
             url = (TextView) view.findViewById(R.id.url);
-            drive_link = (TextView) view.findViewById(R.id.migration_val);
+            migration_val = (TextView) view.findViewById(R.id.migration_val);
             size = (TextView) view.findViewById(R.id.size);
             icon_image = (ImageView) view.findViewById(R.id.icon_image);
         }
@@ -45,7 +45,7 @@ public class DemoMigrationFilesAdapter extends RecyclerView.Adapter<DemoMigratio
     public MigrationFilesviewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         this.parent = parent;
         View itemView = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.deleted_files_list_row, parent, false);
+                .inflate(R.layout.demo_migration_val_row, parent, false);
 
         return new MigrationFilesviewHolder(itemView);
     }
@@ -53,9 +53,8 @@ public class DemoMigrationFilesAdapter extends RecyclerView.Adapter<DemoMigratio
     @Override
     public void onBindViewHolder(MigrationFilesviewHolder holder, int position) {
         final FileDetail fileDetail = filesListDetail.get(position);
-        final int pos = position;
         holder.url.setText(fileDetail.getUrl());
-        holder.drive_link.setText(fileDetail.getDrive_link());
+        holder.migration_val.setText(String.format("%.4f", fileDetail.getMigration_value()));
         holder.size.setText(String.valueOf(fileDetail.getSize()));
         holder.icon_image.setImageResource(fileDetail.getIconImage());
 

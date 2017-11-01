@@ -6,10 +6,12 @@ import android.os.FileObserver;
 import android.util.Log;
 
 import com.smartstorage.mobile.db.DatabaseHandler;
+import com.smartstorage.mobile.db.FileDetails;
 import com.smartstorage.mobile.storage.StorageChecker;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Created by Irfad Hussain on 3/17/2017.
@@ -36,30 +38,36 @@ public class SSFileObserver extends FileObserver {
 
     private String initPath;
     private Context appContext;
+    private HashMap<String, FileDetails> children;
 
     public SSFileObserver(File file, Context appContext) {
         super(file.getAbsolutePath(), ALL_EVENTS);
         this.initPath = file.getAbsolutePath();
         this.appContext = appContext;
+        children = new HashMap<>();
+        String[] childList = file.list();
+        if (childList != null && file.list().length > 0) {
+            ArrayList<FileDetails> fileDetailses = DatabaseHandler.getDbInstance(appContext).getFileDetails(initPath, childList);
+            for (FileDetails fileDetails : fileDetailses) {
+                children.put(fileDetails.getFile_name(), fileDetails);
+            }
+        }
     }
 
     @Override
     public void onEvent(int event, String path) {
+        String eventFilePath;
+        FileDetails file;
         if (path == null) {
             path = "";
+            eventFilePath = initPath;
+        }else{
+            eventFilePath = initPath + File.separator + path;
         }
-//        EventAttribs attribs = this.fileEventAttribs.get(path);
-//        if (attribs == null) {
-//            Log.d(LOG_TAG, "attribs null for path" + path);
-//            File newFile = new File(initPath, path);
-//            attribs = new EventAttribs(path, newFile.isDirectory());
-//            fileEventAttribs.put(path, attribs);
-//        }
-//        if (!path.isEmpty())
-//            hashedPath = attribs.encryptedName;
+
         String eventType = null;
-//        LogEntry logEntry = null;
         long timeStamp = System.currentTimeMillis();
+
         event &= ALL_EVENTS;
         switch (event) {
             case ACCESS:
@@ -69,9 +77,17 @@ public class SSFileObserver extends FileObserver {
                 eventType = EVENT_ATTRIB_STR;
                 break;
             case CLOSE_NOWRITE:
+                if (children != null && (file = children.get(eventFilePath)) != null) {
+                    file.setLast_accessed(timeStamp);
+                    Log.i(LOG_TAG, "File " + eventFilePath + "closed and updated access time");
+                }
                 eventType = EVENT_CLOSE_NOWRITE_STR;
                 break;
             case CLOSE_WRITE:
+                if (children != null && (file = children.get(eventFilePath)) != null) {
+                    file.setLast_accessed(timeStamp);
+                    Log.i(LOG_TAG, "File " + eventFilePath + "closed and updated access time");
+                }
                 eventType = EVENT_CLOSE_WRITE_STR;
                 break;
             case CREATE:
@@ -128,9 +144,12 @@ public class SSFileObserver extends FileObserver {
             Log.d(LOG_TAG, event + " not met. path=" + initPath + "_" + path);
             return;
         }else{
-            Log.d(LOG_TAG, "Event:" + eventType + " time:" + timeStamp + " " +
-                "path" + initPath + "_" + path + "size: " + new File(initPath, path).length());
+//            Log.d(LOG_TAG, "Event:" + eventType + " time:" + timeStamp + " " +
+//                "path" + initPath + "_" + path + "size: " + new File(initPath, path).length());
         }
     }
 
+    public HashMap<String, FileDetails> getChildren() {
+        return children;
+    }
 }
