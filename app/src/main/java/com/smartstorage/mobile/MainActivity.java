@@ -255,7 +255,8 @@ public class MainActivity extends AppCompatActivity
 
 //        Determine if there
         if (prefs.getBoolean(AppParams.PreferenceStr.FIRST_RUN, true)||(!drivePrefs.getString("type",null).equals("GoogleDrive")&&!drivePrefs.getString("type",null).equals("DropBox"))) {
-            if (Build.VERSION.SDK_INT >= 23) {            prefs.edit().putBoolean(AppParams.PreferenceStr.FIRST_RUN, false).commit();
+            if (Build.VERSION.SDK_INT >= 23) {
+                prefs.edit().putBoolean(AppParams.PreferenceStr.FIRST_RUN, false).commit();
 
                 requestRunTimePermission();
             } else {
@@ -264,7 +265,10 @@ public class MainActivity extends AppCompatActivity
                 startService(serviceIntent);
             }
 
-            new FileSystemMapper(this).execute();
+            if (prefs.getString(AppParams.PreferenceStr.FILE_SYSTEM_MAPPED, "not_mapped").equals("not_mapped")) {
+                prefs.edit().putString(AppParams.PreferenceStr.FILE_SYSTEM_MAPPED, "mapping").commit();
+                new FileSystemMapper(this).execute();
+            }
             prefs.edit().putBoolean(AppParams.PreferenceStr.FIRST_RUN, false).commit();
 
         } else {

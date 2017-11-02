@@ -13,6 +13,7 @@ import android.view.MenuItem;
 import com.smartstorage.mobile.R;
 import com.smartstorage.mobile.db.DatabaseHandler;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,7 +39,7 @@ public class DemoMigrationValActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(mLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(filesAdapter);
-
+        dbHandler = DatabaseHandler.getDbInstance(getApplicationContext());
         getMigrationData();
     }
 
@@ -53,15 +54,20 @@ public class DemoMigrationValActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.refresh_migration_val:
                 Log.d("FILE MIGRATION", "refresh");
+                dbHandler.demoSimulateMigration();
                 getMigrationData();
                 return true;
+            case R.id.demo_decrease:
+                Log.d("MIGRATION DECREASE", "decreasing migration");
+                dbHandler.demoDecreaseMigration(0.0059, "/storage/emulated/0/Demo/Pic0.jpg");
+                dbHandler.demoDecreaseMigration(0.0014, "/storage/emulated/0/Demo/pdf-2.pdf");
+                getMigrationData();
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
     private void getMigrationData(){
-        dbHandler = DatabaseHandler.getDbInstance(getApplicationContext());
         fileDetailList.clear();
         fileDetailList.addAll(dbHandler.getMigrationFilesForDemo());
         filesAdapter.notifyDataSetChanged();

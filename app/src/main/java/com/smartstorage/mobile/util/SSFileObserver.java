@@ -56,6 +56,7 @@ public class SSFileObserver extends FileObserver {
             for (FileDetails fileDetails : fileDetailses) {
                 children.put(fileDetails.getFile_name(), fileDetails);
             }
+            Log.i("SSFILEOBSERVER", "children length "+ children.size());
         }
     }
 

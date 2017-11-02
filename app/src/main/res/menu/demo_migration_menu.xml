@@ -6,4 +6,9 @@
         android:orderInCategory="100"
         android:title="Refresh"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/demo_decrease"
+        android:orderInCategory="100"
+        android:title="Demo: Decrease"
+        app:showAsAction="never" />
 </menu>

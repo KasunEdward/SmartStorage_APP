@@ -376,4 +376,49 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         return fileDetails;
     }
 
+    public void demoDecreaseMigration(double val, String path){
+        ContentValues cv = new ContentValues();
+        cv.put(MIGRATION_VALUE, val);
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.update(TABLE_FILE_DETAILS, cv, "file_name=?", new String[]{path});
+    }
+
+    public void demoSimulateMigration(){
+        SQLiteDatabase db = getWritableDatabase();
+        String sql = "SELECT * FROM " + TABLE_FILE_DETAILS + " WHERE file_name like 'storage/emulated/0/Demo/%' OR file_name like 'storage/emulated/0/Download/%'";
+        Cursor cursor = db.rawQuery(sql, null);
+        if (cursor.moveToFirst()) {
+            String fileName = cursor.getString(1);
+            double migration_val = cursor.getDouble(3);
+            long size = cursor.getLong(6);
+            if (fileName.equals("/storage/emulated/0/Demo/Cse13.jpg")){
+                migration_val +=  (AppParams.MIGRATION_X / size) * AppParams.MIGRATION_FACTOR;
+                ContentValues cv = new ContentValues();
+                cv.put(MIGRATION_VALUE, migration_val);
+                db.update(TABLE_FILE_DETAILS, cv, "file_name=?", new String[]{fileName});
+            }else{
+                migration_val -=  (AppParams.MIGRATION_X / size) * AppParams.MIGRATION_FACTOR;
+                ContentValues cv = new ContentValues();
+                cv.put(MIGRATION_VALUE, migration_val);
+                db.update(TABLE_FILE_DETAILS, cv, "file_name=?", new String[]{fileName});
+            }
+            while (cursor.moveToNext()){
+                fileName = cursor.getString(1);
+                migration_val = cursor.getDouble(3);
+                size = cursor.getLong(6);
+                if (fileName.equals("/storage/emulated/0/Demo/Cse13.jpg")){
+                    migration_val +=  (AppParams.MIGRATION_X / size) * AppParams.MIGRATION_FACTOR;
+                    ContentValues cv = new ContentValues();
+                    cv.put(MIGRATION_VALUE, migration_val);
+                    db.update(TABLE_FILE_DETAILS, cv, "file_name=?", new String[]{fileName});
+                }else{
+                    migration_val -=  (AppParams.MIGRATION_X / size) * AppParams.MIGRATION_FACTOR;
+                    ContentValues cv = new ContentValues();
+                    cv.put(MIGRATION_VALUE, migration_val);
+                    db.update(TABLE_FILE_DETAILS, cv, "file_name=?", new String[]{fileName});
+                }
+            }
+        }
+    }
+
 }
