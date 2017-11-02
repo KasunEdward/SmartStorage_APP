@@ -17,6 +17,7 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.ContactsContract;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
@@ -233,8 +234,6 @@ public class MainActivity extends AppCompatActivity
 //        ss3.setSpan(new ForegroundColorSpan(Color.parseColor("#870b39")), 0, t.length()-11, 0);
         totalSize.setText(ss3);
 
-
-
 // textview to display num of copied files
         TextView copiedMsg=(TextView)findViewById(R.id.textView3);
         String s2= String.valueOf(copied)+ " Copied Files";
@@ -300,12 +299,14 @@ public class MainActivity extends AppCompatActivity
                 }
             }
 
+
+
         }
 
 
         Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.HOUR_OF_DAY,14);
-        calendar.set(Calendar.MINUTE, 29);
+        calendar.set(Calendar.HOUR_OF_DAY,11);
+        calendar.set(Calendar.MINUTE, 52);
         calendar.set(Calendar.SECOND, 0);
 
 //        TODO: uncomment this part to get CopyFileToGoogleDriveActivity to working state
@@ -492,8 +493,13 @@ public class MainActivity extends AppCompatActivity
             startActivity(intent);
         }
         else if(id==R.id.action_viewPercentages){
-            Intent intent=new Intent(this,FilesByTypeActivity.class);
-            startActivity(intent);
+//            Intent intent=new Intent(this,FilesByTypeActivity.class);
+//            startActivity(intent);
+            DatabaseHandler db=DatabaseHandler.getDbInstance(context);
+            if(db.isDeleted("/storage/emulated/0/Prefetch/Pic1.jpg")){
+                Log.i("dddddddd...:","true");
+            }
+            else Log.i("dddddd..","False");
         }
 
         return super.onOptionsItemSelected(item);

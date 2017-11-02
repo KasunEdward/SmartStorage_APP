@@ -141,12 +141,13 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     }
 
     public boolean isDeleted(String fileID){
-        String SELECT_QUERY="SELECT * FROM " + TABLE_FILE_DETAILS + " WHERE id=?";
+        String SELECT_QUERY="SELECT * FROM " + TABLE_FILE_DETAILS + " WHERE file_name=?";
         SQLiteDatabase db=this.getReadableDatabase();
-        Cursor cursor=db.rawQuery(SELECT_QUERY,new String[]{fileID});
+        Cursor cursor=db.rawQuery(SELECT_QUERY,new String[]{fileID /*"/storage/emulated/0/Prefetch/Pic1.jpg"*/});
         cursor.moveToFirst();
+
         String fileName = String.valueOf(cursor.getString(5));
-        if(fileName.equals("true"))
+        if(fileName.equals("True"))
             return true;
         return false;
     }
@@ -206,6 +207,14 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.update(TABLE_FILE_DETAILS,cv,"file_name=?",new String[]{fileUrl});
 
     }
+    public void updateDeletedStateToFalse(String fileUrl){
+        ContentValues cv=new ContentValues();
+        cv.put(KEY_DELETED,"False");
+
+        SQLiteDatabase db=this.getWritableDatabase();
+        db.update(TABLE_FILE_DETAILS,cv,"file_name=?",new String[]{fileUrl});
+
+    }
 
     public int getNumOfTotalFiles(){
         String SELECT_QUERY="SELECT * from "+TABLE_FILE_DETAILS;
@@ -258,7 +267,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         SQLiteDatabase db=this.getReadableDatabase();
         Cursor cursor=db.rawQuery(SELECT_QUERY,null);
         cursor.moveToFirst();
-        filesList.add(cursor.getString(1));
+//        filesList.add(cursor.getString(1));
         while(cursor.moveToNext()){
             filesList.add(cursor.getString(1));
         }

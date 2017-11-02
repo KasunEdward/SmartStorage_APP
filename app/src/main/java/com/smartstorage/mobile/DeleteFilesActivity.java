@@ -20,24 +20,40 @@ import java.util.ArrayList;
 
 public class DeleteFilesActivity extends BroadcastReceiver {
 
+    public static  boolean isDeleting=false;
+
     @Override
     public void onReceive(Context context, Intent intent) {
         ArrayList<String> arl=intent.getStringArrayListExtra("deletingList");
         int listSize=arl.size();
+        DeleteFilesActivity.isDeleting=true;
 
         File file = new File("/storage/emulated/0/Prefetch/Pic1.jpg");
         file.delete();
+        File f = new File("/storage/emulated/0/Demo/Pic0.jpg");
+        f.delete();
         Log.i("Deleting elements",String.valueOf(arl.size()));
         DatabaseHandler db=DatabaseHandler.getDbInstance(context);
         for(int i=0;i<listSize;i++){
             Log.i("Deleted File names...:",arl.get(i));
             db.updateDeletedState(arl.get(i));
 
+
         }
         File newFile = new File("/storage/emulated/0/Prefetch/Pic1.jpg");
+        db.updateDeletedState("/storage/emulated/0/Prefetch/Pic1.jpg");
+
         if(!newFile.exists()){
             try{
                 newFile.createNewFile();
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+        File newFile1 = new File("/storage/emulated/0/Demo/Pic0.jpg");
+        if(!newFile1.exists()){
+            try{
+                newFile1.createNewFile();
             }catch (Exception e){
                 e.printStackTrace();
             }
@@ -60,5 +76,17 @@ public class DeleteFilesActivity extends BroadcastReceiver {
 
 // notificationID allows you to update the notification later on.
         mNotificationManager.notify(0, notification);
+        new Runnable(){
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+
+        };
+        DeleteFilesActivity.isDeleting=false;
     }
 }
