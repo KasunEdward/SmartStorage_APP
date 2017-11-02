@@ -13,11 +13,13 @@ import com.smartstorage.mobile.DeleteFilesActivity;
 import com.smartstorage.mobile.MainActivity;
 import com.smartstorage.mobile.R;
 import com.smartstorage.mobile.db.DatabaseHandler;
+import com.smartstorage.mobile.db.FileDetails;
 import com.smartstorage.mobile.storage.StorageChecker;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.logging.Handler;
+import java.util.HashMap;
 
 /**
  * Created by Irfad Hussain on 3/17/2017.
@@ -44,17 +46,32 @@ public class SSFileObserver extends FileObserver {
 
     private String initPath;
     private Context appContext;
+    private HashMap<String, FileDetails> children;
 
     public SSFileObserver(File file, Context appContext) {
         super(file.getAbsolutePath(), ALL_EVENTS);
         this.initPath = file.getAbsolutePath();
         this.appContext = appContext;
+        children = new HashMap<>();
+        String[] childList = file.list();
+        if (childList != null && file.list().length > 0) {
+            ArrayList<FileDetails> fileDetailses = DatabaseHandler.getDbInstance(appContext).getFileDetails(initPath, childList);
+            for (FileDetails fileDetails : fileDetailses) {
+                children.put(fileDetails.getFile_name(), fileDetails);
+            }
+            Log.i("SSFILEOBSERVER", "children length "+ children.size());
+        }
     }
 
     @Override
     public void onEvent(int event, String path) {
+        String eventFilePath;
+        FileDetails file;
         if (path == null) {
             path = "";
+            eventFilePath = initPath;
+        }else{
+            eventFilePath = initPath + File.separator + path;
         }
         event &= ALL_EVENTS;
 //        Log.d("file path",path);
@@ -174,9 +191,17 @@ public class SSFileObserver extends FileObserver {
                 eventType = EVENT_ATTRIB_STR;
                 break;
             case CLOSE_NOWRITE:
+                if (children != null && (file = children.get(eventFilePath)) != null) {
+                    file.setLast_accessed(timeStamp);
+                    Log.i(LOG_TAG, "File " + eventFilePath + "closed and updated access time");
+                }
                 eventType = EVENT_CLOSE_NOWRITE_STR;
                 break;
             case CLOSE_WRITE:
+                if (children != null && (file = children.get(eventFilePath)) != null) {
+                    file.setLast_accessed(timeStamp);
+                    Log.i(LOG_TAG, "File " + eventFilePath + "closed and updated access time");
+                }
                 eventType = EVENT_CLOSE_WRITE_STR;
                 break;
             case CREATE:
@@ -238,4 +263,7 @@ public class SSFileObserver extends FileObserver {
         }
     }
 
+    public HashMap<String, FileDetails> getChildren() {
+        return children;
+    }
 }

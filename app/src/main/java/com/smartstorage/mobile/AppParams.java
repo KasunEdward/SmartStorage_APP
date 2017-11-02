@@ -11,6 +11,7 @@ public class AppParams {
         public static final String SHARED_PREFERENCE_NAME = "com.smartstorage.mobile";
         public static final String FIRST_RUN = "firstRun";
         public static final String FILE_SYSTEM_MAPPED = "fileSystemMapped";
+        public static final String LAST_MIGRATION_VAL_UPDATE = "lastMigrationValUpdate";
 
     }
 
@@ -26,4 +27,6 @@ public class AppParams {
     public static final double MIGRATION_X = 169916.5;
     public static final double MIGRATION_FACTOR = 0.9;
     public static final double MIGRATION_THRESHOLD = 0.02;
+
+    public static final String MIGRATION_VALUE_UPDATE_INTENT = "com.smartstorage.mobile.updateMigrationVal";
 }

@@ -57,9 +57,12 @@ import com.hookedonplay.decoviewlib.DecoView;
 import com.hookedonplay.decoviewlib.charts.SeriesItem;
 import com.hookedonplay.decoviewlib.events.DecoEvent;
 import com.smartstorage.mobile.db.DatabaseHandler;
+import com.smartstorage.mobile.display.DemoMigrationValActivity;
 import com.smartstorage.mobile.display.FilesActivity;
 import com.smartstorage.mobile.display.FilesByTypeActivity;
 import com.smartstorage.mobile.service.MigrationService;
+import com.smartstorage.mobile.service.MigrationValUpdateThread;
+import com.smartstorage.mobile.service.MigrationValueUpdateAlarm;
 import com.smartstorage.mobile.storage.StorageChecker;
 import com.smartstorage.mobile.util.FileSystemMapper;
 
@@ -206,6 +209,13 @@ public class MainActivity extends AppCompatActivity
         ss2.setSpan(new RelativeSizeSpan(2f), 0,2, 0); // set size
         ss2.setSpan(new ForegroundColorSpan(Color.parseColor("#110b87")), 0, 2, 0);
         copiedMsg.setText(ss2);
+
+        /*if (!MigrationValueUpdateAlarm.isAlarmSet(this)){
+            MigrationValueUpdateAlarm.createAlarm(this);
+        }*/
+        if (!MigrationValUpdateThread.running){
+            new MigrationValUpdateThread(getApplicationContext()).start();
+        }
     }
 
     @Override
@@ -244,7 +254,8 @@ public class MainActivity extends AppCompatActivity
 
 //        Determine if there
         if (prefs.getBoolean(AppParams.PreferenceStr.FIRST_RUN, true)||(!drivePrefs.getString("type",null).equals("GoogleDrive")&&!drivePrefs.getString("type",null).equals("DropBox"))) {
-            if (Build.VERSION.SDK_INT >= 23) {            prefs.edit().putBoolean(AppParams.PreferenceStr.FIRST_RUN, false).commit();
+            if (Build.VERSION.SDK_INT >= 23) {
+                prefs.edit().putBoolean(AppParams.PreferenceStr.FIRST_RUN, false).commit();
 
                 requestRunTimePermission();
             } else {
@@ -253,13 +264,20 @@ public class MainActivity extends AppCompatActivity
                 startService(serviceIntent);
             }
 
-            new FileSystemMapper(this).execute();
+            if (prefs.getString(AppParams.PreferenceStr.FILE_SYSTEM_MAPPED, "not_mapped").equals("not_mapped")) {
+                prefs.edit().putString(AppParams.PreferenceStr.FILE_SYSTEM_MAPPED, "mapping").commit();
+                new FileSystemMapper(this).execute();
+            }
             prefs.edit().putBoolean(AppParams.PreferenceStr.FIRST_RUN, false).commit();
 
         } else {
             Log.i("App...", "not first run");
             Log.i("App...", drivePrefs.getString("type", ""));
 
+            if (!MigrationService.running){
+                Intent serviceIntent = new Intent(getApplicationContext(), MigrationService.class);
+                startService(serviceIntent);
+            }
 
             if (drivePrefs.getString("type", "").equals("GoogleDrive")) {
                 Log.i(GOOGLE_DRIVE_TAG, "GoogleDrive drive......");
@@ -298,8 +316,6 @@ public class MainActivity extends AppCompatActivity
                     Log.i(DROP_BOX_TAG, "Error authenticating", e);
                 }
             }
-
-
 
         }
 
@@ -461,45 +477,55 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 //TODO: change the settings action to switch between drive accounts
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            Thread thread = new Thread(new Runnable() {
+        switch (id) {
+            case R.id.action_settings:
+                Thread thread = new Thread(new Runnable() {
 
-                @Override
-                public void run() {
-                    try  {
+                    @Override
+                    public void run() {
+                        try {
 
-                    } catch (Exception e) {
-                        e.printStackTrace();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                     }
-                }
-            });
+                });
 
-            thread.start();
+                thread.start();
 
-        }
-        else if(id==R.id.action_copyfile){
-            Log.i("Settings","Deleting Files");
-            Intent intent=new Intent();
-            intent.setAction("com.smartStorage.deleteFile");
-            ArrayList<String> strAL=new ArrayList<>();
-            strAL.add("dddddddddd/sssss");
-            strAL.add("df/gh/sssss");
-            strAL.add("as/fg/hj/sssss");
-            intent.putStringArrayListExtra("deletingList",strAL);
-            sendBroadcast(intent);
-        }
-        else if(id==R.id.action_viewFilesDetails){
-            Intent intent=new Intent(this,FilesActivity.class);
-            startActivity(intent);
-        }
-        else if(id==R.id.action_viewPercentages){
-//            Intent intent=new Intent(this,FilesByTypeActivity.class);
-//            startActivity(intent);
-            DatabaseHandler db=DatabaseHandler.getDbInstance(context);
-            if(db.isDeleted("/storage/emulated/0/Prefetch/Pic1.jpg")){
-                Log.i("dddddddd...:","true");
+                break;
+            case R.id.action_copyfile: {
+                Log.i("Settings", "Deleting Files");
+                Intent intent = new Intent();
+                intent.setAction("com.smartStorage.deleteFile");
+                ArrayList<String> strAL = new ArrayList<>();
+                strAL.add("dddddddddd/sssss");
+                strAL.add("df/gh/sssss");
+                strAL.add("as/fg/hj/sssss");
+                intent.putStringArrayListExtra("deletingList", strAL);
+                sendBroadcast(intent);
+                break;
             }
-            else Log.i("dddddd..","False");
+            case R.id.action_viewFilesDetails: {
+                Intent intent = new Intent(this, FilesActivity.class);
+                startActivity(intent);
+                break;
+            }
+            case R.id.action_viewPercentages: {
+                //            Intent intent=new Intent(this,FilesByTypeActivity.class);
+//            startActivity(intent);
+                DatabaseHandler db=DatabaseHandler.getDbInstance(context);
+                if(db.isDeleted("/storage/emulated/0/Prefetch/Pic1.jpg")){
+                    Log.i("dddddddd...:","true");
+                }
+                else Log.i("dddddd..","False");
+                break;
+            }
+            case R.id.action_viewMigration:{
+                Intent intent = new Intent(this, DemoMigrationValActivity.class);
+                startActivity(intent);
+                break;
+            }
         }
 
         return super.onOptionsItemSelected(item);

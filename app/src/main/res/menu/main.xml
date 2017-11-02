@@ -26,6 +26,11 @@
         android:orderInCategory="100"
         android:title="View Percentages"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/action_viewMigration"
+        android:orderInCategory="100"
+        android:title="Demo: Migration"
+        app:showAsAction="never" />
 
 
 </menu>
