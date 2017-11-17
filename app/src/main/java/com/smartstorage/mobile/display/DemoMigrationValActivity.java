@@ -59,8 +59,8 @@ public class DemoMigrationValActivity extends AppCompatActivity {
                 return true;
             case R.id.demo_decrease:
                 Log.d("MIGRATION DECREASE", "decreasing migration");
-                dbHandler.demoDecreaseMigration(0.0059, "/storage/emulated/0/Demo/Pic0.jpg");
-                dbHandler.demoDecreaseMigration(0.0014, "/storage/emulated/0/Demo/pdf-2.pdf");
+                dbHandler.demoDecreaseMigration(0.0059, "/storage/emulated/0/Demo/Profile.jpg");
+                dbHandler.demoDecreaseMigration(0.0014, "/storage/emulated/0/Demo/Info.jpg");
                 getMigrationData();
             default:
                 return super.onOptionsItemSelected(item);

@@ -54,12 +54,12 @@ public class SSFileObserver extends FileObserver {
         this.appContext = appContext;
         children = new HashMap<>();
         String[] childList = file.list();
-        if (childList != null && file.list().length > 0) {
+        if (childList != null && file.list().length > 0 && file.list().length < 50) {
             ArrayList<FileDetails> fileDetailses = DatabaseHandler.getDbInstance(appContext).getFileDetails(initPath, childList);
             for (FileDetails fileDetails : fileDetailses) {
                 children.put(fileDetails.getFile_name(), fileDetails);
             }
-            Log.i("SSFILEOBSERVER", "children length "+ children.size());
+            //Log.i("SSFILEOBSERVER", "children length "+ children.size());
         }
     }
 
@@ -163,7 +163,7 @@ public class SSFileObserver extends FileObserver {
                     if (handler.isDeleted("/storage/emulated/0/Prefetch/Pic1.jpg")) {
                         //add here notification to show downloading file
                         //download the file from google drive. File name = predictedFileNames[i]
-//                    Toast.makeText(appContext, predictedFileNames[i]+" is not in the local storage and it is downloading.", Toast.LENGTH_LONG).show();
+
                         Intent intent = new Intent("com.smartStorage.downloadFromGD");
                         intent.putExtra("fileUrl", initPath + "/" + predictedFileNames[i]);
                         appContext.sendBroadcast(intent);

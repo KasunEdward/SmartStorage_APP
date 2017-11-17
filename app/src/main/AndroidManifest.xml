@@ -58,12 +58,18 @@
             <intent-filter>
                 <action android:name="com.smartStorage.copytoGD" />
             </intent-filter>
+        </receiver> <receiver android:name=".CopyFileToDropboxActivity">
+            <intent-filter>
+                <action android:name="com.smartStorage.copytoDB" />
+            </intent-filter>
         </receiver>
+
         <receiver android:name=".DownloadFromGoogleDriveActivity">
             <intent-filter>
                 <action android:name="com.smartStorage.downloadFromGD" />
             </intent-filter>
         </receiver>
+
         <receiver android:name=".DeleteFilesActivity">
             <intent-filter>
                 <action android:name="com.smartStorage.deleteFile" />

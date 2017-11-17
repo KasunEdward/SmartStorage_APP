@@ -82,7 +82,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         if (fileDetails.getSize() == 0) {
             values.put(MIGRATION_VALUE, 0.0);
         } else {
-            values.put(MIGRATION_VALUE, (AppParams.MIGRATION_X / fileDetails.getSize()) * AppParams.MIGRATION_FACTOR);
+            values.put(MIGRATION_VALUE, ((AppParams.MIGRATION_X / fileDetails.getSize()) * AppParams.MIGRATION_FACTOR)*10);
         }
         values.put(KEY_DELETED, "false");
         values.put(KEY_SIZE, fileDetails.getSize());
@@ -105,7 +105,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             if (fileDetail.getSize() == 0) {
                 values.put(MIGRATION_VALUE, 0.0);
             } else {
-                values.put(MIGRATION_VALUE, (AppParams.MIGRATION_X / fileDetail.getSize()) * AppParams.MIGRATION_FACTOR);
+                values.put(MIGRATION_VALUE, ((AppParams.MIGRATION_X / fileDetail.getSize()) * AppParams.MIGRATION_FACTOR)*10);
             }
             values.put(KEY_DELETED, "false");
             values.put(KEY_SIZE, fileDetail.getSize());
@@ -394,13 +394,13 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     public void demoSimulateMigration(){
         SQLiteDatabase db = getWritableDatabase();
-        String sql = "SELECT * FROM " + TABLE_FILE_DETAILS + " WHERE file_name like 'storage/emulated/0/Demo/%' OR file_name like 'storage/emulated/0/Download/%'";
+        String sql = "SELECT * FROM " + TABLE_FILE_DETAILS + " WHERE file_name like '/storage/emulated/0/Demo/%' OR file_name like '/storage/emulated/0/Download/%'";
         Cursor cursor = db.rawQuery(sql, null);
         if (cursor.moveToFirst()) {
             String fileName = cursor.getString(1);
             double migration_val = cursor.getDouble(3);
             long size = cursor.getLong(6);
-            if (fileName.equals("/storage/emulated/0/Demo/Cse13.jpg")){
+            if (fileName.equals("/storage/emulated/0/Demo/Mini Case Study II.pdf")){
                 migration_val +=  (AppParams.MIGRATION_X / size) * AppParams.MIGRATION_FACTOR;
                 ContentValues cv = new ContentValues();
                 cv.put(MIGRATION_VALUE, migration_val);
@@ -415,7 +415,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 fileName = cursor.getString(1);
                 migration_val = cursor.getDouble(3);
                 size = cursor.getLong(6);
-                if (fileName.equals("/storage/emulated/0/Demo/Cse13.jpg")){
+                if (fileName.equals("/storage/emulated/0/Demo/Mini Case Study II.pdf")){
                     migration_val +=  (AppParams.MIGRATION_X / size) * AppParams.MIGRATION_FACTOR;
                     ContentValues cv = new ContentValues();
                     cv.put(MIGRATION_VALUE, migration_val);

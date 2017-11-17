@@ -131,6 +131,7 @@ public class CopyFileToGoogleDriveActivity extends BroadcastReceiver{
 
                                             DatabaseHandler db = DatabaseHandler.getDbInstance(context);
                                             db.updateFileLink(url, driveId_str,"GoogleDrive");
+
                                             Log.e("Android exxx:", driveId_str);
                                             fileCount++;
                                             if(fileCount==coyingFilesList.size()-1){

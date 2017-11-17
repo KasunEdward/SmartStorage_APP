@@ -1,9 +1,12 @@
 package com.smartstorage.mobile;
 
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -12,6 +15,7 @@ import com.smartstorage.mobile.db.DatabaseHandler;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.util.ArrayList;
 
 /**
  * Created by kasun on 9/20/17.
@@ -20,10 +24,17 @@ import java.io.FileInputStream;
 public class CopyFileToDropboxActivity  extends BroadcastReceiver{
     private Context context;
     private String fileUrl;
+    ArrayList<String> copyingFileList;
+
+    private static int fileCount=0;
     @Override
     public void onReceive(Context context, Intent intent) {
         this.context=context;
-        new Upload(fileUrl).execute();
+        copyingFileList=intent.getStringArrayListExtra("copyingListToDB");
+        for(int i=0;i<copyingFileList.size();i++){
+            new Upload(copyingFileList.get(i)).execute();
+        }
+
 
     }
 
@@ -73,6 +84,26 @@ public class CopyFileToDropboxActivity  extends BroadcastReceiver{
 //                Toast.makeText(getApplicationContext(), "File Uploaded ", Toast.LENGTH_LONG).show();
 
                 Log.e("DbExampleLog", "The uploaded file's rev is: " + result);
+                fileCount++;
+                if(fileCount==copyingFileList.size()){
+                    NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context);
+                    mBuilder.setSmallIcon(R.drawable.ic_folder);
+                    String str=String.valueOf(fileCount)+" files were copied to Drop Box";
+                    String subStr="Total 75 MB";
+                    mBuilder.setContentTitle(str);
+                    mBuilder.setContentText(subStr);
+
+                    NotificationManager mNotificationManager = (NotificationManager) context.getSystemService(context.NOTIFICATION_SERVICE);
+                    Notification notification = mBuilder.build();
+
+                    notification.flags |= Notification.FLAG_AUTO_CANCEL;
+                    notification.defaults |= Notification.DEFAULT_SOUND;
+                    notification.defaults |= Notification.DEFAULT_VIBRATE;
+
+//                                                 notificationID allows you to update the notification later on.
+                    mNotificationManager.notify(0, notification);
+                    fileCount=0;
+                }
             }
         }
     }

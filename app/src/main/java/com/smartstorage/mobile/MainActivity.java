@@ -15,6 +15,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -65,7 +66,23 @@ import com.smartstorage.mobile.service.MigrationValUpdateThread;
 import com.smartstorage.mobile.service.MigrationValueUpdateAlarm;
 import com.smartstorage.mobile.storage.StorageChecker;
 import com.smartstorage.mobile.util.FileSystemMapper;
+import com.smartstorage.mobile.util.HttpHandler;
 
+import org.json.JSONObject;
+import org.json.simple.parser.JSONParser;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.StringWriter;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -117,7 +134,7 @@ public class MainActivity extends AppCompatActivity
 
     private final float mSeriesMax = 50f;
 
-
+    private static int num=0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -321,19 +338,18 @@ public class MainActivity extends AppCompatActivity
 
 
         Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.HOUR_OF_DAY,11);
-        calendar.set(Calendar.MINUTE, 52);
+        calendar.set(Calendar.HOUR_OF_DAY,00);
+        calendar.set(Calendar.MINUTE, 00);
         calendar.set(Calendar.SECOND, 0);
 
 //        TODO: uncomment this part to get CopyFileToGoogleDriveActivity to working state
         if(drivePrefs.getString("type",null).equals("GoogleDrive")||drivePrefs.getString("type",null).equals("DropBox")){
             if(drivePrefs.getString("type",null).equals("GoogleDrive")){
+                while(GoogleClientHandler.googleApiClient==null){
+                    Log.i(GOOGLE_DRIVE_TAG,"mGoogleApiClient is null...");
+                }
                 Intent alarmReceiver = new Intent(this.getApplicationContext(),CopyFileToGoogleDriveActivity.class);
                 ArrayList<String> fileList = getFiles();
-//                GoogleClientHandler.googleApiClient=mGoogleApiClient;
-//                alarmReceiver.putExtra("aa", (Parcelable) mGoogleApiClient);
-//                alarmReceiver.putExtra("bb", driveId);
-//                GoogleClientHandler.driveId=driveId;
                 alarmReceiver.putStringArrayListExtra("copyingListToGD",fileList);
                 alarmReceiver.setAction("com.smartStorage.copytoGD");
 
@@ -351,7 +367,19 @@ public class MainActivity extends AppCompatActivity
 
 
             }
-            else{
+            else if(drivePrefs.getString("type",null).equals("DropBox")){
+                Intent alarmReceiver = new Intent(this.getApplicationContext(),CopyFileToDropboxActivity.class);
+                ArrayList<String> fileList = getFiles();
+                alarmReceiver.putStringArrayListExtra("copyingListToDB",fileList);
+                alarmReceiver.setAction("com.smartStorage.copytoDB");
+
+
+                //This is alarm manager
+                if (PendingIntent.getBroadcast(this, 0 , alarmReceiver, PendingIntent.FLAG_NO_CREATE) == null) {
+                    PendingIntent pi = PendingIntent.getBroadcast(this, 0, alarmReceiver, PendingIntent.FLAG_UPDATE_CURRENT);
+                    AlarmManager am = (AlarmManager) this.getSystemService(ALARM_SERVICE);
+                    am.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_HOUR, pi);
+                }
 
             }
         }
@@ -495,15 +523,70 @@ public class MainActivity extends AppCompatActivity
 
                 break;
             case R.id.action_copyfile: {
-                Log.i("Settings", "Deleting Files");
-                Intent intent = new Intent();
-                intent.setAction("com.smartStorage.deleteFile");
-                ArrayList<String> strAL = new ArrayList<>();
-                strAL.add("dddddddddd/sssss");
-                strAL.add("df/gh/sssss");
-                strAL.add("as/fg/hj/sssss");
-                intent.putStringArrayListExtra("deletingList", strAL);
-                sendBroadcast(intent);
+//               new JsonTask().execute("http://192.168.43.65:80/FYPDemo/demo.php");
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        OutputStream os = null;
+                        InputStream is = null;
+                        HttpURLConnection conn = null;
+                        try{
+                            URL url = new URL("http://192.168.43.65/FYPDemo/demo.php");
+                            JSONObject jsonObject = new JSONObject();
+
+                            jsonObject.put("num", num++);
+                            String message = jsonObject.toString();
+
+                            conn = (HttpURLConnection) url.openConnection();
+                            conn.setReadTimeout( 10000 /*milliseconds*/ );
+                            conn.setConnectTimeout( 15000 /* milliseconds */ );
+                            conn.setRequestMethod("POST");
+                            conn.setDoInput(true);
+                            conn.setDoOutput(true);
+                            conn.setFixedLengthStreamingMode(message.getBytes().length);
+
+                            //make some HTTP header nicety
+                            conn.setRequestProperty("Content-Type", "application/json;charset=utf-8");
+                            conn.setRequestProperty("X-Requested-With", "XMLHttpRequest");
+
+                            //open
+                            conn.connect();
+
+                            //setup send
+                            os = new BufferedOutputStream(conn.getOutputStream());
+                            os.write(message.getBytes());
+                            //clean up
+                            os.flush();
+
+                            //do somehting with response
+                            String str = conn.getResponseMessage();
+                            Log.e("httprequest:",str);
+                            is=conn.getInputStream();
+                            BufferedInputStream bis = new BufferedInputStream(is);
+                            ByteArrayOutputStream buf = new ByteArrayOutputStream();
+                            int result = bis.read();
+                            while(result != -1) {
+                                buf.write((byte) result);
+                                result = bis.read();
+                            }
+                            Log.e("response.....",buf.toString("UTF-8"));
+
+                        }catch (Exception e){
+                            e.printStackTrace();
+
+                        }finally {
+                            try{
+                                os.close();
+                                is.close();
+                            }catch(Exception e){
+                                e.printStackTrace();
+                            }
+
+                            conn.disconnect();
+                        }
+
+                    }
+                }).start();
                 break;
             }
             case R.id.action_viewFilesDetails: {
@@ -751,7 +834,73 @@ public class MainActivity extends AppCompatActivity
         return  mDBApi;
     }
 
+    private class JsonTask extends AsyncTask<String, String, String> {
 
+        protected void onPreExecute() {
+            super.onPreExecute();
+//
+//            pd = new ProgressDialog(MainActivity.this);
+//            pd.setMessage("Please wait");
+//            pd.setCancelable(false);
+//            pd.show();
+        }
+
+        protected String doInBackground(String... params) {
+
+
+            HttpURLConnection connection = null;
+            BufferedReader reader = null;
+
+            try {
+                URL url = new URL(params[0]);
+                connection = (HttpURLConnection) url.openConnection();
+                connection.connect();
+
+
+                InputStream stream = connection.getInputStream();
+
+                reader = new BufferedReader(new InputStreamReader(stream));
+
+                StringBuffer buffer = new StringBuffer();
+                String line = "";
+
+                while ((line = reader.readLine()) != null) {
+                    buffer.append(line+"\n");
+                    Log.d("Response: ", "> " + line);   //here u ll get whole response...... :-)
+
+                }
+
+                return buffer.toString();
+
+
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                if (connection != null) {
+                    connection.disconnect();
+                }
+                try {
+                    if (reader != null) {
+                        reader.close();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            super.onPostExecute(result);
+//            if (pd.isShowing()){
+//                pd.dismiss();
+//            }
+//            txtJson.setText(result);
+        }
+    }
 
 }
 
