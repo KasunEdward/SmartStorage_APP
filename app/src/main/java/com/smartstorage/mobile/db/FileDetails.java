@@ -11,8 +11,9 @@ public class FileDetails {
     private double migration_value;
     private String deleted;
     private long size;  // size of file in bytes
+    private long last_accessed;
 
-    public FileDetails(String file_name,String drive_link,String drive_type, long size){
+    public FileDetails(String file_name, String drive_link, String drive_type, long size){
         this.file_name=file_name;
         this.drive_link=drive_link;
         this.drive_type=drive_type;
@@ -74,4 +75,13 @@ public class FileDetails {
     public void setSize(long size) {
         this.size = size;
     }
+
+    public long getLast_accessed() {
+        return last_accessed;
+    }
+
+    public void setLast_accessed(long last_accessed) {
+        this.last_accessed = last_accessed;
+    }
+
 }

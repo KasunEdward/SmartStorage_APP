@@ -67,7 +67,10 @@ public class FileSystemMapper extends AsyncTask<Void, Void, Boolean> {
                     if (child.isDirectory()) {
                         traverseChildren(child);
                     } else {
-                        fileDetailsList.add(new FileDetails(child.getAbsolutePath(), AppParams.DRIVE_NO_LINK, "", child.length()));
+                        FileDetails fileDetails = new FileDetails(child.getAbsolutePath(), AppParams.DRIVE_NO_LINK, "", child.length());
+                        fileDetails.setLast_accessed(child.lastModified());
+                        fileDetailsList.add(fileDetails);
+
                     }
                 }
             }
@@ -78,7 +81,7 @@ public class FileSystemMapper extends AsyncTask<Void, Void, Boolean> {
     protected void onPostExecute(Boolean success) {
         if (success) {
             SharedPreferences sharedPreferences = this.context.getSharedPreferences(AppParams.PreferenceStr.SHARED_PREFERENCE_NAME, Context.MODE_PRIVATE);
-            sharedPreferences.edit().putBoolean(AppParams.PreferenceStr.FILE_SYSTEM_MAPPED, true).commit();
+            sharedPreferences.edit().putString(AppParams.PreferenceStr.FILE_SYSTEM_MAPPED, "mapped").commit();
         }
     }
 }

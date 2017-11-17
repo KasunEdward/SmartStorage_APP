@@ -86,12 +86,26 @@
         <activity
             android:name=".display.FilesByTypeActivity"
             android:label="@string/title_activity_files_by_type"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
-        <service android:name=".GoogleDriveEventService" android:exported="true">
+            android:theme="@style/AppTheme.NoActionBar" />
+
+        <service
+            android:name=".GoogleDriveEventService"
+            android:exported="true">
             <intent-filter>
-                <action android:name="com.google.android.gms.drive.events.HANDLE_EVENT"/>
+                <action android:name="com.google.android.gms.drive.events.HANDLE_EVENT" />
             </intent-filter>
         </service>
+
+        <receiver
+            android:name=".service.MigrationValueUpdateAlarm"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.smartstorage.mobile.updateMigrationVal" />
+            </intent-filter>
+        </receiver>
+
+        <activity android:name=".display.DemoMigrationValActivity"></activity>
     </application>
 
 </manifest>
