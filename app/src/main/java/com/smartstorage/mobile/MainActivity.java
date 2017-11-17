@@ -534,7 +534,7 @@ public class MainActivity extends AppCompatActivity
                         InputStream is = null;
                         HttpURLConnection conn = null;
                         try{
-                            URL url = new URL("http://192.168.43.65/FYPDemo/demo.php");
+                            URL url = new URL("http://10.10.11.160/FYPDemo/demo.php");
 //                            JSONObject jsonObject = new JSONObject();
                             org.json.JSONArray jsonArray=new org.json.JSONArray();
                             JSONObject list1 = new JSONObject();
