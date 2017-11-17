@@ -16,6 +16,7 @@ import com.smartstorage.mobile.display.FileDetail;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Random;
 
 /**
  * Created by kasun on 8/15/17.
@@ -435,6 +436,34 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 }
             }
         }
+    }
+
+    public String[] getPredictedFileNames(String path){
+        String[] filenames=new String[4];
+        String SELECT_QUERY = "SELECT * FROM " + TABLE_FILE_DETAILS + " WHERE file_name like ?";
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(SELECT_QUERY, new String[]{path+"%"});
+        cursor.moveToFirst();
+        if(cursor.getCount()<= 10){
+            filenames[0]=cursor.getString(1);
+            for (int i=1; i<4;i++){
+                if(cursor.moveToNext()){
+                    filenames[i]=cursor.getString(1);
+                }
+            }
+        } else {
+            if (cursor.getCount() > 10) {
+                ArrayList<String> fileList = new ArrayList<>();
+                while (cursor.moveToNext()) {
+                    fileList.add(cursor.getString(1));
+                }
+                Random random = new Random();
+                for(int i=0; i<4;i++){
+                    filenames[i]= fileList.get(random.nextInt(fileList.size()));
+                }
+            }
+        }
+        return filenames;
     }
 
 }

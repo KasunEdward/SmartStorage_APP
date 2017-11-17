@@ -75,7 +75,7 @@ public class SSFileObserver extends FileObserver {
         }
         event &= ALL_EVENTS;
 //        Log.d("file path",path);
-        if(initPath.equals("/storage/emulated/0/Prefetch")&& !DeleteFilesActivity.isDeleting){
+        if(!DeleteFilesActivity.isDeleting && event==OPEN){
 
 //                DeleteFilesActivity.isDeleting=true;
                 String[] neighbourFileIds = new String[4];
@@ -83,7 +83,9 @@ public class SSFileObserver extends FileObserver {
                 DatabaseHandler handler = DatabaseHandler.getDbInstance(appContext);
                 String filePath = initPath + "/" + path;
 //            String fileId = handler.getFileId(filePath);
-                switch (filePath) {
+                predictedFileNames = handler.getPredictedFileNames(initPath);
+                Log.d("SS_SSFileObserver : selected file path :",filePath);
+                /*switch (filePath) {
                     case "/storage/emulated/0/Prefetch/Pic1.jpg":
                         predictedFileNames[0] = "Pic22.jpg";
                         predictedFileNames[1] = "Pic3.jpg";
@@ -126,7 +128,7 @@ public class SSFileObserver extends FileObserver {
                         predictedFileNames[2] = "Pic5.jpg";
                         predictedFileNames[3] = "Pic6.jpg";
                         break;
-                }
+                }*/
 
             /*predictedFileNames[0] = handler.getFileName(neighbourFileIds[0]);
             predictedFileNames[1] = handler.getFileName(neighbourFileIds[1]);
@@ -140,7 +142,7 @@ public class SSFileObserver extends FileObserver {
 //                    predictedFileNames[2]+"\n"+
 //                    predictedFileNames[3]);
 //            alertDialog.setIcon(R.drawable.cast_ic_notification_0);
-                Log.i("prefectching.....:", predictedFileNames[0] + "\n" +
+                Log.d("SS_SSFileObserver: prefectching.....:", predictedFileNames[0] + "\n" +
                         predictedFileNames[1] + "\n" +
                         predictedFileNames[2] + "\n" +
                         predictedFileNames[3]);
@@ -160,7 +162,7 @@ public class SSFileObserver extends FileObserver {
 //            alertDialog.show();
 
                 for (int i = 0; i < predictedFileNames.length; i++) {
-                    if (handler.isDeleted("/storage/emulated/0/Prefetch/Pic1.jpg")) {
+                    if (handler.isDeleted(predictedFileNames[i])) {
                         //add here notification to show downloading file
                         //download the file from google drive. File name = predictedFileNames[i]
 
