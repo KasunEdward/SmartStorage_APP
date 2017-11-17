@@ -200,7 +200,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     public void updateDeletedState(String fileUrl){
         ContentValues cv=new ContentValues();
-        cv.put(KEY_DELETED,"True");
+        cv.put(KEY_DELETED,"true");
 
         SQLiteDatabase db=this.getWritableDatabase();
         db.update(TABLE_FILE_DETAILS,cv,"file_name=?",new String[]{fileUrl});
@@ -304,5 +304,14 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         SQLiteDatabase db=this.getWritableDatabase();
         db.update(TABLE_FILE_DETAILS,cv,"file_name=?",new String[]{fileUrl});
     }
+
+    public void updateNeverCopyStatus(String fileUrl){
+        ContentValues cv=new ContentValues();
+        cv.put(KEY_NEVER_COPY,"TRUE");
+
+        SQLiteDatabase db=this.getWritableDatabase();
+        db.update(TABLE_FILE_DETAILS,cv,"file_name=?",new String[]{fileUrl});
+    }
+
 
 }
