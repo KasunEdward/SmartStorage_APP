@@ -71,6 +71,7 @@ import com.smartstorage.mobile.util.FileSystemMapper;
 import com.smartstorage.mobile.util.HttpHandler;
 
 import org.json.JSONObject;
+import org.json.simple.JSONArray;
 import org.json.simple.parser.JSONParser;
 
 import java.io.BufferedInputStream;
@@ -534,10 +535,26 @@ public class MainActivity extends AppCompatActivity
                         HttpURLConnection conn = null;
                         try{
                             URL url = new URL("http://192.168.43.65/FYPDemo/demo.php");
-                            JSONObject jsonObject = new JSONObject();
-
-                            jsonObject.put("num", num++);
-                            String message = jsonObject.toString();
+//                            JSONObject jsonObject = new JSONObject();
+                            org.json.JSONArray jsonArray=new org.json.JSONArray();
+                            JSONObject list1 = new JSONObject();
+                            list1.put("current_file","a");
+                            list1.put("event_type","ACCESS");
+                            JSONObject successor1=new JSONObject();
+                            JSONObject successor2=new JSONObject();
+                            successor1.put("name","successor1");
+                            successor1.put("availability","false");
+                            successor1.put("prefetched","yes");
+                            successor2.put("name","successor2");
+                            successor2.put("availability","false");
+                            successor2.put("prefetched","yes");
+                            org.json.JSONArray jsonArray_succesor=new org.json.JSONArray();
+                            jsonArray_succesor.put(successor1);
+                            jsonArray_succesor.put(successor2);
+                            list1.put("successor_list",jsonArray_succesor);
+//                            list1.put("val3","c");
+                            jsonArray.put(list1);
+                            String message = jsonArray.toString();
 
                             conn = (HttpURLConnection) url.openConnection();
                             conn.setReadTimeout( 10000 /*milliseconds*/ );
