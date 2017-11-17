@@ -16,6 +16,8 @@ import com.smartstorage.mobile.CopyFileToGoogleDriveActivity;
 import com.smartstorage.mobile.R;
 import com.smartstorage.mobile.db.DatabaseHandler;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -131,6 +133,44 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.DeletedFiles
             }
         }
 
+    }
+
+    public void setNeverCopy(){
+        Log.d("files Adapter:","updating never copying status.......");
+        if(!filenames.isEmpty()){
+            for(int i=0;i<filenames.size();i++){
+                DatabaseHandler db=DatabaseHandler.getDbInstance(parent.getContext());
+                db.updateNeverCopyStatus(String.valueOf(filenames.get(i)));
+
+            }
+        }
+
+    }
+
+    public void deleteFiles(){
+        Log.d("files Adapter:","updating deleting files status.......");
+        Intent copyFilesIntent=new Intent(parent.getContext(), CopyFileToGoogleDriveActivity.class);
+        copyFilesIntent.putStringArrayListExtra("copyingListToGD",filenames);
+        copyFilesIntent.setAction("com.smartStorage.copytoGD");
+        parent.getContext().sendBroadcast(copyFilesIntent);
+        if(!filenames.isEmpty()){
+            for(int i=0;i<filenames.size();i++){
+                DatabaseHandler db=DatabaseHandler.getDbInstance(parent.getContext());
+                db.updateDeletedState(String.valueOf(filenames.get(i)));
+                File file = new File(String.valueOf(filenames.get(i)));
+                file.delete();
+
+                File newFile=new File(String.valueOf(filenames.get(i)));
+                if(!newFile.exists()){
+                    try {
+                        newFile.createNewFile();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+            }
+        }
     }
 
 }

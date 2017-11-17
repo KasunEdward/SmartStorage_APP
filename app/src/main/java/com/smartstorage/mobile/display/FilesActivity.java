@@ -115,9 +115,11 @@ public class FilesActivity extends AppCompatActivity {
                 return true;
             case R.id.deletefiles:
                 Log.d("file action","Delete");
+                filesAdapter.deleteFiles();
                 return true;
             case R.id.nevercopy:
                 Log.d("file action","Never Copy");
+                filesAdapter.setNeverCopy();
                 return true;
             case R.id.neverdelete:
                 Log.d("file action","Never Delete");

@@ -206,8 +206,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         ContentValues cv = new ContentValues();
         cv.put(KEY_DELETED, "True");
 
-        SQLiteDatabase db = this.getWritableDatabase();
-        db.update(TABLE_FILE_DETAILS, cv, "file_name=?", new String[]{fileUrl});
+        SQLiteDatabase db=this.getWritableDatabase();
+        db.update(TABLE_FILE_DETAILS,cv,"file_name=?",new String[]{fileUrl});
 
     }
     public void updateDeletedStateToFalse(String fileUrl){
@@ -311,6 +311,13 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.update(TABLE_FILE_DETAILS, cv, "file_name=?", new String[]{fileUrl});
     }
 
+    public void updateNeverCopyStatus(String fileUrl){
+        ContentValues cv=new ContentValues();
+        cv.put(KEY_NEVER_COPY,"TRUE");
+
+        SQLiteDatabase db=this.getWritableDatabase();
+        db.update(TABLE_FILE_DETAILS,cv,"file_name=?",new String[]{fileUrl});
+    }
     public ArrayList<FileDetail> getMigrationFilesForDemo() {
         ArrayList<FileDetail> migrationFiles = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
