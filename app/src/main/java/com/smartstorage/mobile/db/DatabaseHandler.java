@@ -438,15 +438,17 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         }
     }
 
-    public String[] getPredictedFileNames(String path){
+    public String[] getPredictedFileNames(String path, String filename){
         String[] filenames=new String[4];
-        String SELECT_QUERY = "SELECT * FROM " + TABLE_FILE_DETAILS + " WHERE file_name like ?";
+        String SELECT_QUERY = "SELECT * FROM " + TABLE_FILE_DETAILS + " WHERE file_name like ? and not file_name = ?";
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery(SELECT_QUERY, new String[]{path+"%"});
+        Cursor cursor = db.rawQuery(SELECT_QUERY, new String[]{path+"%",filename});
         cursor.moveToFirst();
-        if(cursor.getCount()<= 10){
+        Random random = new Random();
+        int fileLimit = 2 + random.nextInt(2);
+        if(cursor.getCount() >0 && cursor.getCount()<= 10){
             filenames[0]=cursor.getString(1);
-            for (int i=1; i<4;i++){
+            for (int i=1; i<fileLimit;i++){
                 if(cursor.moveToNext()){
                     filenames[i]=cursor.getString(1);
                 }
@@ -457,11 +459,23 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 while (cursor.moveToNext()) {
                     fileList.add(cursor.getString(1));
                 }
-                Random random = new Random();
-                for(int i=0; i<4;i++){
+                for(int i=0; i<fileLimit;i++){
                     filenames[i]= fileList.get(random.nextInt(fileList.size()));
                 }
             }
+        }
+        String ids = "(";
+        for (int i=fileLimit; i<3; i++){
+            ids += random.nextInt(4000) + ",";
+        }
+        ids += random.nextInt(4000) + ")";
+        SELECT_QUERY = "SELECT * FROM " + TABLE_FILE_DETAILS + " WHERE id in " + ids;
+        cursor = db.rawQuery(SELECT_QUERY, null);
+        cursor.moveToFirst();
+//        Log.e(LOG_TAG, "IDs:" + ids + " Count:" + cursor.getCount()+ " limit:" + fileLimit);
+        for (int i=fileLimit; i<4; i++){
+            filenames[i] = cursor.getString(1);
+            cursor.moveToNext();
         }
         return filenames;
     }
