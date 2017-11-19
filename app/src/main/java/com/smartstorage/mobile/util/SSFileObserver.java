@@ -116,14 +116,17 @@ public class SSFileObserver extends FileObserver {
 //            alertDialog.show();
 
                 for (int i = 0; i < predictedFileNames.length; i++) {
-                    if (handler.isDeleted(predictedFileNames[i]) && predictedFileNames[i]!= null) {
-                        //add here notification to show downloading file
-                        //download the file from google drive. File name = predictedFileNames[i]
+                    if(predictedFileNames[i]!= null){
+                        if (handler.isDeleted(predictedFileNames[i])  ) {
+                            //add here notification to show downloading file
+                            //download the file from google drive. File name = predictedFileNames[i]
 
-                        Intent intent = new Intent("com.smartStorage.downloadFromGD");
-                        intent.putExtra("fileUrl",  predictedFileNames[i]);
-                        appContext.sendBroadcast(intent);
+                            Intent intent = new Intent("com.smartStorage.downloadFromGD");
+                            intent.putExtra("fileUrl",  predictedFileNames[i]);
+                            appContext.sendBroadcast(intent);
+                        }
                     }
+
                 }
 
         }
