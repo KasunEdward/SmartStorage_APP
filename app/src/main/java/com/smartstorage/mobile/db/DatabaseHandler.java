@@ -1,12 +1,10 @@
 package com.smartstorage.mobile.db;
 
-import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.net.Uri;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 
@@ -43,8 +41,11 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     private static final String KEY_NEVER_COPY = "never_copy";
     private static final String KEY_LAST_ACCESS = "last_access";
 
+    private Context context;
+
     private DatabaseHandler(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        this.context = context;
     }
 
     public static synchronized DatabaseHandler getDbInstance(Context context) {
@@ -438,8 +439,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         }
     }
 
-    public String[] getPredictedFileNames(String path, String filename){
-        String[] filenames=new String[4];
+    public FileDetails[] getPredictedFileNames(String path, String filename){
+        FileDetails[] filenames=new FileDetails[4];
         String SELECT_QUERY = "SELECT * FROM " + TABLE_FILE_DETAILS + " WHERE file_name like ? and not file_name = ?";
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(SELECT_QUERY, new String[]{path+"%",filename});
@@ -447,34 +448,46 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         Random random = new Random();
         int fileLimit = 2 + random.nextInt(2);
         if(cursor.getCount() >0 && cursor.getCount()<= 10){
-            filenames[0]=cursor.getString(1);
+            filenames[0] = new FileDetails();
+            filenames[0].setFile_name(cursor.getString(1));
+            filenames[0].setDeleted(cursor.getString(5));
             for (int i=1; i<fileLimit;i++){
                 if(cursor.moveToNext()){
-                    filenames[i]=cursor.getString(1);
+                    filenames[i] = new FileDetails();
+                    filenames[i].setFile_name(cursor.getString(1));
+                    filenames[i].setDeleted(cursor.getString(5));
                 }
             }
         } else {
             if (cursor.getCount() > 10) {
-                ArrayList<String> fileList = new ArrayList<>();
+                ArrayList<FileDetails> fileList = new ArrayList<>();
                 while (cursor.moveToNext()) {
-                    fileList.add(cursor.getString(1));
+                    FileDetails fileDetails = new FileDetails();
+                    fileDetails.setFile_name(cursor.getString(1));
+                    fileDetails.setDeleted(cursor.getString(5));
+                    fileList.add(fileDetails);
                 }
                 for(int i=0; i<fileLimit;i++){
                     filenames[i]= fileList.get(random.nextInt(fileList.size()));
                 }
             }
         }
+        int mapfilesCount = context.getSharedPreferences(AppParams.PreferenceStr.SHARED_PREFERENCE_NAME, Context.MODE_PRIVATE)
+                .getInt(AppParams.PreferenceStr.FILE_MAP_LENGTH, 500);
+        Log.e(LOG_TAG, "mapfilescount:" + mapfilesCount);
         String ids = "(";
         for (int i=fileLimit; i<3; i++){
-            ids += random.nextInt(4000) + ",";
+            ids += random.nextInt(mapfilesCount) + ",";
         }
-        ids += random.nextInt(4000) + ")";
+        ids += random.nextInt(mapfilesCount) + ")";
         SELECT_QUERY = "SELECT * FROM " + TABLE_FILE_DETAILS + " WHERE id in " + ids;
         cursor = db.rawQuery(SELECT_QUERY, null);
         cursor.moveToFirst();
-//        Log.e(LOG_TAG, "IDs:" + ids + " Count:" + cursor.getCount()+ " limit:" + fileLimit);
+        Log.e(LOG_TAG, "IDs:" + ids + " Count:" + cursor.getCount()+ " limit:" + fileLimit);
         for (int i=fileLimit; i<4; i++){
-            filenames[i] = cursor.getString(1);
+            filenames[i] = new FileDetails();
+            filenames[i].setFile_name(cursor.getString(1));
+            filenames[i].setDeleted(cursor.getString(5));
             cursor.moveToNext();
         }
         return filenames;

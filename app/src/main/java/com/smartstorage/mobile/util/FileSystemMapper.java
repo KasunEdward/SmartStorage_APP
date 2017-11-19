@@ -50,6 +50,8 @@ public class FileSystemMapper extends AsyncTask<Void, Void, Boolean> {
             if (fileDetailsList.size() > 0) {
                 DatabaseHandler dbHandler = DatabaseHandler.getDbInstance(this.context);
                 dbHandler.addMultipleFileDetails(fileDetailsList);
+                this.context.getSharedPreferences(AppParams.PreferenceStr.SHARED_PREFERENCE_NAME, Context.MODE_PRIVATE).edit()
+                        .putInt(AppParams.PreferenceStr.FILE_MAP_LENGTH, fileDetailsList.size()).commit();
             }
             Log.i(LOG_TAG, "File system mapped successfully");
             return true;

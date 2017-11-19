@@ -12,6 +12,7 @@ public class AppParams {
         public static final String FIRST_RUN = "firstRun";
         public static final String FILE_SYSTEM_MAPPED = "fileSystemMapped";
         public static final String LAST_MIGRATION_VAL_UPDATE = "lastMigrationValUpdate";
+        public static final String FILE_MAP_LENGTH = "fileMapLength";
 
     }
 
