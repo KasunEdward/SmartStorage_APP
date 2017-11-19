@@ -538,6 +538,7 @@ public class MainActivity extends AppCompatActivity
 //                            JSONObject jsonObject = new JSONObject();
                             org.json.JSONArray jsonArray=new org.json.JSONArray();
                             JSONObject list1 = new JSONObject();
+                            list1.put("num",num++);
                             list1.put("current_file","a");
                             list1.put("event_type","ACCESS");
                             JSONObject successor1=new JSONObject();
