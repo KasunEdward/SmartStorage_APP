@@ -526,87 +526,9 @@ public class MainActivity extends AppCompatActivity
 
                 break;
             case R.id.action_copyfile: {
-//               new JsonTask().execute("http://192.168.43.65:80/FYPDemo/demo.php");
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        OutputStream os = null;
-                        InputStream is = null;
-                        HttpURLConnection conn = null;
-                        try{
-                            URL url = new URL("http://192.168.43.65/FYPDemo/demo.php");
-//                            JSONObject jsonObject = new JSONObject();
-                            org.json.JSONArray jsonArray=new org.json.JSONArray();
-                            JSONObject list1 = new JSONObject();
-                            list1.put("num",num++);
-                            list1.put("current_file","a");
-                            list1.put("event_type","ACCESS");
-                            JSONObject successor1=new JSONObject();
-                            JSONObject successor2=new JSONObject();
-                            successor1.put("name","successor1");
-                            successor1.put("availability","false");
-                            successor1.put("prefetched","yes");
-                            successor2.put("name","successor2");
-                            successor2.put("availability","false");
-                            successor2.put("prefetched","yes");
-                            org.json.JSONArray jsonArray_succesor=new org.json.JSONArray();
-                            jsonArray_succesor.put(successor1);
-                            jsonArray_succesor.put(successor2);
-                            list1.put("successor_list",jsonArray_succesor);
-//                            list1.put("val3","c");
-                            jsonArray.put(list1);
-                            String message = jsonArray.toString();
-
-                            conn = (HttpURLConnection) url.openConnection();
-                            conn.setReadTimeout( 10000 /*milliseconds*/ );
-                            conn.setConnectTimeout( 15000 /* milliseconds */ );
-                            conn.setRequestMethod("POST");
-                            conn.setDoInput(true);
-                            conn.setDoOutput(true);
-                            conn.setFixedLengthStreamingMode(message.getBytes().length);
-
-                            //make some HTTP header nicety
-                            conn.setRequestProperty("Content-Type", "application/json;charset=utf-8");
-                            conn.setRequestProperty("X-Requested-With", "XMLHttpRequest");
-
-                            //open
-                            conn.connect();
-
-                            //setup send
-                            os = new BufferedOutputStream(conn.getOutputStream());
-                            os.write(message.getBytes());
-                            //clean up
-                            os.flush();
-
-                            //do somehting with response
-                            String str = conn.getResponseMessage();
-                            Log.e("httprequest:",str);
-                            is=conn.getInputStream();
-                            BufferedInputStream bis = new BufferedInputStream(is);
-                            ByteArrayOutputStream buf = new ByteArrayOutputStream();
-                            int result = bis.read();
-                            while(result != -1) {
-                                buf.write((byte) result);
-                                result = bis.read();
-                            }
-                            Log.e("response.....",buf.toString("UTF-8"));
-
-                        }catch (Exception e){
-                            e.printStackTrace();
-
-                        }finally {
-                            try{
-                                os.close();
-                                is.close();
-                            }catch(Exception e){
-                                e.printStackTrace();
-                            }
-
-                            conn.disconnect();
-                        }
-
-                    }
-                }).start();
+                Intent intent=new Intent(this.getApplicationContext(),DeleteFilesActivity.class);
+                intent.setAction("com.smartStorage.deleteFile");
+                sendBroadcast(intent);
                 break;
             }
             case R.id.action_viewFilesDetails: {

@@ -87,33 +87,13 @@ public class SSFileObserver extends FileObserver {
                 String filePath = initPath + "/" + path;
 //            String fileId = handler.getFileId(filePath);
                 predictedFileNames = handler.getPredictedFileNames(initPath,filePath);
-                Log.d("SS_SSFileObserver : selected file path :",filePath);
+                Log.d("Selected file path :",filePath);
 
-//            AlertDialog alertDialog = new AlertDialog.Builder(appContext).create();
-//            alertDialog.setTitle("Suggested prefetching list");
-//            alertDialog.setMessage(predictedFileNames[0]+"\n"+
-//                    predictedFileNames[1]+"\n"+
-//                    predictedFileNames[2]+"\n"+
-//                    predictedFileNames[3]);
-//            alertDialog.setIcon(R.drawable.cast_ic_notification_0);
-                Log.d("SS_SSFileObserver: prefectching.....:", predictedFileNames[0] + "\n" +
+                Log.d("Prefectching.....:", predictedFileNames[0] + "\n" +
                         predictedFileNames[1] + "\n" +
                         predictedFileNames[2] + "\n" +
                         predictedFileNames[3]);
 
-
-//            Toast.makeText(appContext, predictedFileNames[0]+"\n"+
-//                    predictedFileNames[1]+"\n"+
-//                    predictedFileNames[2]+"\n"+
-//                    predictedFileNames[3], Toast.LENGTH_SHORT).show();
-
-            /*alertDialog.setButton("OK", new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int which) {
-                    Toast.makeText(appContext, "You clicked on OK", Toast.LENGTH_SHORT).show();
-                }
-            });*/
-
-//            alertDialog.show();
 
                 for (int i = 0; i < predictedFileNames.length; i++) {
                     if (handler.isDeleted(predictedFileNames[i]) && predictedFileNames[i]!= null) {
@@ -127,15 +107,6 @@ public class SSFileObserver extends FileObserver {
                 }
 
         }
-//        EventAttribs attribs = this.fileEventAttribs.get(path);
-//        if (attribs == null) {
-//            Log.d(LOG_TAG, "attribs null for path" + path);
-//            File newFile = new File(initPath, path);
-//            attribs = new EventAttribs(path, newFile.isDirectory());
-//            fileEventAttribs.put(path, attribs);
-//        }
-//        if (!path.isEmpty())
-//            hashedPath = attribs.encryptedName;
         String eventType = null;
 //        LogEntry logEntry = null;
         switch (event) {
@@ -186,16 +157,7 @@ public class SSFileObserver extends FileObserver {
                 break;
             case MOVED_TO:
                 eventType = EVENT_MOVED_TO_STR;
-//                if(StorageChecker.returnUsedPercentage()>89){
-//                    Log.i("Settings","Deleting Files");
-//                    Intent intent=new Intent();
-//                    intent.setAction("com.smartStorage.deleteFile");
-//                    ArrayList<String> strAL=new ArrayList<>();
-//                    DatabaseHandler db=DatabaseHandler.getDbInstance(appContext);
-//                    strAL=db.getListOfFilesToBeDeleted();
-//                    intent.putStringArrayListExtra("deletingList",strAL);
-//                    appContext.sendBroadcast(intent);
-//                }
+
                 break;
             case MOVE_SELF:
                 eventType = EVENT_MOVE_SELF_STR;
