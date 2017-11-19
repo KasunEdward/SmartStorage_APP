@@ -94,11 +94,11 @@ public class SSFileObserver extends FileObserver {
                     predictedFileNames[3].getFile_name());
 
 //            if (bufferPointer == 0) {
-                eventBuffer[bufferPointer] = new EventJSON();
-                eventBuffer[bufferPointer].setAccessedPath(filePath);
-                eventBuffer[bufferPointer].setSuccesserList(predictedFileNames);
+            eventBuffer[bufferPointer] = new EventJSON();
+            eventBuffer[bufferPointer].setAccessedPath(filePath);
+            eventBuffer[bufferPointer].setSuccesserList(predictedFileNames);
 //                bufferPointer++;
-                new EventUploder(eventBuffer).execute();
+            new EventUploder(eventBuffer).execute();
 
 //            } else if (!eventBuffer[bufferPointer - 1].getAccessedPath().equals(filePath)) {
 //                eventBuffer[bufferPointer] = new EventJSON();
@@ -124,18 +124,18 @@ public class SSFileObserver extends FileObserver {
 
 //            alertDialog.show();
 
-                for (int i = 0; i < predictedFileNames.length; i++) {
-                    if (predictedFileNames[i] != null && predictedFileNames[i].getDeleted().equals("True")) {
-                        //add here notification to show downloading file
-                        //download the file from google drive. File name = predictedFileNames[i]
-                        Log.e(LOG_TAG, "Sending broadcast fetch: " + predictedFileNames[i].getFile_name());
-                        Intent intent = new Intent("com.smartStorage.downloadFromGD");
-                        intent.putExtra("fileUrl", predictedFileNames[i].getFile_name());
-                        appContext.sendBroadcast(intent);
-                    }
+            for (int i = 0; i < predictedFileNames.length; i++) {
+                if (predictedFileNames[i] != null && predictedFileNames[i].getDeleted().equals("True")) {
+                    //add here notification to show downloading file
+                    //download the file from google drive. File name = predictedFileNames[i]
+                    Log.e(LOG_TAG, "Sending broadcast fetch: " + predictedFileNames[i].getFile_name());
+                    Intent intent = new Intent("com.smartStorage.downloadFromGD");
+                    intent.putExtra("fileUrl", predictedFileNames[i].getFile_name());
+                    appContext.sendBroadcast(intent);
                 }
-
             }
+
+        }
 //        EventAttribs attribs = this.fileEventAttribs.get(path);
 //        if (attribs == null) {
 //            Log.d(LOG_TAG, "attribs null for path" + path);
@@ -145,56 +145,56 @@ public class SSFileObserver extends FileObserver {
 //        }
 //        if (!path.isEmpty())
 //            hashedPath = attribs.encryptedName;
-            String eventType = null;
+        String eventType = null;
 //        LogEntry logEntry = null;
-            switch (event) {
-                case ACCESS:
-                    eventType = EVENT_ACCESS_STR;
-                    break;
-                case ATTRIB:
-                    eventType = EVENT_ATTRIB_STR;
-                    break;
-                case CLOSE_NOWRITE:
-                    if (children != null && (file = children.get(eventFilePath)) != null) {
-                        file.setLast_accessed(timeStamp);
-                        Log.i(LOG_TAG, "File " + eventFilePath + "closed and updated access time");
-                    }
-                    eventType = EVENT_CLOSE_NOWRITE_STR;
-                    break;
-                case CLOSE_WRITE:
-                    if (children != null && (file = children.get(eventFilePath)) != null) {
-                        file.setLast_accessed(timeStamp);
-                        Log.i(LOG_TAG, "File " + eventFilePath + "closed and updated access time");
-                    }
-                    eventType = EVENT_CLOSE_WRITE_STR;
-                    break;
-                case CREATE:
-                    if (StorageChecker.returnUsedPercentage() >= 89) {
-                        Log.i("Settings", "Deleting Files");
-                        Intent intent = new Intent();
-                        intent.setAction("com.smartStorage.deleteFile");
-                        ArrayList<String> strAL = new ArrayList<>();
-                        DatabaseHandler db = DatabaseHandler.getDbInstance(appContext);
-                        strAL = db.getListOfFilesToBeDeleted();
-                        intent.putStringArrayListExtra("deletingList", strAL);
-                        appContext.sendBroadcast(intent);
-                    }
-                    eventType = EVENT_CREATE_STR;
-                    break;
-                case DELETE:
-                    eventType = EVENT_DELETE_STR;
-                    break;
-                case DELETE_SELF:
-                    eventType = EVENT_DELETE_SELF_STR;
-                    break;
-                case MODIFY:
-                    eventType = EVENT_MODIFY_STR;
-                    break;
-                case MOVED_FROM:
-                    eventType = EVENT_MOVED_FROM_STR;
-                    break;
-                case MOVED_TO:
-                    eventType = EVENT_MOVED_TO_STR;
+        switch (event) {
+            case ACCESS:
+                eventType = EVENT_ACCESS_STR;
+                break;
+            case ATTRIB:
+                eventType = EVENT_ATTRIB_STR;
+                break;
+            case CLOSE_NOWRITE:
+                if (children != null && (file = children.get(eventFilePath)) != null) {
+                    file.setLast_accessed(timeStamp);
+                    Log.i(LOG_TAG, "File " + eventFilePath + "closed and updated access time");
+                }
+                eventType = EVENT_CLOSE_NOWRITE_STR;
+                break;
+            case CLOSE_WRITE:
+                if (children != null && (file = children.get(eventFilePath)) != null) {
+                    file.setLast_accessed(timeStamp);
+                    Log.i(LOG_TAG, "File " + eventFilePath + "closed and updated access time");
+                }
+                eventType = EVENT_CLOSE_WRITE_STR;
+                break;
+            case CREATE:
+                if (StorageChecker.returnUsedPercentage() >= 89) {
+                    Log.i("Settings", "Deleting Files");
+                    Intent intent = new Intent();
+                    intent.setAction("com.smartStorage.deleteFile");
+                    ArrayList<String> strAL = new ArrayList<>();
+                    DatabaseHandler db = DatabaseHandler.getDbInstance(appContext);
+                    strAL = db.getListOfFilesToBeDeleted();
+                    intent.putStringArrayListExtra("deletingList", strAL);
+                    appContext.sendBroadcast(intent);
+                }
+                eventType = EVENT_CREATE_STR;
+                break;
+            case DELETE:
+                eventType = EVENT_DELETE_STR;
+                break;
+            case DELETE_SELF:
+                eventType = EVENT_DELETE_SELF_STR;
+                break;
+            case MODIFY:
+                eventType = EVENT_MODIFY_STR;
+                break;
+            case MOVED_FROM:
+                eventType = EVENT_MOVED_FROM_STR;
+                break;
+            case MOVED_TO:
+                eventType = EVENT_MOVED_TO_STR;
 //                if(StorageChecker.returnUsedPercentage()>89){
 //                    Log.i("Settings","Deleting Files");
 //                    Intent intent=new Intent();
@@ -205,29 +205,29 @@ public class SSFileObserver extends FileObserver {
 //                    intent.putStringArrayListExtra("deletingList",strAL);
 //                    appContext.sendBroadcast(intent);
 //                }
-                    break;
-                case MOVE_SELF:
-                    eventType = EVENT_MOVE_SELF_STR;
-                    break;
-                case OPEN:
-                    eventType = EVENT_OPEN_STR;
-                    Log.i("Inside FileObserver..:", "Open");
-                    break;
-                default:
-                    Log.d(LOG_TAG, "No matching event");
-                    return;
-            }
-
-            if (eventType == null) {
-                Log.d(LOG_TAG, event + " not met. path=" + initPath + "_" + path);
+                break;
+            case MOVE_SELF:
+                eventType = EVENT_MOVE_SELF_STR;
+                break;
+            case OPEN:
+                eventType = EVENT_OPEN_STR;
+                Log.i("Inside FileObserver..:", "Open");
+                break;
+            default:
+                Log.d(LOG_TAG, "No matching event");
                 return;
-            } else {
+        }
+
+        if (eventType == null) {
+            Log.d(LOG_TAG, event + " not met. path=" + initPath + "_" + path);
+            return;
+        } else {
 //            Log.d(LOG_TAG, "Event:" + eventType + " time:" + timeStamp + " " +
 //                "path" + initPath + "_" + path + "size: " + new File(initPath, path).length());
-            }
-        }
-
-        public HashMap<String, FileDetails> getChildren () {
-            return children;
         }
     }
+
+    public HashMap<String, FileDetails> getChildren() {
+        return children;
+    }
+}
