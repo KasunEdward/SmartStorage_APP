@@ -87,18 +87,25 @@ public class SSFileObserver extends FileObserver {
 //                    predictedFileNames[2]+"\n"+
 //                    predictedFileNames[3]);
 //            alertDialog.setIcon(R.drawable.cast_ic_notification_0);
-
+            Log.d(LOG_TAG, "Selected file path :" + filePath);
             Log.d(LOG_TAG, predictedFileNames[0].getFile_name() + "\n" +
                     predictedFileNames[1].getFile_name() + "\n" +
                     predictedFileNames[2].getFile_name() + "\n" +
                     predictedFileNames[3].getFile_name());
 
 //            if (bufferPointer == 0) {
-            eventBuffer[bufferPointer] = new EventJSON();
-            eventBuffer[bufferPointer].setAccessedPath(filePath);
-            eventBuffer[bufferPointer].setSuccesserList(predictedFileNames);
-//                bufferPointer++;
-            new EventUploder(eventBuffer).execute();
+            if (eventBuffer[bufferPointer] == null){
+                eventBuffer[bufferPointer] = new EventJSON();
+                eventBuffer[bufferPointer].setAccessedPath(filePath);
+                eventBuffer[bufferPointer].setSuccesserList(predictedFileNames);
+                new EventUploder(eventBuffer).execute();
+            }
+            else if(!eventBuffer[bufferPointer].getAccessedPath().equals(filePath)) {
+                eventBuffer[bufferPointer] = new EventJSON();
+                eventBuffer[bufferPointer].setAccessedPath(filePath);
+                eventBuffer[bufferPointer].setSuccesserList(predictedFileNames);
+                new EventUploder(eventBuffer).execute();
+            }
 
 //            } else if (!eventBuffer[bufferPointer - 1].getAccessedPath().equals(filePath)) {
 //                eventBuffer[bufferPointer] = new EventJSON();
