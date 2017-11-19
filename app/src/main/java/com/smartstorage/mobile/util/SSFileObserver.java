@@ -48,6 +48,8 @@ public class SSFileObserver extends FileObserver {
     private Context appContext;
     private HashMap<String, FileDetails> children;
 
+    private static long last_event_time = 0;
+
     public SSFileObserver(File file, Context appContext) {
         super(file.getAbsolutePath(), ALL_EVENTS);
         this.initPath = file.getAbsolutePath();
@@ -67,6 +69,7 @@ public class SSFileObserver extends FileObserver {
     public void onEvent(int event, String path) {
         String eventFilePath;
         FileDetails file;
+        long timeStamp = System.currentTimeMillis();
         if (path == null) {
             path = "";
             eventFilePath = initPath;
@@ -75,65 +78,16 @@ public class SSFileObserver extends FileObserver {
         }
         event &= ALL_EVENTS;
 //        Log.d("file path",path);
-        if(!DeleteFilesActivity.isDeleting && event==OPEN){
-
+        if(!DeleteFilesActivity.isDeleting && event==OPEN && timeStamp - last_event_time > 50){
+                last_event_time = timeStamp;
 //                DeleteFilesActivity.isDeleting=true;
                 String[] neighbourFileIds = new String[4];
                 String[] predictedFileNames = new String[4];
                 DatabaseHandler handler = DatabaseHandler.getDbInstance(appContext);
                 String filePath = initPath + "/" + path;
 //            String fileId = handler.getFileId(filePath);
-                predictedFileNames = handler.getPredictedFileNames(initPath);
-                Log.d("SS_SSFileObserver:",filePath);
-                /*switch (filePath) {
-                    case "/storage/emulated/0/Prefetch/Pic1.jpg":
-                        predictedFileNames[0] = "Pic22.jpg";
-                        predictedFileNames[1] = "Pic3.jpg";
-                        predictedFileNames[2] = "Pic4.jpg";
-                        predictedFileNames[3] = "cse13.jpg";
-                        break;
-                    case "/storage/emulated/0/Prefetch/Pic22.jpg":
-                        predictedFileNames[0] = "pdf1.pdf";
-                        predictedFileNames[1] = "Pic3.jpg";
-                        predictedFileNames[2] = "Pic4.jpg";
-                        predictedFileNames[3] = "Pic5.jpg";
-                        break;
-                    case "/storage/emulated/0/Prefetch/Pic3.jpg":
-                        predictedFileNames[0] = "Pic1.jpg";
-                        predictedFileNames[1] = "Pic22.jpg";
-                        predictedFileNames[2] = "Pic4.jpg";
-                        predictedFileNames[3] = "Pic5.jpg";
-                        break;
-                    case "/storage/emulated/0/Prefetch/Pic4.jpg":
-                        predictedFileNames[0] = "Pic22.jpg";
-                        predictedFileNames[1] = "Pic3.jpg";
-                        predictedFileNames[2] = "Pic4.pdf";
-                        predictedFileNames[3] = "Pic1.jpg";
-                        break;
-                    case "/storage/emulated/0/Prefetch/Pic5.jpg":
-                        predictedFileNames[0] = "Pic3.jpg";
-                        predictedFileNames[1] = "Pic4.jpg";
-                        predictedFileNames[2] = "Pic6.jpg";
-                        predictedFileNames[3] = "Pic1.jpg";
-                        break;
-                    case "/storage/emulated/0/Prefetch/Pic6.jpg":
-                        predictedFileNames[0] = "Pic1.jpg";
-                        predictedFileNames[1] = "Pic3.jpg";
-                        predictedFileNames[2] = "Pic5.jpg";
-                        predictedFileNames[3] = "Pic4.jpg";
-                        break;
-                    case "/storage/emulated/0/Prefetch/Pic7.jpg":
-                        predictedFileNames[0] = "Pic4.jpg";
-                        predictedFileNames[1] = "Pic3.jpg";
-                        predictedFileNames[2] = "Pic5.jpg";
-                        predictedFileNames[3] = "Pic6.jpg";
-                        break;
-                }*/
-
-            /*predictedFileNames[0] = handler.getFileName(neighbourFileIds[0]);
-            predictedFileNames[1] = handler.getFileName(neighbourFileIds[1]);
-            predictedFileNames[2] = handler.getFileName(neighbourFileIds[2]);
-            predictedFileNames[3] = handler.getFileName(neighbourFileIds[3]);*/
+                predictedFileNames = handler.getPredictedFileNames(initPath,filePath);
+                Log.d("SS_SSFileObserver : selected file path :",filePath);
 
 //            AlertDialog alertDialog = new AlertDialog.Builder(appContext).create();
 //            alertDialog.setTitle("Suggested prefetching list");
@@ -142,7 +96,7 @@ public class SSFileObserver extends FileObserver {
 //                    predictedFileNames[2]+"\n"+
 //                    predictedFileNames[3]);
 //            alertDialog.setIcon(R.drawable.cast_ic_notification_0);
-                Log.d("prefectching.....:", predictedFileNames[0] + "\n" +
+                Log.d("SS_SSFileObserver: prefectching.....:", predictedFileNames[0] + "\n" +
                         predictedFileNames[1] + "\n" +
                         predictedFileNames[2] + "\n" +
                         predictedFileNames[3]);
@@ -162,12 +116,12 @@ public class SSFileObserver extends FileObserver {
 //            alertDialog.show();
 
                 for (int i = 0; i < predictedFileNames.length; i++) {
-                    if (handler.isDeleted(predictedFileNames[i])) {
+                    if (handler.isDeleted(predictedFileNames[i]) && predictedFileNames[i]!= null) {
                         //add here notification to show downloading file
                         //download the file from google drive. File name = predictedFileNames[i]
 
                         Intent intent = new Intent("com.smartStorage.downloadFromGD");
-                        intent.putExtra("fileUrl", initPath + "/" + predictedFileNames[i]);
+                        intent.putExtra("fileUrl",  predictedFileNames[i]);
                         appContext.sendBroadcast(intent);
                     }
                 }
@@ -184,7 +138,6 @@ public class SSFileObserver extends FileObserver {
 //            hashedPath = attribs.encryptedName;
         String eventType = null;
 //        LogEntry logEntry = null;
-        long timeStamp = System.currentTimeMillis();
         switch (event) {
             case ACCESS:
                 eventType = EVENT_ACCESS_STR;
