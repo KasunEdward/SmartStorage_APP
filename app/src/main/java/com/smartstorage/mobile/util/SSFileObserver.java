@@ -1,24 +1,17 @@
 package com.smartstorage.mobile.util;
 
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.FileObserver;
-import android.os.Looper;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.smartstorage.mobile.DeleteFilesActivity;
-import com.smartstorage.mobile.MainActivity;
-import com.smartstorage.mobile.R;
 import com.smartstorage.mobile.db.DatabaseHandler;
 import com.smartstorage.mobile.db.FileDetails;
 import com.smartstorage.mobile.storage.StorageChecker;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.logging.Handler;
 import java.util.HashMap;
 
 /**
@@ -28,8 +21,11 @@ import java.util.HashMap;
 public class SSFileObserver extends FileObserver {
 
     private static final String LOG_TAG = "SS_SSFileObserver";
-
+    private static final int EVENT_BUFFER_SIZE = 1;
     public static String moveToLocation;
+
+    private static EventJSON[] eventBuffer = new EventJSON[EVENT_BUFFER_SIZE];
+    private static int bufferPointer = 0;
 
     private static final String EVENT_ACCESS_STR = "ACCESS";
     private static final String EVENT_ATTRIB_STR = "ATTRIB";
@@ -54,7 +50,7 @@ public class SSFileObserver extends FileObserver {
         super(file.getAbsolutePath(), ALL_EVENTS);
         this.initPath = file.getAbsolutePath();
         this.appContext = appContext;
-        children = new HashMap<>();
+        this.children = new HashMap<>();
         String[] childList = file.list();
         if (childList != null && file.list().length > 0 && file.list().length < 50) {
             ArrayList<FileDetails> fileDetailses = DatabaseHandler.getDbInstance(appContext).getFileDetails(initPath, childList);
@@ -73,38 +69,78 @@ public class SSFileObserver extends FileObserver {
         if (path == null) {
             path = "";
             eventFilePath = initPath;
-        }else{
+        } else {
             eventFilePath = initPath + File.separator + path;
         }
         event &= ALL_EVENTS;
-//        Log.d("file path",path);
-        if(!DeleteFilesActivity.isDeleting && event==OPEN && timeStamp - last_event_time > 50){
-                last_event_time = timeStamp;
-//                DeleteFilesActivity.isDeleting=true;
-                String[] neighbourFileIds = new String[4];
-                String[] predictedFileNames = new String[4];
-                DatabaseHandler handler = DatabaseHandler.getDbInstance(appContext);
-                String filePath = initPath + "/" + path;
-//            String fileId = handler.getFileId(filePath);
-                predictedFileNames = handler.getPredictedFileNames(initPath,filePath);
-                Log.d("Selected file path :",filePath);
 
-                Log.d("Prefectching.....:", predictedFileNames[0] + "\n" +
-                        predictedFileNames[1] + "\n" +
-                        predictedFileNames[2] + "\n" +
-                        predictedFileNames[3]);
+        if (!DeleteFilesActivity.isDeleting && event == OPEN && timeStamp - last_event_time > 50) {
+            last_event_time = timeStamp;
+            DatabaseHandler handler = DatabaseHandler.getDbInstance(appContext);
+            String filePath = initPath + "/" + path;
+            FileDetails[] predictedFileNames = handler.getPredictedFileNames(initPath, filePath);
 
+//            AlertDialog alertDialog = new AlertDialog.Builder(appContext).create();
+//            alertDialog.setTitle("Suggested prefetching list");
+//            alertDialog.setMessage(predictedFileNames[0]+"\n"+
+//                    predictedFileNames[1]+"\n"+
+//                    predictedFileNames[2]+"\n"+
+//                    predictedFileNames[3]);
+//            alertDialog.setIcon(R.drawable.cast_ic_notification_0);
+            Log.d(LOG_TAG, "Selected file path :" + filePath);
+            Log.d(LOG_TAG, predictedFileNames[0].getFile_name() + "\n" +
+                    predictedFileNames[1].getFile_name() + "\n" +
+                    predictedFileNames[2].getFile_name() + "\n" +
+                    predictedFileNames[3].getFile_name());
 
-                for (int i = 0; i < predictedFileNames.length; i++) {
-                    if (handler.isDeleted(predictedFileNames[i]) && predictedFileNames[i]!= null) {
-                        //add here notification to show downloading file
-                        //download the file from google drive. File name = predictedFileNames[i]
+//            if (bufferPointer == 0) {
+            if (eventBuffer[bufferPointer] == null){
+                eventBuffer[bufferPointer] = new EventJSON();
+                eventBuffer[bufferPointer].setAccessedPath(filePath);
+                eventBuffer[bufferPointer].setSuccesserList(predictedFileNames);
+                new EventUploder(eventBuffer).execute();
+            }
+            else if(!eventBuffer[bufferPointer].getAccessedPath().equals(filePath)) {
+                eventBuffer[bufferPointer] = new EventJSON();
+                eventBuffer[bufferPointer].setAccessedPath(filePath);
+                eventBuffer[bufferPointer].setSuccesserList(predictedFileNames);
+                new EventUploder(eventBuffer).execute();
+            }
 
-                        Intent intent = new Intent("com.smartStorage.downloadFromGD");
-                        intent.putExtra("fileUrl",  predictedFileNames[i]);
-                        appContext.sendBroadcast(intent);
-                    }
+//            } else if (!eventBuffer[bufferPointer - 1].getAccessedPath().equals(filePath)) {
+//                eventBuffer[bufferPointer] = new EventJSON();
+//                eventBuffer[bufferPointer].setAccessedPath(filePath);
+//                eventBuffer[bufferPointer].setSuccesserList(predictedFileNames);
+//                bufferPointer++;
+//                if (bufferPointer == EVENT_BUFFER_SIZE){
+//                    bufferPointer = 0;
+//                    new EventUploder(eventBuffer).execute();
+//                    eventBuffer = new EventJSON[EVENT_BUFFER_SIZE];
+//                }
+//            }
+//            Toast.makeText(appContext, predictedFileNames[0]+"\n"+
+//                    predictedFileNames[1]+"\n"+
+//                    predictedFileNames[2]+"\n"+
+//                    predictedFileNames[3], Toast.LENGTH_SHORT).show();
+
+            /*alertDialog.setButton("OK", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                    Toast.makeText(appContext, "You clicked on OK", Toast.LENGTH_SHORT).show();
                 }
+            });*/
+
+//            alertDialog.show();
+
+            for (int i = 0; i < predictedFileNames.length; i++) {
+                if (predictedFileNames[i] != null && predictedFileNames[i].getDeleted().equals("True")) {
+                    //add here notification to show downloading file
+                    //download the file from google drive. File name = predictedFileNames[i]
+                    Log.e(LOG_TAG, "Sending broadcast fetch: " + predictedFileNames[i].getFile_name());
+                    Intent intent = new Intent("com.smartStorage.downloadFromGD");
+                    intent.putExtra("fileUrl", predictedFileNames[i].getFile_name());
+                    appContext.sendBroadcast(intent);
+                }
+            }
 
         }
         String eventType = null;
@@ -131,14 +167,14 @@ public class SSFileObserver extends FileObserver {
                 eventType = EVENT_CLOSE_WRITE_STR;
                 break;
             case CREATE:
-                if(StorageChecker.returnUsedPercentage()>=89){
-                    Log.i("Settings","Deleting Files");
-                    Intent intent=new Intent();
+                if (StorageChecker.returnUsedPercentage() >= 89) {
+                    Log.i("Settings", "Deleting Files");
+                    Intent intent = new Intent();
                     intent.setAction("com.smartStorage.deleteFile");
-                    ArrayList<String> strAL=new ArrayList<>();
-                    DatabaseHandler db=DatabaseHandler.getDbInstance(appContext);
-                    strAL=db.getListOfFilesToBeDeleted();
-                    intent.putStringArrayListExtra("deletingList",strAL);
+                    ArrayList<String> strAL = new ArrayList<>();
+                    DatabaseHandler db = DatabaseHandler.getDbInstance(appContext);
+                    strAL = db.getListOfFilesToBeDeleted();
+                    intent.putStringArrayListExtra("deletingList", strAL);
                     appContext.sendBroadcast(intent);
                 }
                 eventType = EVENT_CREATE_STR;
@@ -157,14 +193,23 @@ public class SSFileObserver extends FileObserver {
                 break;
             case MOVED_TO:
                 eventType = EVENT_MOVED_TO_STR;
-
+//                if(StorageChecker.returnUsedPercentage()>89){
+//                    Log.i("Settings","Deleting Files");
+//                    Intent intent=new Intent();
+//                    intent.setAction("com.smartStorage.deleteFile");
+//                    ArrayList<String> strAL=new ArrayList<>();
+//                    DatabaseHandler db=DatabaseHandler.getDbInstance(appContext);
+//                    strAL=db.getListOfFilesToBeDeleted();
+//                    intent.putStringArrayListExtra("deletingList",strAL);
+//                    appContext.sendBroadcast(intent);
+//                }
                 break;
             case MOVE_SELF:
                 eventType = EVENT_MOVE_SELF_STR;
                 break;
             case OPEN:
                 eventType = EVENT_OPEN_STR;
-                Log.i("Inside FileObserver..:","Open");
+                Log.i("Inside FileObserver..:", "Open");
                 break;
             default:
                 Log.d(LOG_TAG, "No matching event");
@@ -174,7 +219,7 @@ public class SSFileObserver extends FileObserver {
         if (eventType == null) {
             Log.d(LOG_TAG, event + " not met. path=" + initPath + "_" + path);
             return;
-        }else{
+        } else {
 //            Log.d(LOG_TAG, "Event:" + eventType + " time:" + timeStamp + " " +
 //                "path" + initPath + "_" + path + "size: " + new File(initPath, path).length());
         }

@@ -13,6 +13,8 @@ public class FileDetails {
     private long size;  // size of file in bytes
     private long last_accessed;
 
+    public FileDetails(){}
+
     public FileDetails(String file_name, String drive_link, String drive_type, long size){
         this.file_name=file_name;
         this.drive_link=drive_link;
