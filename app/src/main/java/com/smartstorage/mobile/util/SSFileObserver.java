@@ -84,7 +84,7 @@ public class SSFileObserver extends FileObserver {
                 String filePath = initPath + "/" + path;
 //            String fileId = handler.getFileId(filePath);
                 predictedFileNames = handler.getPredictedFileNames(initPath);
-                Log.d("SS_SSFileObserver : selected file path :",filePath);
+                Log.d("SS_SSFileObserver:",filePath);
                 /*switch (filePath) {
                     case "/storage/emulated/0/Prefetch/Pic1.jpg":
                         predictedFileNames[0] = "Pic22.jpg";
@@ -142,7 +142,7 @@ public class SSFileObserver extends FileObserver {
 //                    predictedFileNames[2]+"\n"+
 //                    predictedFileNames[3]);
 //            alertDialog.setIcon(R.drawable.cast_ic_notification_0);
-                Log.d("SS_SSFileObserver: prefectching.....:", predictedFileNames[0] + "\n" +
+                Log.d("prefectching.....:", predictedFileNames[0] + "\n" +
                         predictedFileNames[1] + "\n" +
                         predictedFileNames[2] + "\n" +
                         predictedFileNames[3]);
