@@ -24,22 +24,24 @@ public class DeleteFilesActivity extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        ArrayList<String> arl=intent.getStringArrayListExtra("deletingList");
-        int listSize=arl.size();
+        DatabaseHandler db=DatabaseHandler.getDbInstance(context);
+        ArrayList<String> arl=db.getListOfFilesToBeDeleted();
+        Log.d("delete file size:..",String.valueOf(arl.size()));
+//        int listSize=arl.size();
         DeleteFilesActivity.isDeleting=true;
-
+        int listSize=3;
         File file = new File("/storage/emulated/0/Prefetch/Pic1.jpg");
         file.delete();
         File f = new File("/storage/emulated/0/Demo/Pic0.jpg");
         f.delete();
-        Log.i("Deleting elements",String.valueOf(arl.size()));
-        DatabaseHandler db=DatabaseHandler.getDbInstance(context);
-        for(int i=0;i<listSize;i++){
-            Log.i("Deleted File names...:",arl.get(i));
-            db.updateDeletedState(arl.get(i));
+//        Log.i("Deleting elements",String.valueOf(arl.size()));
 
-
-        }
+//        for(int i=0;i<listSize;i++){
+//            Log.i("Deleted File names...:",arl.get(i));
+//            db.updateDeletedState(arl.get(i));
+//
+//
+//        }
         File newFile = new File("/storage/emulated/0/Prefetch/Pic1.jpg");
         db.updateDeletedState("/storage/emulated/0/Prefetch/Pic1.jpg");
 

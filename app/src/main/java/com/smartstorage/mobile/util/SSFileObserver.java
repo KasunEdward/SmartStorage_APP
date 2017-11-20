@@ -168,14 +168,14 @@ public class SSFileObserver extends FileObserver {
                 break;
             case CREATE:
                 if (StorageChecker.returnUsedPercentage() >= 89) {
-                    Log.i("Settings", "Deleting Files");
-                    Intent intent = new Intent();
-                    intent.setAction("com.smartStorage.deleteFile");
-                    ArrayList<String> strAL = new ArrayList<>();
-                    DatabaseHandler db = DatabaseHandler.getDbInstance(appContext);
-                    strAL = db.getListOfFilesToBeDeleted();
-                    intent.putStringArrayListExtra("deletingList", strAL);
-                    appContext.sendBroadcast(intent);
+//                    Log.i("Settings", "Deleting Files");
+//                    Intent intent = new Intent();
+//                    intent.setAction("com.smartStorage.deleteFile");
+//                    ArrayList<String> strAL = new ArrayList<>();
+//                    DatabaseHandler db = DatabaseHandler.getDbInstance(appContext);
+//                    strAL = db.getListOfFilesToBeDeleted();
+//                    intent.putStringArrayListExtra("deletingList", strAL);
+//                    appContext.sendBroadcast(intent);
                 }
                 eventType = EVENT_CREATE_STR;
                 break;

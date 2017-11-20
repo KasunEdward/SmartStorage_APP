@@ -138,6 +138,8 @@ public class MainActivity extends AppCompatActivity
     private final float mSeriesMax = 50f;
 
     private static int num=0;
+
+    private AlertDialog dialog;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -279,6 +281,7 @@ public class MainActivity extends AppCompatActivity
 
                 requestRunTimePermission();
             } else {
+                if(!(drivePrefs.getString("type",null).equals("GoogleDrive")||drivePrefs.getString("type",null).equals("DropBox")))
                 setDriveAccount();
                 Intent serviceIntent = new Intent(getApplicationContext(), MigrationService.class);
                 startService(serviceIntent);
@@ -348,6 +351,7 @@ public class MainActivity extends AppCompatActivity
 //        TODO: uncomment this part to get CopyFileToGoogleDriveActivity to working state
         if(drivePrefs.getString("type",null).equals("GoogleDrive")||drivePrefs.getString("type",null).equals("DropBox")){
             if(drivePrefs.getString("type",null).equals("GoogleDrive")){
+                Log.i(GOOGLE_DRIVE_TAG,drivePrefs.getString("type",null));
                 while(GoogleClientHandler.googleApiClient==null){
                     Log.i(GOOGLE_DRIVE_TAG,"mGoogleApiClient is null...");
                 }
@@ -361,7 +365,8 @@ public class MainActivity extends AppCompatActivity
                 if (PendingIntent.getBroadcast(this, 0 , alarmReceiver, PendingIntent.FLAG_NO_CREATE) == null) {
                     PendingIntent pi = PendingIntent.getBroadcast(this, 0, alarmReceiver, PendingIntent.FLAG_UPDATE_CURRENT);
                     AlarmManager am = (AlarmManager) this.getSystemService(ALARM_SERVICE);
-                    am.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_HOUR, pi);
+//                    am.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_HOUR, pi);
+                    am.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis()+60000,pi);
                 }
 //              Intent for check low storage
 
@@ -442,7 +447,7 @@ public class MainActivity extends AppCompatActivity
                         }
                     }
                 });
-        AlertDialog dialog = builder.create();
+        dialog = builder.create();
         dialog.show();
     }
 
@@ -510,19 +515,11 @@ public class MainActivity extends AppCompatActivity
         //noinspection SimplifiableIfStatement
         switch (id) {
             case R.id.action_settings:
-                Thread thread = new Thread(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        try {
-
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
-
-                thread.start();
+                Intent alarmReceiver = new Intent(this.getApplicationContext(),CopyFileToGoogleDriveActivity.class);
+                ArrayList<String> fileList = getFiles();
+                alarmReceiver.putStringArrayListExtra("copyingListToGD",fileList);
+                alarmReceiver.setAction("com.smartStorage.copytoGD");
+                sendBroadcast(alarmReceiver);
 
                 break;
             case R.id.action_copyfile: {
@@ -658,6 +655,7 @@ public class MainActivity extends AppCompatActivity
                 }
             }
         });
+
         Log.d(GOOGLE_DRIVE_TAG, "Connected");
 
     }
@@ -694,6 +692,7 @@ public class MainActivity extends AppCompatActivity
                     criticalPermissionGranted = false;
                 }
                 if (criticalPermissionGranted) {
+                    if(!(drivePrefs.getString("type",null).equals("GoogleDrive")||drivePrefs.getString("type",null).equals("DropBox")))
                     setDriveAccount();
                     Intent serviceIntent = new Intent(getApplicationContext(), MigrationService.class);
                     startService(serviceIntent);
