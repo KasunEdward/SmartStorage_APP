@@ -134,11 +134,12 @@ public class SSFileObserver extends FileObserver {
             for (int i = 0; i < predictedFileNames.length; i++) {
                 if (predictedFileNames[i] != null && predictedFileNames[i].getDeleted().equals("true")) {
                     //add here notification to show downloading file
-                    //download the file from google drive. File name = predictedFileNames[i]
+//                    download the file from google drive. File name = predictedFileNames[i]
                     Log.e(LOG_TAG, "Sending broadcast fetch: " + predictedFileNames[i].getFile_name());
                     Intent intent = new Intent("com.smartStorage.downloadFromGD");
                     intent.putExtra("fileUrl", predictedFileNames[i].getFile_name());
                     appContext.sendBroadcast(intent);
+
                 }
             }
 
@@ -168,14 +169,14 @@ public class SSFileObserver extends FileObserver {
                 break;
             case CREATE:
                 if (StorageChecker.returnUsedPercentage() >= 89) {
-                    Log.i("Settings", "Deleting Files");
-                    Intent intent = new Intent();
-                    intent.setAction("com.smartStorage.deleteFile");
-                    ArrayList<String> strAL = new ArrayList<>();
-                    DatabaseHandler db = DatabaseHandler.getDbInstance(appContext);
-                    strAL = db.getListOfFilesToBeDeleted();
-                    intent.putStringArrayListExtra("deletingList", strAL);
-                    appContext.sendBroadcast(intent);
+//                    Log.i("Settings", "Deleting Files");
+//                    Intent intent = new Intent();
+//                    intent.setAction("com.smartStorage.deleteFile");
+//                    ArrayList<String> strAL = new ArrayList<>();
+//                    DatabaseHandler db = DatabaseHandler.getDbInstance(appContext);
+//                    strAL = db.getListOfFilesToBeDeleted();
+//                    intent.putStringArrayListExtra("deletingList", strAL);
+//                    appContext.sendBroadcast(intent);
                 }
                 eventType = EVENT_CREATE_STR;
                 break;

@@ -31,7 +31,9 @@ public class CopyFileToDropboxActivity  extends BroadcastReceiver{
     public void onReceive(Context context, Intent intent) {
         this.context=context;
         copyingFileList=intent.getStringArrayListExtra("copyingListToDB");
+        Log.d("Dropbox_TAG:",String.valueOf(MainActivity.getDropboxAPI()));
         for(int i=0;i<copyingFileList.size();i++){
+            Log.d("DropBox copying....:",copyingFileList.get(i));
             new Upload(copyingFileList.get(i)).execute();
         }
 
@@ -55,6 +57,7 @@ public class CopyFileToDropboxActivity  extends BroadcastReceiver{
             try {
 
                 // Define path of file to be upload
+//                File file = new File(fileUrl);
                 File file = new File(fileUrl);
                 FileInputStream inputStream = new FileInputStream(file);
 

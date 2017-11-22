@@ -38,7 +38,10 @@ public class DownloadFromGoogleDriveActivity extends BroadcastReceiver{
         DatabaseHandler db = DatabaseHandler.getDbInstance(context);
 //        fileUrl = intent.getStringExtra("fileUrl");
 //        String driveId_str = db.getFileLink(fileUrl);
-        driveId_str="DriveId:CAASABjOJSCO9tni-lQoAA==";
+//        driveId_str="DriveId:CAASABjOJSCO9tni-lQoAA==";
+        driveId_str=db.getFileLink(fileUrl);
+//        driveId_str="DriveId:CAASABiaKyCO9tni-lQoAA==";
+        Log.d("This is driveId..:",driveId_str);
         DriveFile file = Drive.DriveApi.getFile(GoogleClientHandler.googleApiClient, DriveId.decodeFromString(driveId_str));
         file.open(GoogleClientHandler.googleApiClient, DriveFile.MODE_READ_ONLY, null).setResultCallback(contentsOpenedCallback);
 
