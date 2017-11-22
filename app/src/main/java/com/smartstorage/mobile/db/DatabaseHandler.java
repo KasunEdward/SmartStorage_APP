@@ -87,6 +87,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             values.put(MIGRATION_VALUE, ((AppParams.MIGRATION_X / fileDetails.getSize()) * AppParams.MIGRATION_FACTOR)*10);
         }
         values.put(KEY_DELETED, "false");
+        values.put(KEY_NEVER_DELETE, "false");
+        values.put(KEY_NEVER_COPY, "false");
         values.put(KEY_SIZE, fileDetails.getSize());
         values.put(KEY_LAST_ACCESS, fileDetails.getLast_accessed());
         db.insert(TABLE_FILE_DETAILS, null, values);
@@ -110,6 +112,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 values.put(MIGRATION_VALUE, ((AppParams.MIGRATION_X / fileDetail.getSize()) * AppParams.MIGRATION_FACTOR)*10);
             }
             values.put(KEY_DELETED, "false");
+            values.put(KEY_NEVER_DELETE, "false");
+            values.put(KEY_NEVER_COPY, "false");
             values.put(KEY_SIZE, fileDetail.getSize());
             values.put(KEY_LAST_ACCESS, fileDetail.getLast_accessed());
             db.insert(TABLE_FILE_DETAILS, null, values);
@@ -152,7 +156,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         cursor.moveToFirst();
 
         String fileName = String.valueOf(cursor.getString(5));
-        if(fileName.equals("True"))
+        if(fileName.equals("true"))
             return true;
         return false;
     }
@@ -206,7 +210,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     public void updateDeletedState(String fileUrl) {
         ContentValues cv = new ContentValues();
-        cv.put(KEY_DELETED, "True");
+        cv.put(KEY_DELETED, "true");
 
         SQLiteDatabase db=this.getWritableDatabase();
         db.update(TABLE_FILE_DETAILS,cv,"file_name=?",new String[]{fileUrl});
@@ -214,7 +218,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     }
     public void updateDeletedStateToFalse(String fileUrl){
         ContentValues cv=new ContentValues();
-        cv.put(KEY_DELETED,"False");
+        cv.put(KEY_DELETED,"false");
 
         SQLiteDatabase db=this.getWritableDatabase();
         db.update(TABLE_FILE_DETAILS,cv,"file_name=?",new String[]{fileUrl});

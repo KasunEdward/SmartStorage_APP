@@ -132,7 +132,7 @@ public class SSFileObserver extends FileObserver {
 //            alertDialog.show();
 
             for (int i = 0; i < predictedFileNames.length; i++) {
-                if (predictedFileNames[i] != null && predictedFileNames[i].getDeleted().equals("True")) {
+                if (predictedFileNames[i] != null && predictedFileNames[i].getDeleted().equals("true")) {
                     //add here notification to show downloading file
                     //download the file from google drive. File name = predictedFileNames[i]
                     Log.e(LOG_TAG, "Sending broadcast fetch: " + predictedFileNames[i].getFile_name());
