@@ -5,6 +5,7 @@ import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
@@ -31,11 +32,15 @@ public class DeleteFilesActivity extends BroadcastReceiver {
         DeleteFilesActivity.isDeleting=true;
         int listSize=3;
         File file = new File("/storage/emulated/0/Prefetch/Pic1.jpg");
-        file.delete();
-        File f = new File("/storage/emulated/0/Demo/Pic0.jpg");
-        f.delete();
-//        Log.i("Deleting elements",String.valueOf(arl.size()));
 
+        boolean d=file.delete();
+
+        File f = new File("/storage/emulated/0/Demo/Profile.jpg");
+        f.delete();
+          Log.i("Deleting elements",String.valueOf(d)+context.getFilesDir());
+        Intent scanIntent=new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+        scanIntent.setData(Uri.fromFile(file));
+        context.sendBroadcast(scanIntent);
 //        for(int i=0;i<listSize;i++){
 //            Log.i("Deleted File names...:",arl.get(i));
 //            db.updateDeletedState(arl.get(i));
@@ -45,14 +50,9 @@ public class DeleteFilesActivity extends BroadcastReceiver {
         File newFile = new File("/storage/emulated/0/Prefetch/Pic1.jpg");
         db.updateDeletedState("/storage/emulated/0/Prefetch/Pic1.jpg");
 
-        if(!newFile.exists()){
-            try{
-                newFile.createNewFile();
-            }catch (Exception e){
-                e.printStackTrace();
-            }
-        }
-        File newFile1 = new File("/storage/emulated/0/Demo/Pic0.jpg");
+
+
+        File newFile1 = new File("/storage/emulated/0/Demo/Profile.jpg");
         if(!newFile1.exists()){
             try{
                 newFile1.createNewFile();
@@ -60,7 +60,6 @@ public class DeleteFilesActivity extends BroadcastReceiver {
                 e.printStackTrace();
             }
         }
-
 
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context);
         mBuilder.setSmallIcon(R.drawable.ic_folder);
@@ -89,6 +88,11 @@ public class DeleteFilesActivity extends BroadcastReceiver {
             }
 
         };
+        try{
+            newFile.createNewFile();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
         DeleteFilesActivity.isDeleting=false;
     }
 }

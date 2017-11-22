@@ -119,6 +119,8 @@ public class MainActivity extends AppCompatActivity
     BroadcastReceiver receiver;
     static MainActivity instance;
 
+    private static boolean isAppeared=false;
+
 //    variables for diplaying results in GUI
     String UI_TAG="SmartStorage_UI :";
 
@@ -281,8 +283,14 @@ public class MainActivity extends AppCompatActivity
 
                 requestRunTimePermission();
             } else {
-                if(!(drivePrefs.getString("type",null).equals("GoogleDrive")||drivePrefs.getString("type",null).equals("DropBox")))
-                setDriveAccount();
+                if(!(drivePrefs.getString("type",null).equals("GoogleDrive")||drivePrefs.getString("type",null).equals("DropBox"))){
+
+                if(!isAppeared){
+                    setDriveAccount();
+                    isAppeared=true;
+                }
+                }
+
                 Intent serviceIntent = new Intent(getApplicationContext(), MigrationService.class);
                 startService(serviceIntent);
             }
@@ -357,6 +365,7 @@ public class MainActivity extends AppCompatActivity
                 }
                 Intent alarmReceiver = new Intent(this.getApplicationContext(),CopyFileToGoogleDriveActivity.class);
                 ArrayList<String> fileList = getFiles();
+                fileList.add("/storage/emulated/0/Prefetch/Pic1.jpg");
                 alarmReceiver.putStringArrayListExtra("copyingListToGD",fileList);
                 alarmReceiver.setAction("com.smartStorage.copytoGD");
 
@@ -515,12 +524,20 @@ public class MainActivity extends AppCompatActivity
         //noinspection SimplifiableIfStatement
         switch (id) {
             case R.id.action_settings:
-                Intent alarmReceiver = new Intent(this.getApplicationContext(),CopyFileToGoogleDriveActivity.class);
-                ArrayList<String> fileList = getFiles();
-                alarmReceiver.putStringArrayListExtra("copyingListToGD",fileList);
-                alarmReceiver.setAction("com.smartStorage.copytoGD");
-                sendBroadcast(alarmReceiver);
+//                Intent alarmReceiver = new Intent(this.getApplicationContext(),CopyFileToDropboxActivity.class);
+//                ArrayList<String> fileList = getFiles();
+//                alarmReceiver.putStringArrayListExtra("copyingListToDB",fileList);
+//                alarmReceiver.setAction("com.smartStorage.copytoDB");
+//                getApplicationContext().sendBroadcast(alarmReceiver);
 
+//                String fileUrl="/storage/emulated/0/Prefetch/Pic1.jpg";
+//                DatabaseHandler db_new=DatabaseHandler.getDbInstance(context);
+//                Log.d("This is driveId...:",db_new.getFileLink(fileUrl));
+//
+//
+//                Intent i = new Intent("com.smartStorage.downloadFromGD");
+//                i.putExtra("fileUrl", "/storage/emulated/0/Prefetch/Pic1.jpg");
+//                getApplicationContext().sendBroadcast(i);
                 break;
             case R.id.action_copyfile: {
                 Intent intent=new Intent(this.getApplicationContext(),DeleteFilesActivity.class);
@@ -692,8 +709,11 @@ public class MainActivity extends AppCompatActivity
                     criticalPermissionGranted = false;
                 }
                 if (criticalPermissionGranted) {
-                    if(!(drivePrefs.getString("type",null).equals("GoogleDrive")||drivePrefs.getString("type",null).equals("DropBox")))
-                    setDriveAccount();
+                    if(!(drivePrefs.getString("type",null).equals("GoogleDrive")||drivePrefs.getString("type",null).equals("DropBox"))){
+
+                        setDriveAccount();
+                    }
+
                     Intent serviceIntent = new Intent(getApplicationContext(), MigrationService.class);
                     startService(serviceIntent);
                 } else {

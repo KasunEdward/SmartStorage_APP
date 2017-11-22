@@ -272,11 +272,16 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         String SELECT_QUERY = "select * from file_details where file_link !='no_link_yet' and deleted ='false'";
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(SELECT_QUERY, null);
-        cursor.moveToFirst();
-        filesList.add(cursor.getString(1));
-        while (cursor.moveToNext()) {
+        if(cursor!=null&&cursor.moveToFirst()){
             filesList.add(cursor.getString(1));
+            while (cursor.moveToNext()) {
+                filesList.add(cursor.getString(1));
+            }
         }
+//        filesList.add(cursor.getString(1));
+//        while (cursor.moveToNext()) {
+//            filesList.add(cursor.getString(1));
+//        }
         return filesList;
 
     }
