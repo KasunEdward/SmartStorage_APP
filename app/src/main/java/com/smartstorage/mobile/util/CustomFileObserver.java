@@ -94,7 +94,7 @@ public class CustomFileObserver extends FileObserver {
                 Log.d(LOG_TAG, "No matching event");
                 return;
         }
-        RestAPI.predict();
+//        RestAPI.predict();
         if (eventType == null) {
             Log.d(LOG_TAG, event + " not met. path=" + initPath + "_" + path);
             return;
