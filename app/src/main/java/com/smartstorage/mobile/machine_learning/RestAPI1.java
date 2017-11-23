@@ -19,7 +19,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 /**
  *This class calls the external end point where pre-trained ML model is loaded ( Random Forest Classifier )
  */
-public class RestAPI extends AsyncTask<Void, Void, Void>{
+public class RestAPI1 extends AsyncTask<Void, Void, Void>{
 
     HttpClient httpClient = new DefaultHttpClient();
 //    public static void predict(/*int[] arr*/) {
@@ -78,7 +78,7 @@ public class RestAPI extends AsyncTask<Void, Void, Void>{
        @Override
     protected Void doInBackground(Void... param) {
         int[] arr = {
-                6,3,2074,4096,2073,2072,2073,2074,2075
+                6,3,2074,4096,2073,2072,2073,2074
         };
 
         StringBuilder stringBuilder = new StringBuilder();
@@ -90,7 +90,7 @@ public class RestAPI extends AsyncTask<Void, Void, Void>{
         }
         System.out.println(stringBuilder);
         try {
-            HttpPost httpPostRequest = new HttpPost("http://127.0.0.1:8081/predict");
+            HttpPost httpPostRequest = new HttpPost("http://192.168.43.65:5000/predict");
 
             StringEntity params =new StringEntity(stringBuilder.toString());
             httpPostRequest.setEntity(params);

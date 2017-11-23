@@ -9,20 +9,14 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
-import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.provider.ContactsContract;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -63,28 +57,19 @@ import com.hookedonplay.decoviewlib.events.DecoEvent;
 import com.smartstorage.mobile.db.DatabaseHandler;
 import com.smartstorage.mobile.display.DemoMigrationValActivity;
 import com.smartstorage.mobile.display.FilesActivity;
-import com.smartstorage.mobile.display.FilesByTypeActivity;
-import com.smartstorage.mobile.machine_learning.RestAPI;
+import com.smartstorage.mobile.machine_learning.RestAPI1;
+import com.smartstorage.mobile.machine_learning.RestAPI2;
+import com.smartstorage.mobile.machine_learning.RestAPI3;
+import com.smartstorage.mobile.machine_learning.RestAPI4;
 import com.smartstorage.mobile.service.MigrationService;
 import com.smartstorage.mobile.service.MigrationValUpdateThread;
-import com.smartstorage.mobile.service.MigrationValueUpdateAlarm;
 import com.smartstorage.mobile.storage.StorageChecker;
 import com.smartstorage.mobile.util.FileSystemMapper;
-import com.smartstorage.mobile.util.HttpHandler;
 
-import org.json.JSONObject;
-import org.json.simple.JSONArray;
-import org.json.simple.parser.JSONParser;
-
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.StringWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -569,7 +554,11 @@ public class MainActivity extends AppCompatActivity
             }
             case R.id.action_inference: {
                 Log.i("menu...:","prefetching");
-                new RestAPI().execute();
+                new RestAPI1().execute();
+                new RestAPI2().execute();
+                new RestAPI3().execute();
+                new RestAPI4().execute();
+
                 break;
             }
             case R.id.action_viewMigration:{

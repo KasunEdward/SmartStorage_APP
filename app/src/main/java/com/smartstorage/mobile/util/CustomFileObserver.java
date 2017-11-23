@@ -1,16 +1,10 @@
 package com.smartstorage.mobile.util;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.FileObserver;
 import android.util.Log;
 
-import com.smartstorage.mobile.db.DatabaseHandler;
-import com.smartstorage.mobile.machine_learning.RestAPI;
-import com.smartstorage.mobile.storage.StorageChecker;
-
 import java.io.File;
-import java.util.ArrayList;
 
 /**
  * Created by Irfad Hussain on 3/17/2017.
@@ -94,7 +88,7 @@ public class CustomFileObserver extends FileObserver {
                 Log.d(LOG_TAG, "No matching event");
                 return;
         }
-//        RestAPI.predict();
+//        RestAPI1.predict();
         if (eventType == null) {
             Log.d(LOG_TAG, event + " not met. path=" + initPath + "_" + path);
             return;
