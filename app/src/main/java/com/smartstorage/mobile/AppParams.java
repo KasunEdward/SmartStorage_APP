@@ -27,7 +27,7 @@ public class AppParams {
 
     public static final double MIGRATION_X = 169916.5;
     public static final double MIGRATION_FACTOR = 0.9;
-    public static final double MIGRATION_THRESHOLD = 0.02;
+    public static final double MIGRATION_THRESHOLD = 0.1;
 
     public static final String MIGRATION_VALUE_UPDATE_INTENT = "com.smartstorage.mobile.updateMigrationVal";
 }

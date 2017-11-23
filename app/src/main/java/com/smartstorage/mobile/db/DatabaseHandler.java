@@ -297,7 +297,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public ArrayList<String> getFilesToMigrate() {
         ArrayList<String> fileToMigrate = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
-        String query = "SELECT " + KEY_FILE_NAME + " FROM " + TABLE_FILE_DETAILS + " WHERE " + MIGRATION_VALUE + " < " + AppParams.MIGRATION_THRESHOLD + " AND NOT " + MIGRATION_VALUE + " = 0";
+        String query = "SELECT " + KEY_FILE_NAME + " FROM " + TABLE_FILE_DETAILS + " WHERE " + MIGRATION_VALUE + " < " + AppParams.MIGRATION_THRESHOLD + " AND NOT " + MIGRATION_VALUE + " = 0 AND " + KEY_SIZE + " < 20000000 AND "+KEY_NEVER_DELETE+" = 'false' AND "+KEY_NEVER_COPY+" = 'false'";
         Cursor cursor = db.rawQuery(query, null);
         if (cursor.moveToFirst()) {
             fileToMigrate.add(cursor.getString(0));

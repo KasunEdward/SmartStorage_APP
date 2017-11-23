@@ -112,18 +112,22 @@ public class FilesActivity extends AppCompatActivity {
             case R.id.copyfiles:
                 Log.d("file action","Copy");
                 filesAdapter.copyFiles();
+                prepareMovieData();
                 return true;
             case R.id.deletefiles:
                 Log.d("file action","Delete");
                 filesAdapter.deleteFiles();
+                prepareMovieData();
                 return true;
             case R.id.nevercopy:
                 Log.d("file action","Never Copy");
                 filesAdapter.setNeverCopy();
+                prepareMovieData();
                 return true;
             case R.id.neverdelete:
                 Log.d("file action","Never Delete");
                 filesAdapter.setNeverDelete();
+                prepareMovieData();
                 return true;
             case R.id.deselectall:
                 Log.d("file action","Deselect All");

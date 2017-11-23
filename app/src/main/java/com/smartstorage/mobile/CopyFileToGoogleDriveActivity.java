@@ -110,7 +110,7 @@ public class CopyFileToGoogleDriveActivity extends BroadcastReceiver{
                         }
                         String extension = url.substring(url.indexOf(".") + 1);
                         String fileType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
-                        Log.e(GOOGLE_DRIVE_TAG, fileType);
+//                        Log.e(GOOGLE_DRIVE_TAG, fileType);
                         String[] arr = url.split("/");
                         String fileName = arr[arr.length - 1].substring(0, arr[arr.length - 1].indexOf("."));
 

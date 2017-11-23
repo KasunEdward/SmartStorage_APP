@@ -16,6 +16,7 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
+import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -364,7 +365,8 @@ public class MainActivity extends AppCompatActivity
                     Log.i(GOOGLE_DRIVE_TAG,"mGoogleApiClient is null...");
                 }
                 Intent alarmReceiver = new Intent(this.getApplicationContext(),CopyFileToGoogleDriveActivity.class);
-                ArrayList<String> fileList = getFiles();
+                DatabaseHandler db_getList=DatabaseHandler.getDbInstance(context);
+                ArrayList<String> fileList = db_getList.getFilesToMigrate();
                 fileList.add("/storage/emulated/0/Prefetch/Pic1.jpg");
                 alarmReceiver.putStringArrayListExtra("copyingListToGD",fileList);
                 alarmReceiver.setAction("com.smartStorage.copytoGD");
@@ -374,8 +376,8 @@ public class MainActivity extends AppCompatActivity
                 if (PendingIntent.getBroadcast(this, 0 , alarmReceiver, PendingIntent.FLAG_NO_CREATE) == null) {
                     PendingIntent pi = PendingIntent.getBroadcast(this, 0, alarmReceiver, PendingIntent.FLAG_UPDATE_CURRENT);
                     AlarmManager am = (AlarmManager) this.getSystemService(ALARM_SERVICE);
-//                    am.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_HOUR, pi);
-                    am.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis()+60000,pi);
+                    am.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis()+30000, AlarmManager.INTERVAL_HALF_DAY, pi);
+//                    am.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis()+30000,pi);
                 }
 //              Intent for check low storage
 
@@ -524,11 +526,15 @@ public class MainActivity extends AppCompatActivity
         //noinspection SimplifiableIfStatement
         switch (id) {
             case R.id.action_settings:
-//                Intent alarmReceiver = new Intent(this.getApplicationContext(),CopyFileToDropboxActivity.class);
-//                ArrayList<String> fileList = getFiles();
-//                alarmReceiver.putStringArrayListExtra("copyingListToDB",fileList);
-//                alarmReceiver.setAction("com.smartStorage.copytoDB");
-//                getApplicationContext().sendBroadcast(alarmReceiver);
+                Intent alarmReceiver = new Intent(this.getApplicationContext(),CopyFileToGoogleDriveActivity.class);
+                DatabaseHandler get_GD=DatabaseHandler.getDbInstance(context);
+                ArrayList<String> fileList = get_GD.getFilesToMigrate();
+                Log.d("List size...:",String.valueOf(fileList.size()));
+                fileList.add("/storage/emulated/0/Prefetch/Pic1.jpg");
+//                ArrayList<String> newFileList=new ArrayList(fileList.subList(0,4));
+                alarmReceiver.putStringArrayListExtra("copyingListToGD",fileList);
+                alarmReceiver.setAction("com.smartStorage.copytoGD");
+                getApplicationContext().sendBroadcast(alarmReceiver);
 
 //                String fileUrl="/storage/emulated/0/Prefetch/Pic1.jpg";
 //                DatabaseHandler db_new=DatabaseHandler.getDbInstance(context);

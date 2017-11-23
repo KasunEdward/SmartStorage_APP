@@ -27,7 +27,7 @@ public class DeleteFilesActivity extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         DatabaseHandler db=DatabaseHandler.getDbInstance(context);
         ArrayList<String> arl=db.getListOfFilesToBeDeleted();
-        Log.d("delete file size:..",String.valueOf(arl.size()));
+        Log.d("delete file list:..",String.valueOf(arl.size()));
 //        int listSize=arl.size();
         DeleteFilesActivity.isDeleting=true;
         int listSize=3;
