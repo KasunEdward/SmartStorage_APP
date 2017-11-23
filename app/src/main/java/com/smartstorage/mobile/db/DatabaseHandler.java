@@ -314,9 +314,25 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         return fileToMigrate;
     }
 
+    public ArrayList<String> getFilesToManualDemo() {
+        ArrayList<String> fileToMigrate = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT " + KEY_FILE_NAME + " FROM " + TABLE_FILE_DETAILS + " WHERE LOWER(" + KEY_FILE_NAME + ") LIKE '%/prefetch demo /%'";
+        Cursor cursor = db.rawQuery(query, null);
+        if (cursor.moveToFirst()) {
+            fileToMigrate.add(cursor.getString(0));
+            while (cursor.moveToNext()) {
+                fileToMigrate.add(cursor.getString(0));
+            }
+        }
+        //db.close();
+        Log.e(LOG_TAG, "num of files to migrate" + fileToMigrate.size());
+        return fileToMigrate;
+    }
+
     public void updateNeverDeleteStatus(String fileUrl) {
         ContentValues cv = new ContentValues();
-        cv.put(KEY_NEVER_DELETE, "TRUE");
+        cv.put(KEY_NEVER_DELETE, "true");
 
         SQLiteDatabase db = this.getWritableDatabase();
         db.update(TABLE_FILE_DETAILS, cv, "file_name=?", new String[]{fileUrl});
@@ -324,7 +340,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     public void updateNeverCopyStatus(String fileUrl){
         ContentValues cv=new ContentValues();
-        cv.put(KEY_NEVER_COPY,"TRUE");
+        cv.put(KEY_NEVER_COPY,"true");
 
         SQLiteDatabase db=this.getWritableDatabase();
         db.update(TABLE_FILE_DETAILS,cv,"file_name=?",new String[]{fileUrl});
