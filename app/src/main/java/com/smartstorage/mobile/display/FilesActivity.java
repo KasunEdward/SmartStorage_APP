@@ -48,7 +48,9 @@ public class FilesActivity extends AppCompatActivity {
         ArrayList fileNames = dbHandler.getFilesToMigrate();
         ArrayList fileSizes = dbHandler.getAllFileSizes();
         FileDetail fileDetails;
+        fileDetailList.clear();
         for (int i=0;i<fileNames.size();i++){
+
             String fileName = String.valueOf(fileNames.get(i));
 //            fileName = fileName.substring(fileName.lastIndexOf('/')+1, fileName.length());
             double size = Double.valueOf(String.valueOf(fileSizes.get(i)));

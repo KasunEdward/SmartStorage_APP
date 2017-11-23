@@ -64,6 +64,7 @@ import com.smartstorage.mobile.db.DatabaseHandler;
 import com.smartstorage.mobile.display.DemoMigrationValActivity;
 import com.smartstorage.mobile.display.FilesActivity;
 import com.smartstorage.mobile.display.FilesByTypeActivity;
+import com.smartstorage.mobile.machine_learning.RestAPI;
 import com.smartstorage.mobile.service.MigrationService;
 import com.smartstorage.mobile.service.MigrationValUpdateThread;
 import com.smartstorage.mobile.service.MigrationValueUpdateAlarm;
@@ -564,6 +565,11 @@ public class MainActivity extends AppCompatActivity
                     Log.i("dddddddd...:","true");
                 }
                 else Log.i("dddddd..","False");
+                break;
+            }
+            case R.id.action_inference: {
+                Log.i("menu...:","prefetching");
+                new RestAPI().execute();
                 break;
             }
             case R.id.action_viewMigration:{
