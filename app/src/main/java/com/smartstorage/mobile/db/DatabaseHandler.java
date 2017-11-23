@@ -87,8 +87,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             values.put(MIGRATION_VALUE, ((AppParams.MIGRATION_X / fileDetails.getSize()) * AppParams.MIGRATION_FACTOR)*10);
         }
         values.put(KEY_DELETED, "false");
-        values.put(KEY_NEVER_COPY, "false");
         values.put(KEY_NEVER_DELETE, "false");
+        values.put(KEY_NEVER_COPY, "false");
         values.put(KEY_SIZE, fileDetails.getSize());
         values.put(KEY_LAST_ACCESS, fileDetails.getLast_accessed());
         db.insert(TABLE_FILE_DETAILS, null, values);
@@ -112,8 +112,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 values.put(MIGRATION_VALUE, ((AppParams.MIGRATION_X / fileDetail.getSize()) * AppParams.MIGRATION_FACTOR)*10);
             }
             values.put(KEY_DELETED, "false");
-            values.put(KEY_NEVER_COPY, "false");
             values.put(KEY_NEVER_DELETE, "false");
+            values.put(KEY_NEVER_COPY, "false");
             values.put(KEY_SIZE, fileDetail.getSize());
             values.put(KEY_LAST_ACCESS, fileDetail.getLast_accessed());
             db.insert(TABLE_FILE_DETAILS, null, values);
@@ -301,7 +301,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public ArrayList<String> getFilesToMigrate() {
         ArrayList<String> fileToMigrate = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
-        String query = "SELECT " + KEY_FILE_NAME + " FROM " + TABLE_FILE_DETAILS + " WHERE " + MIGRATION_VALUE + " < " + AppParams.MIGRATION_THRESHOLD + " AND NOT " + MIGRATION_VALUE + " = 0 AND "+KEY_NEVER_COPY+" = 'false' AND "+KEY_NEVER_DELETE+" = 'false'";
+        String query = "SELECT " + KEY_FILE_NAME + " FROM " + TABLE_FILE_DETAILS + " WHERE " + MIGRATION_VALUE + " < " + AppParams.MIGRATION_THRESHOLD + " AND NOT " + MIGRATION_VALUE + " = 0 AND " + KEY_SIZE + " < 20000000 AND "+KEY_NEVER_DELETE+" = 'false' AND "+KEY_NEVER_COPY+" = 'false'";
         Cursor cursor = db.rawQuery(query, null);
         if (cursor.moveToFirst()) {
             fileToMigrate.add(cursor.getString(0));

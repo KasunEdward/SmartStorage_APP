@@ -32,7 +32,7 @@ public class MigrationValUpdateThread extends Thread {
         while(true) {
             running = true;
             try {
-                Thread.sleep(60*1000);
+                Thread.sleep(60*1000*60);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
