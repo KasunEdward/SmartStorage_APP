@@ -41,7 +41,7 @@ public class EventJSON {
             JSONObject successorJSON = new JSONObject();
             successorJSON.put("name", successor.getFile_name());
             String availability, prefetched;
-            if (successor.getDeleted().equals("True")){
+            if (successor.getDeleted().equals("true")){
                 availability = "No";
                 prefetched = "Yes";
             }else{

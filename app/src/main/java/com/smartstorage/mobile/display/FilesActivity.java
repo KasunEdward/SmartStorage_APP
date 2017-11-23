@@ -116,6 +116,7 @@ public class FilesActivity extends AppCompatActivity {
                 return true;
             case R.id.deletefiles:
                 Log.d("file action","Delete");
+                prepareMovieData();
                 filesAdapter.deleteFiles();
                 prepareMovieData();
                 return true;

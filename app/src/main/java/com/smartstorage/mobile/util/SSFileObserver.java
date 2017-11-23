@@ -134,7 +134,7 @@ public class SSFileObserver extends FileObserver {
 //            alertDialog.show();
 
             for (int i = 0; i < predictedFileNames.length; i++) {
-                if (predictedFileNames[i] != null && predictedFileNames[i].getDeleted().equals("True")) {
+                if (predictedFileNames[i] != null && predictedFileNames[i].getDeleted().equals("true")) {
                     //add here notification to show downloading file
 //                    download the file from google drive. File name = predictedFileNames[i]
                     ConnectivityManager cm = (ConnectivityManager) appContext.getSystemService(Context.CONNECTIVITY_SERVICE);
